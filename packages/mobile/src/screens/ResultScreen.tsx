@@ -20,6 +20,7 @@ import { useAppStore } from '../store/useAppStore';
 import { useProStore } from '../store/useProStore';
 import { trackEvent } from '../services/analytics';
 import { useChallengeStore } from '../store/useChallengeStore';
+import { api } from '../api/client';
 import { colors, spacing, borderRadius, typography } from '../styles/theme';
 import { nanoid } from '../utils/id';
 
@@ -110,23 +111,24 @@ export default function ResultScreen() {
     });
   }, [resultUrl, stylePack, params.styleId, currentStreak, navigation]);
 
-  // Share as template (remix deep link)
+  // Share as template (remix deep link via short code)
   const handleShareTemplate = useCallback(async () => {
-    const templateData = encodeURIComponent(JSON.stringify({
-      styleId: params.styleId,
-      sliders: params.sliders,
-      toggles: params.toggles,
-      styleOptions: params.styleOptions,
-    }));
-    const deepLink = `https://quippix.app/remix?t=${templateData}`;
-
     try {
+      const { url } = await api.createRemix({
+        styleId: params.styleId,
+        sliders: params.sliders,
+        toggles: params.toggles,
+        styleOptions: params.styleOptions,
+      });
+
+      trackEvent('remix_created', { styleId: params.styleId });
+
       await Share.open({
         title: 'Try this QuipPix style!',
-        message: `Try my ${stylePack.displayName} style in QuipPix! ${deepLink}`,
+        message: `Try my ${stylePack.displayName} style in QuipPix! ${url}`,
       });
     } catch {
-      // User cancelled
+      // User cancelled or API error
     }
   }, [params, stylePack]);
 

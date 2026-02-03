@@ -1,4 +1,4 @@
-import { GenerateParams, JobStatusResponse, BatchStatusResponse, ChallengeResponse } from '../types';
+import { GenerateParams, JobStatusResponse, BatchStatusResponse, ChallengeResponse, RemixTemplate, RemixResponse } from '../types';
 
 const API_BASE = __DEV__
   ? 'http://localhost:3000'
@@ -202,6 +202,38 @@ class ApiClient {
 
     if (!res.ok) {
       throw new ApiError(res.status, 'Failed to submit challenge');
+    }
+
+    return res.json();
+  }
+
+  /**
+   * POST /remix
+   * Creates a remix short code from style template
+   */
+  async createRemix(template: RemixTemplate): Promise<{ code: string; url: string }> {
+    const res = await fetch(`${this.baseUrl}/remix`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(template),
+    });
+
+    if (!res.ok) {
+      throw new ApiError(res.status, 'Failed to create remix link');
+    }
+
+    return res.json();
+  }
+
+  /**
+   * GET /remix/:code
+   * Retrieves remix template by short code
+   */
+  async getRemix(code: string): Promise<RemixResponse> {
+    const res = await fetch(`${this.baseUrl}/remix/${code}`);
+
+    if (!res.ok) {
+      throw new ApiError(res.status, 'Remix not found or expired');
     }
 
     return res.json();

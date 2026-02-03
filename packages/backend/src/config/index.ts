@@ -72,4 +72,9 @@ export const config = {
   challenge: {
     poolSize: envInt('CHALLENGE_POOL_SIZE', 90),
   },
+
+  remix: {
+    codeTtlDays: envInt('REMIX_CODE_TTL_DAYS', 90),
+    codeLength: envInt('REMIX_CODE_LENGTH', 8),
+  },
 } as const;

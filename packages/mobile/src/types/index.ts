@@ -171,6 +171,22 @@ export interface ChallengeCompletion {
   completedAt: string;
 }
 
+// ─── Remix ──────────────────────────────────────────────────────────
+export interface RemixTemplate {
+  styleId: StyleId;
+  sliders: CommonSliders;
+  toggles: Toggles;
+  styleOptions?: StyleSpecificOptions;
+  creatorName?: string;
+}
+
+export interface RemixResponse {
+  code: string;
+  template: RemixTemplate;
+  createdAt: string;
+  views: number;
+}
+
 // ─── Navigation ──────────────────────────────────────────────────────
 export type RootStackParamList = {
   MainTabs: undefined;
@@ -188,6 +204,7 @@ export type RootStackParamList = {
     challengeHashtag?: string;
     currentStreak?: number;
   };
+  Remix: { code: string };
   Paywall: { trigger: string; context?: string };
 };
 

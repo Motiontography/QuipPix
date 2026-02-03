@@ -205,6 +205,23 @@ export interface ChallengeResponse {
   totalSubmissions: number;
 }
 
+// ─── Remix Template ─────────────────────────────────────────────────
+export const RemixTemplateSchema = z.object({
+  styleId: StyleId,
+  sliders: CommonSliders.default({}),
+  toggles: Toggles.default({}),
+  styleOptions: StyleSpecificOptions,
+  creatorName: z.string().max(50).optional(),
+});
+export type RemixTemplate = z.infer<typeof RemixTemplateSchema>;
+
+export interface RemixRecord {
+  code: string;
+  template: RemixTemplate;
+  createdAt: string;
+  views: number;
+}
+
 // ─── Storage metadata ────────────────────────────────────────────────
 export interface StoredFile {
   key: string;

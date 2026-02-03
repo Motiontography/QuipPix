@@ -19,6 +19,7 @@ import ShareCardScreen from '../screens/ShareCardScreen';
 import PaywallScreen from '../screens/PaywallScreen';
 import BatchGeneratingScreen from '../screens/BatchGeneratingScreen';
 import BatchResultsScreen from '../screens/BatchResultsScreen';
+import RemixScreen from '../screens/RemixScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -64,9 +65,18 @@ function MainTabs() {
   );
 }
 
+const linking = {
+  prefixes: ['https://quippix.app', 'quippix://'],
+  config: {
+    screens: {
+      Remix: 'remix/:code',
+    },
+  },
+};
+
 export default function AppNavigator() {
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
@@ -82,6 +92,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Result" component={ResultScreen} />
         <Stack.Screen name="BatchResults" component={BatchResultsScreen} />
         <Stack.Screen name="ShareCard" component={ShareCardScreen} />
+        <Stack.Screen name="Remix" component={RemixScreen} />
         <Stack.Screen
           name="Paywall"
           component={PaywallScreen}

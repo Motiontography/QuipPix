@@ -18,7 +18,10 @@ type AnalyticsEvent =
   | 'share_card_opened'
   | 'share_card_template_selected'
   | 'share_card_shared'
-  | 'share_card_saved';
+  | 'share_card_saved'
+  | 'remix_created'
+  | 'remix_opened'
+  | 'remix_photo_selected';
 
 interface EventPayload {
   event: AnalyticsEvent;
