@@ -68,4 +68,8 @@ export const config = {
   batch: {
     maxBatchSize: envInt('BATCH_MAX_SIZE', 10),
   },
+
+  challenge: {
+    poolSize: envInt('CHALLENGE_POOL_SIZE', 90),
+  },
 } as const;

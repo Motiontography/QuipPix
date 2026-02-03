@@ -23,14 +23,21 @@ type Route = RouteProp<RootStackParamList, 'StyleSelect'>;
 export default function StyleSelectScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
-  const { imageUri, imageUris } = route.params;
+  const { imageUri, imageUris, challengeId, preselectedStyleId } = route.params;
   const { isPro, guardStyle } = usePaywallGuard();
 
   const [selectedCategory, setSelectedCategory] = useState<string>(styleCategories[0]);
 
+  // Auto-navigate if preselected style from challenge
+  React.useEffect(() => {
+    if (preselectedStyleId) {
+      navigation.replace('Customize', { imageUri, styleId: preselectedStyleId, imageUris, challengeId });
+    }
+  }, [preselectedStyleId, imageUri, imageUris, challengeId, navigation]);
+
   const handleSelectStyle = (styleId: StyleId) => {
     if (!guardStyle(styleId)) return;
-    navigation.navigate('Customize', { imageUri, styleId, imageUris });
+    navigation.navigate('Customize', { imageUri, styleId, imageUris, challengeId });
   };
 
   return (

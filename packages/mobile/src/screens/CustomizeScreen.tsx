@@ -52,7 +52,7 @@ const OUTPUT_SIZES = [
 export default function CustomizeScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
-  const { imageUri, styleId, imageUris } = route.params;
+  const { imageUri, styleId, imageUris, challengeId } = route.params;
   const isBatch = imageUris && imageUris.length > 1;
   const stylePack = getStylePack(styleId);
   const { lastSliders, lastToggles, saveLastSettings } = useAppStore();
@@ -128,9 +128,10 @@ export default function CustomizeScreen() {
       navigation.navigate('Generating', {
         imageUri,
         params: genParams,
+        challengeId,
       });
     }
-  }, [sliders, toggles, userPrompt, comicOpts, magazineOpts, headshotOpts, proSliders, outputSize, styleId, imageUri, navigation, saveLastSettings]);
+  }, [sliders, toggles, userPrompt, comicOpts, magazineOpts, headshotOpts, proSliders, outputSize, styleId, imageUri, challengeId, navigation, saveLastSettings]);
 
   return (
     <SafeAreaView style={styles.container}>

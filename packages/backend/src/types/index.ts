@@ -180,6 +180,31 @@ export interface BatchStatusResponse {
   createdAt: string;
 }
 
+// ─── Daily Challenge ────────────────────────────────────────────────
+export interface DailyChallenge {
+  id: string;
+  date: string; // YYYY-MM-DD
+  title: string;
+  description: string;
+  creativePrompt: string;
+  suggestedStyleId: StyleId;
+  icon: string;
+  hashtag: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  bonusConstraint?: string;
+}
+
+export interface ChallengeSubmission {
+  challengeId: string;
+  jobId: string;
+  submittedAt: string;
+}
+
+export interface ChallengeResponse {
+  challenge: DailyChallenge;
+  totalSubmissions: number;
+}
+
 // ─── Storage metadata ────────────────────────────────────────────────
 export interface StoredFile {
   key: string;

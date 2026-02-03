@@ -143,12 +143,40 @@ export interface BatchResultItem {
   params: GenerateParams;
 }
 
+// ─── Daily Challenge ────────────────────────────────────────────────
+export interface DailyChallenge {
+  id: string;
+  date: string;
+  title: string;
+  description: string;
+  creativePrompt: string;
+  suggestedStyleId: StyleId;
+  icon: string;
+  hashtag: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  bonusConstraint?: string;
+}
+
+export interface ChallengeResponse {
+  challenge: DailyChallenge;
+  totalSubmissions: number;
+}
+
+export interface ChallengeCompletion {
+  challengeId: string;
+  date: string;
+  jobId: string;
+  resultUrl: string;
+  styleId: StyleId;
+  completedAt: string;
+}
+
 // ─── Navigation ──────────────────────────────────────────────────────
 export type RootStackParamList = {
   MainTabs: undefined;
-  StyleSelect: { imageUri: string; imageUris?: string[] };
-  Customize: { imageUri: string; styleId: StyleId; imageUris?: string[] };
-  Generating: { imageUri: string; params: GenerateParams };
+  StyleSelect: { imageUri: string; imageUris?: string[]; challengeId?: string; preselectedStyleId?: StyleId };
+  Customize: { imageUri: string; styleId: StyleId; imageUris?: string[]; challengeId?: string };
+  Generating: { imageUri: string; params: GenerateParams; challengeId?: string };
   BatchGenerating: { imageUris: string[]; params: GenerateParams };
   Result: { jobId: string; resultUrl: string; params: GenerateParams };
   BatchResults: { results: BatchResultItem[]; params: GenerateParams };

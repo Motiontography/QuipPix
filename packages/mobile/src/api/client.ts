@@ -1,4 +1,4 @@
-import { GenerateParams, JobStatusResponse, BatchStatusResponse } from '../types';
+import { GenerateParams, JobStatusResponse, BatchStatusResponse, ChallengeResponse } from '../types';
 
 const API_BASE = __DEV__
   ? 'http://localhost:3000'
@@ -170,6 +170,41 @@ class ApiClient {
     }
 
     throw new ApiError(408, 'Generation timed out');
+  }
+
+  /**
+   * GET /challenge/today
+   * Returns today's daily challenge
+   */
+  async getTodayChallenge(): Promise<ChallengeResponse> {
+    const res = await fetch(`${this.baseUrl}/challenge/today`);
+
+    if (!res.ok) {
+      throw new ApiError(res.status, 'Failed to get daily challenge');
+    }
+
+    return res.json();
+  }
+
+  /**
+   * POST /challenge/submit
+   * Records a challenge submission
+   */
+  async submitChallenge(
+    challengeId: string,
+    jobId: string,
+  ): Promise<{ success: boolean; totalSubmissions: number }> {
+    const res = await fetch(`${this.baseUrl}/challenge/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ challengeId, jobId }),
+    });
+
+    if (!res.ok) {
+      throw new ApiError(res.status, 'Failed to submit challenge');
+    }
+
+    return res.json();
   }
 }
 

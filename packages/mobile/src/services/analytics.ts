@@ -10,7 +10,11 @@ type AnalyticsEvent =
   | 'batch_completed'
   | 'batch_partial_failure'
   | 'batch_save_all'
-  | 'batch_share_all';
+  | 'batch_share_all'
+  | 'challenge_accepted'
+  | 'challenge_completed'
+  | 'challenge_shared'
+  | 'challenge_streak_updated';
 
 interface EventPayload {
   event: AnalyticsEvent;

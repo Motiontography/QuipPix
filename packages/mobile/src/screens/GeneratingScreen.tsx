@@ -14,6 +14,7 @@ import { RootStackParamList } from '../types';
 import { api, ApiError } from '../api/client';
 import { getStylePack } from '../services/stylePacks';
 import { useProStore } from '../store/useProStore';
+import { useChallengeStore } from '../store/useChallengeStore';
 import { trackEvent } from '../services/analytics';
 import { colors, spacing, typography, borderRadius } from '../styles/theme';
 
@@ -32,7 +33,7 @@ const FUN_MESSAGES = [
 export default function GeneratingScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
-  const { imageUri, params } = route.params;
+  const { imageUri, params, challengeId } = route.params;
   const stylePack = getStylePack(params.styleId);
 
   const entitlement = useProStore((s) => s.entitlement);
@@ -123,6 +124,22 @@ export default function GeneratingScreen() {
           incrementDailyGenerations();
           incrementSuccessfulGenerations();
           trackEvent('generation_completed', { styleId: params.styleId, tier });
+
+          // Record challenge completion if this was a challenge flow
+          if (challengeId) {
+            const today = new Date().toISOString().split('T')[0];
+            api.submitChallenge(challengeId, jobId).catch(() => {});
+            useChallengeStore.getState().addCompletion({
+              challengeId,
+              date: today,
+              jobId,
+              resultUrl: finalStatus.resultUrl,
+              styleId: params.styleId,
+              completedAt: new Date().toISOString(),
+            });
+            trackEvent('challenge_completed', { challengeId, styleId: params.styleId });
+          }
+
           navigation.replace('Result', {
             jobId,
             resultUrl: finalStatus.resultUrl,
@@ -145,7 +162,7 @@ export default function GeneratingScreen() {
     return () => {
       cancelled = true;
     };
-  }, [imageUri, params, navigation, entitlement, isDailyLimitReached, incrementDailyGenerations, incrementSuccessfulGenerations]);
+  }, [imageUri, params, challengeId, navigation, entitlement, isDailyLimitReached, incrementDailyGenerations, incrementSuccessfulGenerations]);
 
   const spinInterp = spinAnim.interpolate({
     inputRange: [0, 1],
