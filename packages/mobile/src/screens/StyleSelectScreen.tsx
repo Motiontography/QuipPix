@@ -23,14 +23,14 @@ type Route = RouteProp<RootStackParamList, 'StyleSelect'>;
 export default function StyleSelectScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
-  const { imageUri } = route.params;
+  const { imageUri, imageUris } = route.params;
   const { isPro, guardStyle } = usePaywallGuard();
 
   const [selectedCategory, setSelectedCategory] = useState<string>(styleCategories[0]);
 
   const handleSelectStyle = (styleId: StyleId) => {
     if (!guardStyle(styleId)) return;
-    navigation.navigate('Customize', { imageUri, styleId });
+    navigation.navigate('Customize', { imageUri, styleId, imageUris });
   };
 
   return (

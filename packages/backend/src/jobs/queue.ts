@@ -193,6 +193,27 @@ generateWorker.on('failed', (job, err) => {
   logger.error({ jobId: job?.data?.jobId, error: err.message }, 'Worker job failed');
 });
 
+// ─── Batch store ────────────────────────────────────────────────────
+const batchStore = new Map<
+  string,
+  { jobIds: string[]; createdAt: string }
+>();
+
+export function createBatch(batchId: string, jobIds: string[]): void {
+  batchStore.set(batchId, {
+    jobIds,
+    createdAt: new Date().toISOString(),
+  });
+}
+
+export function getBatchJobIds(batchId: string): string[] | undefined {
+  return batchStore.get(batchId)?.jobIds;
+}
+
+export function getBatchCreatedAt(batchId: string): string | undefined {
+  return batchStore.get(batchId)?.createdAt;
+}
+
 // ─── TTL cleanup scheduler ──────────────────────────────────────────
 import { cleanupExpired } from '../services/storage';
 

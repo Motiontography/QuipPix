@@ -12,12 +12,38 @@ import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
+import { usePaywallGuard } from '../hooks/usePaywallGuard';
+import ProBadge from '../components/ProBadge';
 import { colors, spacing, borderRadius, typography } from '../styles/theme';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'MainTabs'>;
 
 export default function HomeScreen() {
   const navigation = useNavigation<Nav>();
+  const { isPro, guardBatch } = usePaywallGuard();
+
+  const pickBatchImages = useCallback(async () => {
+    if (!guardBatch()) return;
+
+    const result = await launchImageLibrary({
+      mediaType: 'photo',
+      quality: 0.9,
+      maxWidth: 2048,
+      maxHeight: 2048,
+      selectionLimit: 10,
+    });
+
+    const uris = result.assets?.map((a) => a.uri).filter(Boolean) as string[] | undefined;
+    if (!uris || uris.length === 0) return;
+
+    if (uris.length === 1) {
+      // Single image — use normal flow
+      navigation.navigate('StyleSelect', { imageUri: uris[0] });
+    } else {
+      // Multiple images — pass through as batch
+      navigation.navigate('StyleSelect', { imageUri: uris[0], imageUris: uris });
+    }
+  }, [navigation, guardBatch]);
 
   const pickImage = useCallback(
     async (source: 'library' | 'camera') => {
@@ -64,6 +90,19 @@ export default function HomeScreen() {
           <Text style={styles.buttonIcon}>📷</Text>
           <Text style={styles.buttonText}>Take Photo</Text>
           <Text style={styles.buttonSub}>Use your camera</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, styles.batchButton]}
+          onPress={pickBatchImages}
+          activeOpacity={0.8}
+        >
+          <View style={styles.batchHeader}>
+            <Text style={styles.buttonIcon}>🖼️</Text>
+            {!isPro && <ProBadge size="small" />}
+          </View>
+          <Text style={styles.buttonText}>Batch Process</Text>
+          <Text style={styles.buttonSub}>Select up to 10 photos</Text>
         </TouchableOpacity>
       </View>
 
@@ -118,6 +157,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceLight,
     borderWidth: 1,
     borderColor: colors.primary + '40',
+  },
+  batchButton: {
+    backgroundColor: colors.surfaceLight,
+    borderWidth: 1,
+    borderColor: '#6C5CE740',
+  },
+  batchHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   buttonIcon: {
     fontSize: 32,

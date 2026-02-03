@@ -39,5 +39,11 @@ export function usePaywallGuard() {
     [isPro, navigation],
   );
 
-  return { isPro, guardStyle, guardExport, guardSlider };
+  const guardBatch = useCallback((): boolean => {
+    if (isPro) return true;
+    navigation.navigate('Paywall', { trigger: 'batch_process' });
+    return false;
+  }, [isPro, navigation]);
+
+  return { isPro, guardStyle, guardExport, guardSlider, guardBatch };
 }

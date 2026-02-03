@@ -64,4 +64,8 @@ export const config = {
     dailyGenerationLimit: envInt('FREE_DAILY_GENERATION_LIMIT', 5),
     cooldownMinutes: envInt('FREE_COOLDOWN_MINUTES', 30),
   },
+
+  batch: {
+    maxBatchSize: envInt('BATCH_MAX_SIZE', 10),
+  },
 } as const;

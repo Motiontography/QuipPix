@@ -7,12 +7,13 @@ import { logger } from './utils/logger';
 import { generateRoutes } from './routes/generate';
 import { statusRoutes } from './routes/status';
 import { healthRoutes } from './routes/health';
+import { batchRoutes } from './routes/batch';
 import { startCleanupScheduler, stopCleanupScheduler } from './jobs/queue';
 
 async function start() {
   const app = Fastify({
     logger: false, // We use our own pino logger
-    bodyLimit: 25 * 1024 * 1024, // 25MB
+    bodyLimit: 100 * 1024 * 1024, // 100MB (batch processing up to 10 images)
   });
 
   // Plugins
@@ -24,7 +25,7 @@ async function start() {
   await app.register(multipart, {
     limits: {
       fileSize: 20 * 1024 * 1024, // 20MB per file
-      files: 1,
+      files: 10,
     },
   });
 
@@ -37,6 +38,7 @@ async function start() {
   await app.register(healthRoutes);
   await app.register(generateRoutes);
   await app.register(statusRoutes);
+  await app.register(batchRoutes);
 
   // Error handler
   app.setErrorHandler((error, request, reply) => {
