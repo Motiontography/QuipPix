@@ -1,0 +1,134 @@
+// ─── Style IDs (mirrors backend) ─────────────────────────────────────
+export type StyleId =
+  | 'caricature-classic'
+  | 'caricature-subtle'
+  | 'caricature-editorial'
+  | 'comic-book'
+  | 'pop-art'
+  | 'pencil-clean'
+  | 'pencil-gritty'
+  | 'watercolor'
+  | 'oil-painting'
+  | 'anime-inspired'
+  | 'cyberpunk-neon'
+  | 'magazine-cover'
+  | 'pro-headshot'
+  | 'dreamy-portrait'
+  | 'editorial-fashion';
+
+// ─── Style Pack ──────────────────────────────────────────────────────
+export interface StylePack {
+  id: StyleId;
+  displayName: string;
+  category: string;
+  icon: string; // emoji placeholder; swap for asset
+  description: string;
+  previewColor: string;
+  proOnly: boolean;
+}
+
+// ─── Pro types ───────────────────────────────────────────────────────
+export type ProType = 'monthly' | 'annual' | 'lifetime';
+
+export interface Entitlement {
+  proActive: boolean;
+  proType: ProType | null;
+  expiresAt: string | null;
+}
+
+export interface ProSliders {
+  microDetail?: number;
+  studioRelight?: number;
+  backgroundPro?: number;
+}
+
+// ─── Sliders ─────────────────────────────────────────────────────────
+export type ColorMood = 'warm' | 'cool' | 'vibrant' | 'mono';
+
+export interface CommonSliders {
+  intensity: number;
+  faceFidelity: number;
+  backgroundStrength: number;
+  colorMood: ColorMood;
+  detail: number;
+}
+
+export interface Toggles {
+  keepIdentity: boolean;
+  preserveSkinTone: boolean;
+}
+
+// ─── Style-specific ──────────────────────────────────────────────────
+export interface ComicOptions {
+  lineWeight: number;
+  halftoneAmount: number;
+}
+
+export interface MagazineOptions {
+  mastheadText: string;
+  coverLines: string[];
+  issueDate: string;
+  showBarcode: boolean;
+}
+
+export interface HeadshotOptions {
+  backdropColor: string;
+  softness: number;
+  vignette: number;
+}
+
+export interface StyleSpecificOptions {
+  comic?: ComicOptions;
+  magazine?: MagazineOptions;
+  headshot?: HeadshotOptions;
+}
+
+// ─── Generation ──────────────────────────────────────────────────────
+export interface GenerateParams {
+  styleId: StyleId;
+  sliders: CommonSliders;
+  toggles: Toggles;
+  userPrompt?: string;
+  styleOptions?: StyleSpecificOptions;
+  proSliders?: ProSliders;
+  outputSize?: string;
+}
+
+export type JobStatus = 'queued' | 'running' | 'done' | 'failed';
+
+export interface JobStatusResponse {
+  jobId: string;
+  status: JobStatus;
+  progress: number;
+  resultUrl?: string;
+  error?: string;
+  createdAt: string;
+}
+
+// ─── Gallery ─────────────────────────────────────────────────────────
+export interface GalleryItem {
+  id: string;
+  localUri: string;
+  styleId: StyleId;
+  styleName: string;
+  createdAt: string;
+  params: GenerateParams;
+}
+
+// ─── Navigation ──────────────────────────────────────────────────────
+export type RootStackParamList = {
+  MainTabs: undefined;
+  StyleSelect: { imageUri: string };
+  Customize: { imageUri: string; styleId: StyleId };
+  Generating: { imageUri: string; params: GenerateParams };
+  Result: { jobId: string; resultUrl: string; params: GenerateParams };
+  ShareCard: { localUri: string; styleName: string };
+  Paywall: { trigger: string; context?: string };
+};
+
+export type TabParamList = {
+  Home: undefined;
+  Gallery: undefined;
+  Challenges: undefined;
+  Settings: undefined;
+};

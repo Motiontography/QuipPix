@@ -1,0 +1,39 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+.env.*.local
+*.log
+*.tsbuildinfo
+
+# iOS
+packages/mobile/ios/Pods/
+packages/mobile/ios/build/
+*.xcworkspace
+!*.xcworkspace/contents.xcworkspacedata
+
+# Android
+packages/mobile/android/.gradle/
+packages/mobile/android/app/build/
+packages/mobile/android/build/
+*.apk
+*.aab
+*.keystore
+!debug.keystore
+
+# Metro
+.metro-health-check*
+
+# Testing
+coverage/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
