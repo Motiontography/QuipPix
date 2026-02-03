@@ -142,6 +142,44 @@ export interface StyleRecipe {
   parameterMapping: (sliders: CommonSliders, toggles: Toggles, options?: StyleSpecificOptions) => Record<string, string>;
 }
 
+// ─── Batch Generate Request ─────────────────────────────────────────
+export const BatchGenerateRequest = z.object({
+  styleId: StyleId,
+  sliders: CommonSliders.default({}),
+  toggles: Toggles.default({}),
+  userPrompt: z.string().max(500).optional(),
+  styleOptions: StyleSpecificOptions,
+  proSliders: ProSliders.optional(),
+  outputSize: z.enum([
+    '1024x1024', '1024x1792', '1792x1024',
+    '2048x2048', '2048x3584', '3584x2048',
+    '4096x4096',
+  ]).optional(),
+});
+export type BatchGenerateRequest = z.infer<typeof BatchGenerateRequest>;
+
+// ─── Batch Status ───────────────────────────────────────────────────
+export type BatchStatus = 'processing' | 'done' | 'partial_failure';
+
+export interface BatchJobStatus {
+  jobId: string;
+  status: JobStatus;
+  progress: number;
+  resultUrl?: string;
+  error?: string;
+}
+
+export interface BatchStatusResponse {
+  batchId: string;
+  status: BatchStatus;
+  totalJobs: number;
+  completedJobs: number;
+  failedJobs: number;
+  overallProgress: number;
+  jobs: BatchJobStatus[];
+  createdAt: string;
+}
+
 // ─── Storage metadata ────────────────────────────────────────────────
 export interface StoredFile {
   key: string;

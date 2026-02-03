@@ -17,6 +17,8 @@ import GeneratingScreen from '../screens/GeneratingScreen';
 import ResultScreen from '../screens/ResultScreen';
 import ShareCardScreen from '../screens/ShareCardScreen';
 import PaywallScreen from '../screens/PaywallScreen';
+import BatchGeneratingScreen from '../screens/BatchGeneratingScreen';
+import BatchResultsScreen from '../screens/BatchResultsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -76,7 +78,9 @@ export default function AppNavigator() {
         <Stack.Screen name="StyleSelect" component={StyleSelectScreen} />
         <Stack.Screen name="Customize" component={CustomizeScreen} />
         <Stack.Screen name="Generating" component={GeneratingScreen} />
+        <Stack.Screen name="BatchGenerating" component={BatchGeneratingScreen} />
         <Stack.Screen name="Result" component={ResultScreen} />
+        <Stack.Screen name="BatchResults" component={BatchResultsScreen} />
         <Stack.Screen name="ShareCard" component={ShareCardScreen} />
         <Stack.Screen
           name="Paywall"

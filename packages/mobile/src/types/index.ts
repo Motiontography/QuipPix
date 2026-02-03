@@ -115,13 +115,43 @@ export interface GalleryItem {
   params: GenerateParams;
 }
 
+// ─── Batch Types ────────────────────────────────────────────────────
+export type BatchStatus = 'processing' | 'done' | 'partial_failure';
+
+export interface BatchJobStatus {
+  jobId: string;
+  status: JobStatus;
+  progress: number;
+  resultUrl?: string;
+  error?: string;
+}
+
+export interface BatchStatusResponse {
+  batchId: string;
+  status: BatchStatus;
+  totalJobs: number;
+  completedJobs: number;
+  failedJobs: number;
+  overallProgress: number;
+  jobs: BatchJobStatus[];
+  createdAt: string;
+}
+
+export interface BatchResultItem {
+  jobId: string;
+  resultUrl: string;
+  params: GenerateParams;
+}
+
 // ─── Navigation ──────────────────────────────────────────────────────
 export type RootStackParamList = {
   MainTabs: undefined;
-  StyleSelect: { imageUri: string };
-  Customize: { imageUri: string; styleId: StyleId };
+  StyleSelect: { imageUri: string; imageUris?: string[] };
+  Customize: { imageUri: string; styleId: StyleId; imageUris?: string[] };
   Generating: { imageUri: string; params: GenerateParams };
+  BatchGenerating: { imageUris: string[]; params: GenerateParams };
   Result: { jobId: string; resultUrl: string; params: GenerateParams };
+  BatchResults: { results: BatchResultItem[]; params: GenerateParams };
   ShareCard: { localUri: string; styleName: string };
   Paywall: { trigger: string; context?: string };
 };

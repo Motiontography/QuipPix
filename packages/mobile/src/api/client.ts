@@ -1,4 +1,4 @@
-import { GenerateParams, JobStatusResponse } from '../types';
+import { GenerateParams, JobStatusResponse, BatchStatusResponse } from '../types';
 
 const API_BASE = __DEV__
   ? 'http://localhost:3000'
@@ -69,6 +69,82 @@ class ApiClient {
    */
   async deleteJob(jobId: string): Promise<void> {
     await fetch(`${this.baseUrl}/job/${jobId}`, { method: 'DELETE' });
+  }
+
+  /**
+   * POST /batch-generate
+   * Uploads multiple images + shared params, returns batchId + jobIds
+   */
+  async batchGenerate(
+    imageUris: string[],
+    params: GenerateParams,
+  ): Promise<{ batchId: string; jobIds: string[] }> {
+    const formData = new FormData();
+
+    imageUris.forEach((uri, i) => {
+      formData.append(`image_${i}`, {
+        uri,
+        type: 'image/png',
+        name: `photo_${i}.png`,
+      } as any);
+    });
+
+    formData.append('params', JSON.stringify(params));
+
+    const res = await fetch(`${this.baseUrl}/batch-generate`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'X-QuipPix-Tier': 'pro',
+      },
+    });
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({ error: 'Unknown error' }));
+      throw new ApiError(res.status, body.error || body.message || 'Batch generation failed', body);
+    }
+
+    return res.json();
+  }
+
+  /**
+   * GET /batch-status/:batchId
+   * Returns aggregated batch status
+   */
+  async getBatchStatus(batchId: string): Promise<BatchStatusResponse> {
+    const res = await fetch(`${this.baseUrl}/batch-status/${batchId}`);
+
+    if (!res.ok) {
+      throw new ApiError(res.status, 'Failed to get batch status');
+    }
+
+    return res.json();
+  }
+
+  /**
+   * Poll batch status until done/partial_failure
+   */
+  async pollBatchUntilDone(
+    batchId: string,
+    onProgress: (status: BatchStatusResponse) => void,
+    intervalMs: number = 2500,
+    timeoutMs: number = 300_000,
+  ): Promise<BatchStatusResponse> {
+    const start = Date.now();
+
+    while (Date.now() - start < timeoutMs) {
+      const status = await this.getBatchStatus(batchId);
+      onProgress(status);
+
+      if (status.status === 'done' || status.status === 'partial_failure') {
+        return status;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, intervalMs));
+    }
+
+    throw new ApiError(408, 'Batch generation timed out');
   }
 
   /**

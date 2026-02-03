@@ -5,7 +5,12 @@ type AnalyticsEvent =
   | 'share_clicked'
   | 'post_platform_selected'
   | 'generation_completed'
-  | 'daily_limit_reached';
+  | 'daily_limit_reached'
+  | 'batch_started'
+  | 'batch_completed'
+  | 'batch_partial_failure'
+  | 'batch_save_all'
+  | 'batch_share_all';
 
 interface EventPayload {
   event: AnalyticsEvent;

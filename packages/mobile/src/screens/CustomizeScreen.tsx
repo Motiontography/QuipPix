@@ -9,6 +9,7 @@ import {
   Switch,
   SafeAreaView,
   Image,
+  FlatList,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -51,7 +52,8 @@ const OUTPUT_SIZES = [
 export default function CustomizeScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
-  const { imageUri, styleId } = route.params;
+  const { imageUri, styleId, imageUris } = route.params;
+  const isBatch = imageUris && imageUris.length > 1;
   const stylePack = getStylePack(styleId);
   const { lastSliders, lastToggles, saveLastSettings } = useAppStore();
   const { isPro, guardExport, guardSlider } = usePaywallGuard();
@@ -107,18 +109,27 @@ export default function CustomizeScreen() {
 
     const hasProSliders = Object.values(proSliders).some((v) => v != null && v > 0);
 
-    navigation.navigate('Generating', {
-      imageUri,
-      params: {
-        styleId,
-        sliders,
-        toggles,
-        userPrompt: userPrompt.trim() || undefined,
-        styleOptions: Object.keys(styleOptions).length > 0 ? styleOptions : undefined,
-        proSliders: hasProSliders ? proSliders : undefined,
-        outputSize: outputSize !== '1024x1024' ? outputSize : undefined,
-      },
-    });
+    const genParams = {
+      styleId,
+      sliders,
+      toggles,
+      userPrompt: userPrompt.trim() || undefined,
+      styleOptions: Object.keys(styleOptions).length > 0 ? styleOptions : undefined,
+      proSliders: hasProSliders ? proSliders : undefined,
+      outputSize: outputSize !== '1024x1024' ? outputSize : undefined,
+    };
+
+    if (isBatch) {
+      navigation.navigate('BatchGenerating', {
+        imageUris: imageUris!,
+        params: genParams,
+      });
+    } else {
+      navigation.navigate('Generating', {
+        imageUri,
+        params: genParams,
+      });
+    }
   }, [sliders, toggles, userPrompt, comicOpts, magazineOpts, headshotOpts, proSliders, outputSize, styleId, imageUri, navigation, saveLastSettings]);
 
   return (
@@ -136,9 +147,25 @@ export default function CustomizeScreen() {
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
         {/* Preview */}
-        <View style={styles.previewRow}>
-          <Image source={{ uri: imageUri }} style={styles.preview} />
-        </View>
+        {isBatch ? (
+          <View style={styles.batchPreviewRow}>
+            <FlatList
+              horizontal
+              data={imageUris}
+              keyExtractor={(_, i) => `batch-preview-${i}`}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.batchPreviewContent}
+              renderItem={({ item }) => (
+                <Image source={{ uri: item }} style={styles.batchPreviewThumb} />
+              )}
+            />
+            <Text style={styles.batchCount}>{imageUris!.length} photos selected</Text>
+          </View>
+        ) : (
+          <View style={styles.previewRow}>
+            <Image source={{ uri: imageUri }} style={styles.preview} />
+          </View>
+        )}
 
         {/* User prompt */}
         <View style={styles.section}>
@@ -491,6 +518,25 @@ const styles = StyleSheet.create({
     height: 160,
     borderRadius: borderRadius.lg,
     backgroundColor: colors.surface,
+  },
+  batchPreviewRow: {
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+  },
+  batchPreviewContent: {
+    paddingHorizontal: spacing.sm,
+    gap: spacing.sm,
+  },
+  batchPreviewThumb: {
+    width: 72,
+    height: 72,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.surface,
+  },
+  batchCount: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
   },
   section: {
     backgroundColor: colors.surface,

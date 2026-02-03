@@ -1,0 +1,224 @@
+import React, { useCallback } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  FlatList,
+  Image,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
+import Share from 'react-native-share';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList, BatchResultItem } from '../types';
+import { getStylePack } from '../services/stylePacks';
+import { useAppStore } from '../store/useAppStore';
+import { trackEvent } from '../services/analytics';
+import { colors, spacing, borderRadius, typography } from '../styles/theme';
+import { nanoid } from '../utils/id';
+
+type Nav = NativeStackNavigationProp<RootStackParamList, 'BatchResults'>;
+type Route = RouteProp<RootStackParamList, 'BatchResults'>;
+
+export default function BatchResultsScreen() {
+  const navigation = useNavigation<Nav>();
+  const route = useRoute<Route>();
+  const { results, params } = route.params;
+  const stylePack = getStylePack(params.styleId);
+  const { addToGallery } = useAppStore();
+
+  const totalRequested = results.length;
+  const hasPartialFailure = results.some((r) => !r.resultUrl);
+  const successfulResults = results.filter((r) => r.resultUrl);
+
+  const handleSaveAll = useCallback(async () => {
+    try {
+      for (const result of successfulResults) {
+        await addToGallery({
+          id: nanoid(),
+          localUri: result.resultUrl,
+          styleId: params.styleId,
+          styleName: stylePack.displayName,
+          createdAt: new Date().toISOString(),
+          params,
+        });
+      }
+      trackEvent('batch_save_all', { count: successfulResults.length });
+      Alert.alert('Saved!', `${successfulResults.length} images added to your gallery.`);
+    } catch {
+      Alert.alert('Error', 'Failed to save some images.');
+    }
+  }, [successfulResults, params, stylePack, addToGallery]);
+
+  const handleShareAll = useCallback(async () => {
+    try {
+      const urls = successfulResults.map((r) => r.resultUrl);
+      await Share.open({
+        urls,
+        title: `My ${stylePack.displayName} Batch - Made in QuipPix`,
+        message: `Check out my ${stylePack.displayName} batch made with QuipPix!`,
+      });
+      trackEvent('batch_share_all', { count: successfulResults.length });
+    } catch {
+      // User cancelled
+    }
+  }, [successfulResults, stylePack]);
+
+  const handleTapResult = useCallback(
+    (item: BatchResultItem) => {
+      navigation.navigate('Result', {
+        jobId: item.jobId,
+        resultUrl: item.resultUrl,
+        params: item.params,
+      });
+    },
+    [navigation],
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <Text style={styles.title}>{stylePack.displayName}</Text>
+          <Text style={styles.subtitle}>{successfulResults.length} results</Text>
+        </View>
+        <TouchableOpacity onPress={() => navigation.popToTop()}>
+          <Text style={styles.doneText}>Done</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Partial failure banner */}
+      {hasPartialFailure && (
+        <View style={styles.failureBanner}>
+          <Text style={styles.failureText}>
+            Some images failed to process. Successful results are shown below.
+          </Text>
+        </View>
+      )}
+
+      {/* Results grid */}
+      <FlatList
+        data={successfulResults}
+        keyExtractor={(item) => item.jobId}
+        numColumns={2}
+        contentContainerStyle={styles.grid}
+        columnWrapperStyle={styles.gridRow}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.resultCard}
+            onPress={() => handleTapResult(item)}
+            activeOpacity={0.8}
+          >
+            <Image source={{ uri: item.resultUrl }} style={styles.resultImage} />
+          </TouchableOpacity>
+        )}
+      />
+
+      {/* Action bar */}
+      <View style={styles.actionBar}>
+        <TouchableOpacity
+          style={[styles.actionBtn, styles.primaryAction]}
+          onPress={handleSaveAll}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.actionBtnText}>Save All</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.actionBtn, styles.secondaryAction]}
+          onPress={handleShareAll}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.secondaryActionText}>Share All</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  headerLeft: {},
+  title: {
+    ...typography.h3,
+    color: colors.textPrimary,
+  },
+  subtitle: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
+  doneText: {
+    ...typography.bodyBold,
+    color: colors.primary,
+  },
+  failureBanner: {
+    backgroundColor: '#FFA00020',
+    marginHorizontal: spacing.md,
+    padding: spacing.sm,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.sm,
+  },
+  failureText: {
+    ...typography.caption,
+    color: '#FFA000',
+    textAlign: 'center',
+  },
+  grid: {
+    padding: spacing.md,
+  },
+  gridRow: {
+    gap: spacing.md,
+    marginBottom: spacing.md,
+  },
+  resultCard: {
+    flex: 1,
+    aspectRatio: 1,
+    borderRadius: borderRadius.lg,
+    overflow: 'hidden',
+    backgroundColor: colors.surface,
+  },
+  resultImage: {
+    width: '100%',
+    height: '100%',
+  },
+  actionBar: {
+    flexDirection: 'row',
+    padding: spacing.md,
+    gap: spacing.md,
+    backgroundColor: colors.surface,
+    borderTopWidth: 1,
+    borderTopColor: colors.surfaceLight,
+  },
+  actionBtn: {
+    flex: 1,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.lg,
+    alignItems: 'center',
+  },
+  primaryAction: {
+    backgroundColor: colors.primary,
+  },
+  secondaryAction: {
+    backgroundColor: colors.surfaceLight,
+    borderWidth: 1,
+    borderColor: colors.primary + '40',
+  },
+  actionBtnText: {
+    ...typography.bodyBold,
+    color: colors.textPrimary,
+  },
+  secondaryActionText: {
+    ...typography.bodyBold,
+    color: colors.primary,
+  },
+});
