@@ -10,12 +10,18 @@ import {
   Alert,
   Linking,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList, GalleryItem } from '../types';
 import { useAppStore } from '../store/useAppStore';
 import { colors, spacing, borderRadius, typography } from '../styles/theme';
+
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 const SPOTLIGHT_INTERVAL = 7; // Show spotlight after every ~7 creations
 
 export default function GalleryScreen() {
+  const navigation = useNavigation<Nav>();
   const { gallery, removeFromGallery, clearGallery, loadGallery, creationCount } =
     useAppStore();
 
@@ -69,9 +75,16 @@ export default function GalleryScreen() {
           ListHeaderComponent={
             shouldShowSpotlight ? <SpotlightCarousel /> : null
           }
-          renderItem={({ item }) => (
+          renderItem={({ item }: { item: GalleryItem }) => (
             <TouchableOpacity
               style={styles.card}
+              onPress={() =>
+                navigation.navigate('ShareCard', {
+                  localUri: item.localUri,
+                  styleName: item.styleName,
+                  styleId: item.styleId,
+                })
+              }
               onLongPress={() => handleDelete(item.id)}
               activeOpacity={0.8}
             >

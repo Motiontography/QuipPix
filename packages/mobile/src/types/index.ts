@@ -180,7 +180,14 @@ export type RootStackParamList = {
   BatchGenerating: { imageUris: string[]; params: GenerateParams };
   Result: { jobId: string; resultUrl: string; params: GenerateParams };
   BatchResults: { results: BatchResultItem[]; params: GenerateParams };
-  ShareCard: { localUri: string; styleName: string };
+  ShareCard: {
+    localUri: string;
+    styleName: string;
+    styleId: StyleId;
+    challengeId?: string;
+    challengeHashtag?: string;
+    currentStreak?: number;
+  };
   Paywall: { trigger: string; context?: string };
 };
 

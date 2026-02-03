@@ -19,6 +19,7 @@ import { getStylePack } from '../services/stylePacks';
 import { useAppStore } from '../store/useAppStore';
 import { useProStore } from '../store/useProStore';
 import { trackEvent } from '../services/analytics';
+import { useChallengeStore } from '../store/useChallengeStore';
 import { colors, spacing, borderRadius, typography } from '../styles/theme';
 import { nanoid } from '../utils/id';
 
@@ -44,6 +45,7 @@ export default function ResultScreen() {
 
   const shouldShowSoftUpsell = useProStore((s) => s.shouldShowSoftUpsell);
   const dismissSoftUpsell = useProStore((s) => s.dismissSoftUpsell);
+  const currentStreak = useChallengeStore((s) => s.currentStreak);
 
   // Save to local gallery
   const handleSave = useCallback(async () => {
@@ -97,6 +99,16 @@ export default function ResultScreen() {
     trackEvent('share_clicked');
     setShowPlatformPicker(true);
   }, []);
+
+  // Navigate to share card builder
+  const handleShareCard = useCallback(() => {
+    navigation.navigate('ShareCard', {
+      localUri: resultUrl,
+      styleName: stylePack.displayName,
+      styleId: params.styleId,
+      currentStreak,
+    });
+  }, [resultUrl, stylePack, params.styleId, currentStreak, navigation]);
 
   // Share as template (remix deep link)
   const handleShareTemplate = useCallback(async () => {
@@ -172,14 +184,10 @@ export default function ResultScreen() {
       {/* Actions */}
       <View style={styles.actions}>
         <ActionButton icon="💾" label="Save" onPress={handleSave} primary />
+        <ActionButton icon="🎴" label="Card" onPress={handleShareCard} />
         <ActionButton icon="📤" label="Share" onPress={handleShare} />
         <ActionButton icon="📱" label="Post" onPress={handlePost} />
-        <ActionButton icon="🔗" label="Remix Link" onPress={handleShareTemplate} />
-        <ActionButton
-          icon="🔄"
-          label="Try Again"
-          onPress={() => navigation.goBack()}
-        />
+        <ActionButton icon="🔗" label="Remix" onPress={handleShareTemplate} />
       </View>
 
       {/* Platform Picker */}

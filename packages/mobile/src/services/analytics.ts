@@ -14,7 +14,11 @@ type AnalyticsEvent =
   | 'challenge_accepted'
   | 'challenge_completed'
   | 'challenge_shared'
-  | 'challenge_streak_updated';
+  | 'challenge_streak_updated'
+  | 'share_card_opened'
+  | 'share_card_template_selected'
+  | 'share_card_shared'
+  | 'share_card_saved';
 
 interface EventPayload {
   event: AnalyticsEvent;
