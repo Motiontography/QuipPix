@@ -95,6 +95,11 @@ function runMigrations(database: Database.Database): void {
       verified_at TEXT NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      created_at TEXT NOT NULL
+    );
+
     CREATE TABLE IF NOT EXISTS device_tokens (
       device_id TEXT PRIMARY KEY,
       app_user_id TEXT NOT NULL,

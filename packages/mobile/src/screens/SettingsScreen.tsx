@@ -21,6 +21,7 @@ import {
   setNotificationsEnabled,
   requestNotificationPermission,
 } from '../services/pushNotifications';
+import { getAppVersion, getBuildNumber } from '../services/appInfo';
 import { colors, spacing, borderRadius, typography } from '../styles/theme';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -68,11 +69,11 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <Text style={styles.title}>Settings</Text>
+        <Text style={styles.title} accessibilityRole="header">Settings</Text>
 
         {/* QuipPix Pro section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>QuipPix Pro</Text>
+          <Text style={styles.sectionTitle} accessibilityRole="header">QuipPix Pro</Text>
           {entitlement.proActive ? (
             <>
               <View style={styles.proStatusRow}>
@@ -95,11 +96,11 @@ export default function SettingsScreen() {
                   )}
                 </View>
               </View>
-              <TouchableOpacity style={styles.linkRow} onPress={handleManageSubscription}>
+              <TouchableOpacity style={styles.linkRow} onPress={handleManageSubscription} accessibilityLabel="Manage Subscription" accessibilityRole="button">
                 <Text style={styles.linkLabel}>Manage Subscription</Text>
                 <Text style={styles.linkArrow}>→</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.linkRow} onPress={handleRestore}>
+              <TouchableOpacity style={styles.linkRow} onPress={handleRestore} accessibilityLabel="Restore Purchases" accessibilityRole="button">
                 <Text style={styles.linkLabel}>Restore Purchases</Text>
                 <Text style={styles.linkArrow}>→</Text>
               </TouchableOpacity>
@@ -112,10 +113,12 @@ export default function SettingsScreen() {
               <TouchableOpacity
                 style={styles.upgradeBtn}
                 onPress={() => navigation.navigate('Paywall', { trigger: 'settings' })}
+                accessibilityLabel="Upgrade to Pro"
+                accessibilityRole="button"
               >
                 <Text style={styles.upgradeBtnText}>Upgrade to Pro</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.linkRow} onPress={handleRestore}>
+              <TouchableOpacity style={styles.linkRow} onPress={handleRestore} accessibilityLabel="Restore Purchases" accessibilityRole="button">
                 <Text style={styles.linkLabel}>Restore Purchases</Text>
                 <Text style={styles.linkArrow}>→</Text>
               </TouchableOpacity>
@@ -125,7 +128,7 @@ export default function SettingsScreen() {
 
         {/* Export options */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Export</Text>
+          <Text style={styles.sectionTitle} accessibilityRole="header">Export</Text>
           <View style={styles.row}>
             <View style={styles.rowInfo}>
               <Text style={styles.rowLabel}>Watermark</Text>
@@ -138,13 +141,15 @@ export default function SettingsScreen() {
               onValueChange={setWatermarkEnabled}
               trackColor={{ false: colors.surfaceLight, true: colors.primary + '80' }}
               thumbColor={watermarkEnabled ? colors.primary : colors.textMuted}
+              accessibilityLabel="Watermark"
+              accessibilityHint="Add a small Made in QuipPix watermark to exports"
             />
           </View>
         </View>
 
         {/* Notifications */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Notifications</Text>
+          <Text style={styles.sectionTitle} accessibilityRole="header">Notifications</Text>
           <View style={styles.row}>
             <View style={styles.rowInfo}>
               <Text style={styles.rowLabel}>Daily Challenge Reminder</Text>
@@ -157,16 +162,20 @@ export default function SettingsScreen() {
               onValueChange={handleToggleNotifications}
               trackColor={{ false: colors.surfaceLight, true: colors.primary + '80' }}
               thumbColor={notificationsOn ? colors.primary : colors.textMuted}
+              accessibilityLabel="Daily Challenge Reminder"
+              accessibilityHint="Get notified about the daily challenge each morning"
             />
           </View>
         </View>
 
         {/* Activity */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Activity</Text>
+          <Text style={styles.sectionTitle} accessibilityRole="header">Activity</Text>
           <TouchableOpacity
             style={styles.linkRow}
             onPress={() => navigation.navigate('Stats')}
+            accessibilityLabel="Your Stats"
+            accessibilityRole="button"
           >
             <Text style={styles.linkLabel}>Your Stats</Text>
             <Text style={styles.linkArrow}>{'\u2192'}</Text>
@@ -175,7 +184,7 @@ export default function SettingsScreen() {
 
         {/* Privacy */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Privacy</Text>
+          <Text style={styles.sectionTitle} accessibilityRole="header">Privacy</Text>
           <Text style={styles.privacyNote}>
             Your photos are processed securely and automatically deleted from our servers
             within 1 hour. We strip all EXIF metadata before upload. No account required.
@@ -185,6 +194,8 @@ export default function SettingsScreen() {
             onPress={() => {
               clearGallery();
             }}
+            accessibilityLabel="Delete All Local Data"
+            accessibilityRole="button"
           >
             <Text style={styles.dangerText}>Delete All Local Data</Text>
           </TouchableOpacity>
@@ -192,11 +203,13 @@ export default function SettingsScreen() {
 
         {/* About */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>About</Text>
+          <Text style={styles.sectionTitle} accessibilityRole="header">About</Text>
 
           <TouchableOpacity
             style={styles.linkRow}
             onPress={() => Linking.openURL('https://motiontography.com')}
+            accessibilityLabel="View Portfolio"
+            accessibilityRole="link"
           >
             <Text style={styles.linkLabel}>View Portfolio</Text>
             <Text style={styles.linkArrow}>→</Text>
@@ -205,6 +218,8 @@ export default function SettingsScreen() {
           <TouchableOpacity
             style={styles.linkRow}
             onPress={() => Linking.openURL('https://motiontography.com/contact')}
+            accessibilityLabel="Book a Real Shoot"
+            accessibilityRole="link"
           >
             <Text style={styles.linkLabel}>Book a Real Shoot</Text>
             <Text style={styles.linkArrow}>→</Text>
@@ -213,6 +228,8 @@ export default function SettingsScreen() {
           <TouchableOpacity
             style={styles.linkRow}
             onPress={() => Linking.openURL('https://quippix.app/privacy')}
+            accessibilityLabel="Privacy Policy"
+            accessibilityRole="link"
           >
             <Text style={styles.linkLabel}>Privacy Policy</Text>
             <Text style={styles.linkArrow}>→</Text>
@@ -221,6 +238,8 @@ export default function SettingsScreen() {
           <TouchableOpacity
             style={styles.linkRow}
             onPress={() => Linking.openURL('https://quippix.app/terms')}
+            accessibilityLabel="Terms of Service"
+            accessibilityRole="link"
           >
             <Text style={styles.linkLabel}>Terms of Service</Text>
             <Text style={styles.linkArrow}>→</Text>
@@ -229,7 +248,7 @@ export default function SettingsScreen() {
 
         {/* Version */}
         <View style={styles.versionBlock}>
-          <Text style={styles.versionText}>QuipPix v1.0.0</Text>
+          <Text style={styles.versionText}>QuipPix v{getAppVersion()} ({getBuildNumber()})</Text>
           <Text style={styles.versionSub}>by Motiontography</Text>
         </View>
       </ScrollView>

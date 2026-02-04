@@ -109,6 +109,7 @@ export interface JobStatusResponse {
 export interface GalleryItem {
   id: string;
   localUri: string;
+  resultUrl?: string;
   styleId: StyleId;
   styleName: string;
   createdAt: string;

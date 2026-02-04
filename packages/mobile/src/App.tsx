@@ -6,6 +6,7 @@ import { useAppStore } from './store/useAppStore';
 import { useProStore } from './store/useProStore';
 import { initPurchases, addEntitlementListener } from './services/purchases';
 import { registerForPushNotifications, onNotificationOpened } from './services/pushNotifications';
+import { initAuth } from './services/auth';
 import { colors } from './styles/theme';
 
 export default function App() {
@@ -30,9 +31,11 @@ export default function App() {
     return unsubscribe;
   }, [loadGallery, loadProState, refreshEntitlement, setEntitlement]);
 
-  // Push notifications
+  // Auth + Push notifications
   useEffect(() => {
-    registerForPushNotifications('anonymous').catch(() => {});
+    initAuth()
+      .then((userId) => registerForPushNotifications(userId))
+      .catch(() => {});
 
     const unsubscribeNotification = onNotificationOpened((data) => {
       // Navigate based on notification type (e.g., daily_challenge)

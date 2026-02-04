@@ -14,6 +14,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { usePaywallGuard } from '../hooks/usePaywallGuard';
 import ProBadge from '../components/ProBadge';
+import OfflineBanner from '../components/OfflineBanner';
 import { colors, spacing, borderRadius, typography } from '../styles/theme';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'MainTabs'>;
@@ -65,9 +66,10 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+      <OfflineBanner />
 
       <View style={styles.header}>
-        <Text style={styles.logo}>QuipPix</Text>
+        <Text style={styles.logo} accessibilityRole="header">QuipPix</Text>
         <Text style={styles.tagline}>Transform your photos into art</Text>
       </View>
 
@@ -76,6 +78,9 @@ export default function HomeScreen() {
           style={[styles.button, styles.primaryButton]}
           onPress={() => pickImage('library')}
           activeOpacity={0.8}
+          accessibilityLabel="Choose Photo"
+          accessibilityHint="Opens your photo library to select an image"
+          accessibilityRole="button"
         >
           <Text style={styles.buttonIcon}>🖼️</Text>
           <Text style={styles.buttonText}>Choose Photo</Text>
@@ -86,6 +91,9 @@ export default function HomeScreen() {
           style={[styles.button, styles.secondaryButton]}
           onPress={() => pickImage('camera')}
           activeOpacity={0.8}
+          accessibilityLabel="Take Photo"
+          accessibilityHint="Opens your camera to take a new photo"
+          accessibilityRole="button"
         >
           <Text style={styles.buttonIcon}>📷</Text>
           <Text style={styles.buttonText}>Take Photo</Text>
@@ -96,6 +104,9 @@ export default function HomeScreen() {
           style={[styles.button, styles.batchButton]}
           onPress={pickBatchImages}
           activeOpacity={0.8}
+          accessibilityLabel={`Batch Process${!isPro ? ', requires Pro' : ''}`}
+          accessibilityHint="Select multiple photos to process at once"
+          accessibilityRole="button"
         >
           <View style={styles.batchHeader}>
             <Text style={styles.buttonIcon}>🖼️</Text>

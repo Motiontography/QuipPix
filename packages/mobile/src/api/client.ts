@@ -7,6 +7,7 @@ const API_BASE = __DEV__
 class ApiClient {
   private baseUrl: string;
   private tier: 'free' | 'pro' = 'free';
+  private authToken: string | null = null;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
@@ -17,11 +18,24 @@ class ApiClient {
     this.tier = tier;
   }
 
-  /** Wrapper that auto-injects tier header */
+  /** Set JWT auth token — called from auth service */
+  setAuthToken(token: string): void {
+    this.authToken = token;
+  }
+
+  /** Get the base URL for direct fetch calls */
+  getBaseUrl(): string {
+    return this.baseUrl;
+  }
+
+  /** Wrapper that auto-injects tier and auth headers */
   private async request(url: string, init?: RequestInit): Promise<Response> {
     const headers = new Headers(init?.headers);
     if (!headers.has('X-QuipPix-Tier')) {
       headers.set('X-QuipPix-Tier', this.tier);
+    }
+    if (this.authToken && !headers.has('Authorization')) {
+      headers.set('Authorization', `Bearer ${this.authToken}`);
     }
     return fetch(url, { ...init, headers });
   }

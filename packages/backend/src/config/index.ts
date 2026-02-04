@@ -88,6 +88,16 @@ export const config = {
     windowSeconds: envInt('PER_USER_RATE_LIMIT_WINDOW', 60),
   },
 
+  jwt: {
+    secret: env('JWT_SECRET', 'quippix-dev-secret-change-in-production'),
+    expiresIn: env('JWT_EXPIRES_IN', '30d'),
+  },
+
+  firebase: {
+    serviceAccountPath: process.env.FIREBASE_SERVICE_ACCOUNT_PATH || undefined,
+    enabled: envBool('FIREBASE_ENABLED', false),
+  },
+
   revenuecat: {
     apiKey: env('REVENUECAT_API_KEY', 'sk_placeholder'),
     webhookSecret: env('REVENUECAT_WEBHOOK_SECRET', 'whsec_placeholder'),

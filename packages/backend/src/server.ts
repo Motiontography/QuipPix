@@ -13,8 +13,11 @@ import { challengeRoutes } from './routes/challenge';
 import { remixRoutes } from './routes/remix';
 import { entitlementRoutes } from './routes/entitlement';
 import { deviceRoutes } from './routes/device';
+import { authRoutes } from './routes/auth';
+import { jwtAuth } from './middleware/jwtAuth';
 import { startCleanupScheduler, stopCleanupScheduler } from './jobs/queue';
 import { startChallengeReminderScheduler, stopChallengeReminderScheduler } from './jobs/challengeReminder';
+import { initFirebase } from './services/firebaseAdmin';
 
 async function start() {
   const app = Fastify({
@@ -43,7 +46,16 @@ async function start() {
   // Database
   initDb();
 
+  // Firebase (push notifications)
+  if (config.firebase.enabled) {
+    initFirebase();
+  }
+
+  // JWT auth (runs before route-level middleware like tierGate)
+  app.addHook('preHandler', jwtAuth);
+
   // Routes
+  await app.register(authRoutes);
   await app.register(healthRoutes);
   await app.register(generateRoutes);
   await app.register(statusRoutes);

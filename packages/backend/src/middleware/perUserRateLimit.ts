@@ -21,7 +21,7 @@ export async function perUserRateLimit(
   request: FastifyRequest,
   reply: FastifyReply,
 ): Promise<void> {
-  const userId = request.headers['x-quippix-user-id'];
+  const userId = request.userId ?? (request.headers['x-quippix-user-id'] as string | undefined);
   if (typeof userId !== 'string' || userId.length === 0) return;
 
   const tier: Tier = request.tier ?? 'free';

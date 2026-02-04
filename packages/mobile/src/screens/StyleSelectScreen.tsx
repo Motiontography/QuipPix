@@ -61,10 +61,10 @@ export default function StyleSelectScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header with preview */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} accessibilityLabel="Go back" accessibilityRole="button">
           <Text style={styles.backText}>{'<'} Back</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Choose a Style</Text>
+        <Text style={styles.title} accessibilityRole="header">Choose a Style</Text>
       </View>
 
       {/* Preview thumbnail */}
@@ -87,6 +87,9 @@ export default function StyleSelectScreen() {
               selectedCategory === cat && styles.categoryTabActive,
             ]}
             onPress={() => setSelectedCategory(cat)}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: selectedCategory === cat }}
+            accessibilityLabel={`${cat} styles`}
           >
             <Text
               style={[
@@ -112,6 +115,9 @@ export default function StyleSelectScreen() {
             style={styles.styleCard}
             onPress={() => handleSelectStyle(item.id)}
             activeOpacity={0.7}
+            accessibilityLabel={`${item.displayName} style. ${item.description}${item.proOnly && !isPro ? '. Requires Pro' : ''}`}
+            accessibilityRole="button"
+            accessibilityHint="Tap to preview this style"
           >
             <View style={[styles.stylePreview, { backgroundColor: item.previewColor }]}>
               <Text style={styles.styleIcon}>{item.icon}</Text>

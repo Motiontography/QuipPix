@@ -25,6 +25,8 @@ import { colors, spacing, borderRadius, typography } from '../styles/theme';
 import { nanoid } from '../utils/id';
 import BeforeAfterSlider from '../components/BeforeAfterSlider';
 import { saveToPhotoLibrary } from '../services/cameraRoll';
+import { cacheImage } from '../services/imageCache';
+import { maybePromptReview } from '../services/reviewPrompt';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Result'>;
 type Route = RouteProp<RootStackParamList, 'Result'>;
@@ -54,10 +56,17 @@ export default function ResultScreen() {
   // Save to local gallery
   const handleSave = useCallback(async () => {
     try {
-      const localUri = resultUrl; // In production, download to local storage first
+      const itemId = nanoid();
+      let localUri = resultUrl;
+      try {
+        localUri = await cacheImage(resultUrl, itemId);
+      } catch {
+        // Fall back to remote URL if caching fails
+      }
       const item = {
-        id: nanoid(),
+        id: itemId,
         localUri,
+        resultUrl,
         styleId: params.styleId,
         styleName: stylePack.displayName,
         createdAt: new Date().toISOString(),
@@ -65,6 +74,8 @@ export default function ResultScreen() {
       };
       await addToGallery(item);
       incrementCreationCount();
+      const count = useAppStore.getState().creationCount;
+      maybePromptReview(count).catch(() => {});
 
       // Check soft upsell before Motiontography interstitial
       if (shouldShowSoftUpsell()) {
@@ -197,7 +208,7 @@ export default function ResultScreen() {
             />
           ) : (
             <>
-              <Image source={{ uri: resultUrl }} style={styles.resultImage} resizeMode="contain" />
+              <Image source={{ uri: resultUrl }} style={styles.resultImage} resizeMode="contain" accessibilityLabel={`Generated ${stylePack.displayName} art`} accessibilityRole="image" />
               {watermarkEnabled && (
                 <Text style={styles.watermark}>Made in QuipPix</Text>
               )}
@@ -258,6 +269,8 @@ function ActionButton({
       style={[styles.actionBtn, primary && styles.actionBtnPrimary]}
       onPress={onPress}
       activeOpacity={0.7}
+      accessibilityLabel={label}
+      accessibilityRole="button"
     >
       <Text style={styles.actionIcon}>{icon}</Text>
       <Text style={[styles.actionLabel, primary && styles.actionLabelPrimary]}>{label}</Text>

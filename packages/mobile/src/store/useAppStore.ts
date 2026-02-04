@@ -8,6 +8,7 @@ import {
   Collection,
 } from '../types';
 import { nanoid } from '../utils/id';
+import { deleteCachedImage, clearImageCache } from '../services/imageCache';
 
 interface AppState {
   // Gallery
@@ -87,6 +88,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   removeFromGallery: async (id: string) => {
+    deleteCachedImage(id).catch(() => {});
     const updated = get().gallery.filter((g) => g.id !== id);
     const updatedFavorites = get().favorites.filter((fid) => fid !== id);
     const updatedCollections = get().collections.map((c) => ({
@@ -100,6 +102,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   clearGallery: async () => {
+    clearImageCache().catch(() => {});
     set({ gallery: [], favorites: [], collections: [] });
     await AsyncStorage.removeItem(GALLERY_KEY);
     await AsyncStorage.removeItem(FAVORITES_KEY);

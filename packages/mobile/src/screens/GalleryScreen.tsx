@@ -17,6 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList, GalleryItem } from '../types';
 import { useAppStore } from '../store/useAppStore';
+import OfflineBanner from '../components/OfflineBanner';
 import { colors, spacing, borderRadius, typography } from '../styles/theme';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -130,6 +131,7 @@ export default function GalleryScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <OfflineBanner />
       <View style={styles.header}>
         <Text style={styles.title}>Gallery</Text>
         {gallery.length > 0 && (
@@ -151,6 +153,7 @@ export default function GalleryScreen() {
               value={searchQuery}
               onChangeText={setSearchQuery}
               autoCorrect={false}
+              accessibilityLabel="Search gallery by style name"
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
@@ -180,6 +183,9 @@ export default function GalleryScreen() {
           <TouchableOpacity
             style={[styles.filterTab, activeFilter === 'all' && styles.filterTabActive]}
             onPress={() => setActiveFilter('all')}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: activeFilter === 'all' }}
+            accessibilityLabel="All creations"
           >
             <Text style={[styles.filterText, activeFilter === 'all' && styles.filterTextActive]}>
               All
@@ -188,6 +194,9 @@ export default function GalleryScreen() {
           <TouchableOpacity
             style={[styles.filterTab, activeFilter === 'favorites' && styles.filterTabActive]}
             onPress={() => setActiveFilter('favorites')}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: activeFilter === 'favorites' }}
+            accessibilityLabel="Favorites"
           >
             <Text style={[styles.filterText, activeFilter === 'favorites' && styles.filterTextActive]}>
               Favorites
@@ -267,6 +276,9 @@ export default function GalleryScreen() {
                 setMenuVisible(true);
               }}
               activeOpacity={0.8}
+              accessibilityLabel={`${item.styleName} created on ${new Date(item.createdAt).toLocaleDateString()}`}
+              accessibilityRole="button"
+              accessibilityHint="Tap to view, long press for options"
             >
               <View>
                 <Image source={{ uri: item.localUri }} style={styles.cardImage} />
@@ -274,6 +286,8 @@ export default function GalleryScreen() {
                   style={styles.heartOverlay}
                   onPress={() => toggleFavorite(item.id)}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  accessibilityLabel={isFavorite(item.id) ? 'Remove from favorites' : 'Add to favorites'}
+                  accessibilityRole="button"
                 >
                   <Text style={styles.heartIcon}>
                     {isFavorite(item.id) ? '\u2764\uFE0F' : '\uD83E\uDD0D'}
