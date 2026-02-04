@@ -270,6 +270,29 @@ class ApiClient {
 
     return res.json();
   }
+
+  /**
+   * POST /devices/register
+   * Register device push token
+   */
+  async registerDevice(params: {
+    deviceId: string;
+    appUserId: string;
+    platform: 'ios' | 'android';
+    pushToken: string;
+  }): Promise<{ success: boolean }> {
+    const res = await this.request(`${this.baseUrl}/devices/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    });
+
+    if (!res.ok) {
+      throw new ApiError(res.status, 'Failed to register device');
+    }
+
+    return res.json();
+  }
 }
 
 export class ApiError extends Error {

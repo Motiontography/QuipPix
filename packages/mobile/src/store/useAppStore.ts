@@ -5,8 +5,9 @@ import {
   CommonSliders,
   Toggles,
   StyleSpecificOptions,
-  StyleId,
+  Collection,
 } from '../types';
+import { nanoid } from '../utils/id';
 
 interface AppState {
   // Gallery
@@ -15,6 +16,19 @@ interface AppState {
   removeFromGallery: (id: string) => void;
   clearGallery: () => void;
   loadGallery: () => Promise<void>;
+
+  // Favorites
+  favorites: string[];
+  toggleFavorite: (id: string) => void;
+  isFavorite: (id: string) => boolean;
+
+  // Collections
+  collections: Collection[];
+  addCollection: (name: string) => void;
+  removeCollection: (id: string) => void;
+  renameCollection: (id: string, name: string) => void;
+  addToCollection: (collectionId: string, itemId: string) => void;
+  removeFromCollection: (collectionId: string, itemId: string) => void;
 
   // Session tracking (for interstitial rate-limiting)
   hasShownInterstitial: boolean;
@@ -37,6 +51,10 @@ interface AppState {
     toggles: Toggles,
     options?: StyleSpecificOptions,
   ) => void;
+
+  // Onboarding
+  hasSeenOnboarding: boolean;
+  setOnboardingComplete: () => void;
 }
 
 const DEFAULT_SLIDERS: CommonSliders = {
@@ -54,6 +72,9 @@ const DEFAULT_TOGGLES: Toggles = {
 
 const GALLERY_KEY = '@quippix/gallery';
 const PREFS_KEY = '@quippix/prefs';
+const FAVORITES_KEY = '@quippix/favorites';
+const COLLECTIONS_KEY = '@quippix/collections';
+const ONBOARDING_KEY = '@quippix/onboarding';
 
 export const useAppStore = create<AppState>((set, get) => ({
   // Gallery
@@ -67,13 +88,22 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   removeFromGallery: async (id: string) => {
     const updated = get().gallery.filter((g) => g.id !== id);
-    set({ gallery: updated });
+    const updatedFavorites = get().favorites.filter((fid) => fid !== id);
+    const updatedCollections = get().collections.map((c) => ({
+      ...c,
+      itemIds: c.itemIds.filter((iid) => iid !== id),
+    }));
+    set({ gallery: updated, favorites: updatedFavorites, collections: updatedCollections });
     await AsyncStorage.setItem(GALLERY_KEY, JSON.stringify(updated));
+    await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(updatedFavorites));
+    await AsyncStorage.setItem(COLLECTIONS_KEY, JSON.stringify(updatedCollections));
   },
 
   clearGallery: async () => {
-    set({ gallery: [] });
+    set({ gallery: [], favorites: [], collections: [] });
     await AsyncStorage.removeItem(GALLERY_KEY);
+    await AsyncStorage.removeItem(FAVORITES_KEY);
+    await AsyncStorage.removeItem(COLLECTIONS_KEY);
   },
 
   loadGallery: async () => {
@@ -98,6 +128,98 @@ export const useAppStore = create<AppState>((set, get) => ({
     } catch {
       // Ignore
     }
+
+    try {
+      const favRaw = await AsyncStorage.getItem(FAVORITES_KEY);
+      if (favRaw) {
+        set({ favorites: JSON.parse(favRaw) });
+      }
+    } catch {
+      // Ignore
+    }
+
+    try {
+      const colRaw = await AsyncStorage.getItem(COLLECTIONS_KEY);
+      if (colRaw) {
+        set({ collections: JSON.parse(colRaw) });
+      }
+    } catch {
+      // Ignore
+    }
+
+    try {
+      const onboarding = await AsyncStorage.getItem(ONBOARDING_KEY);
+      if (onboarding === 'true') {
+        set({ hasSeenOnboarding: true });
+      }
+    } catch {
+      // Ignore
+    }
+  },
+
+  // Favorites
+  favorites: [],
+
+  toggleFavorite: async (id: string) => {
+    const current = get().favorites;
+    const updated = current.includes(id)
+      ? current.filter((fid) => fid !== id)
+      : [...current, id];
+    set({ favorites: updated });
+    await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(updated));
+  },
+
+  isFavorite: (id: string) => {
+    return get().favorites.includes(id);
+  },
+
+  // Collections
+  collections: [],
+
+  addCollection: async (name: string) => {
+    const newCollection: Collection = {
+      id: nanoid(),
+      name,
+      itemIds: [],
+      createdAt: new Date().toISOString(),
+    };
+    const updated = [...get().collections, newCollection];
+    set({ collections: updated });
+    await AsyncStorage.setItem(COLLECTIONS_KEY, JSON.stringify(updated));
+  },
+
+  removeCollection: async (id: string) => {
+    const updated = get().collections.filter((c) => c.id !== id);
+    set({ collections: updated });
+    await AsyncStorage.setItem(COLLECTIONS_KEY, JSON.stringify(updated));
+  },
+
+  renameCollection: async (id: string, name: string) => {
+    const updated = get().collections.map((c) =>
+      c.id === id ? { ...c, name } : c,
+    );
+    set({ collections: updated });
+    await AsyncStorage.setItem(COLLECTIONS_KEY, JSON.stringify(updated));
+  },
+
+  addToCollection: async (collectionId: string, itemId: string) => {
+    const updated = get().collections.map((c) =>
+      c.id === collectionId && !c.itemIds.includes(itemId)
+        ? { ...c, itemIds: [...c.itemIds, itemId] }
+        : c,
+    );
+    set({ collections: updated });
+    await AsyncStorage.setItem(COLLECTIONS_KEY, JSON.stringify(updated));
+  },
+
+  removeFromCollection: async (collectionId: string, itemId: string) => {
+    const updated = get().collections.map((c) =>
+      c.id === collectionId
+        ? { ...c, itemIds: c.itemIds.filter((i) => i !== itemId) }
+        : c,
+    );
+    set({ collections: updated });
+    await AsyncStorage.setItem(COLLECTIONS_KEY, JSON.stringify(updated));
   },
 
   // Interstitial
@@ -138,5 +260,12 @@ export const useAppStore = create<AppState>((set, get) => ({
       lastToggles: toggles,
       lastStyleOptions: options,
     });
+  },
+
+  // Onboarding
+  hasSeenOnboarding: false,
+  setOnboardingComplete: async () => {
+    set({ hasSeenOnboarding: true });
+    await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
   },
 }));

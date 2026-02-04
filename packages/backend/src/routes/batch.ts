@@ -12,6 +12,7 @@ import {
   getJobResultKey,
 } from '../jobs/queue';
 import { tierGate } from '../middleware/tierGate';
+import { perUserRateLimit } from '../middleware/perUserRateLimit';
 import { isStyleAllowed, isSizeAllowed, OutputSize } from '../services/tierConfig';
 import { moderatePrompt } from '../services/moderation';
 import { config } from '../config';
@@ -23,7 +24,7 @@ export async function batchRoutes(app: FastifyInstance): Promise<void> {
    * Pro-only. Accepts multipart: image_0..image_9 + params JSON
    * Returns: { batchId, jobIds }
    */
-  app.post('/batch-generate', { preHandler: [tierGate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  app.post('/batch-generate', { preHandler: [tierGate, perUserRateLimit] }, async (request: FastifyRequest, reply: FastifyReply) => {
     // Pro-only gate
     if (request.tier !== 'pro') {
       return reply.status(403).send({

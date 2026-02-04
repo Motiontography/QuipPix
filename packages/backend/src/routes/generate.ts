@@ -6,6 +6,7 @@ import { uploadInput } from '../services/storage';
 import { enqueueGenerate } from '../jobs/queue';
 import { moderatePrompt } from '../services/moderation';
 import { tierGate } from '../middleware/tierGate';
+import { perUserRateLimit } from '../middleware/perUserRateLimit';
 import { isStyleAllowed, isSizeAllowed, OutputSize } from '../services/tierConfig';
 import { logger } from '../utils/logger';
 
@@ -15,7 +16,7 @@ export async function generateRoutes(app: FastifyInstance): Promise<void> {
    * Accepts multipart: image file + JSON params
    * Returns: { jobId }
    */
-  app.post('/generate', { preHandler: [tierGate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  app.post('/generate', { preHandler: [tierGate, perUserRateLimit] }, async (request: FastifyRequest, reply: FastifyReply) => {
     const parts = request.parts();
     let imageBuffer: Buffer | null = null;
     let params: any = {};

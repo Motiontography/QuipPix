@@ -8,11 +8,12 @@ import {
   Image,
   SafeAreaView,
   ScrollView,
+  Modal,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList, StyleId } from '../types';
-import { stylePacks, styleCategories, getStylesByCategory } from '../services/stylePacks';
+import { RootStackParamList, StyleId, StylePack } from '../types';
+import { stylePacks, styleCategories, getStylesByCategory, getStylePack } from '../services/stylePacks';
 import { usePaywallGuard } from '../hooks/usePaywallGuard';
 import ProBadge from '../components/ProBadge';
 import { colors, spacing, borderRadius, typography } from '../styles/theme';
@@ -27,6 +28,7 @@ export default function StyleSelectScreen() {
   const { isPro, guardStyle } = usePaywallGuard();
 
   const [selectedCategory, setSelectedCategory] = useState<string>(styleCategories[0]);
+  const [previewStyle, setPreviewStyle] = useState<StylePack | null>(null);
 
   // Auto-navigate if preselected style from challenge
   React.useEffect(() => {
@@ -36,8 +38,23 @@ export default function StyleSelectScreen() {
   }, [preselectedStyleId, imageUri, imageUris, challengeId, navigation]);
 
   const handleSelectStyle = (styleId: StyleId) => {
-    if (!guardStyle(styleId)) return;
-    navigation.navigate('Customize', { imageUri, styleId, imageUris, challengeId });
+    const pack = getStylePack(styleId);
+    setPreviewStyle(pack);
+  };
+
+  const handleConfirmStyle = () => {
+    if (!previewStyle) return;
+    if (!guardStyle(previewStyle.id)) {
+      setPreviewStyle(null);
+      return;
+    }
+    setPreviewStyle(null);
+    navigation.navigate('Customize', {
+      imageUri,
+      styleId: previewStyle.id,
+      imageUris,
+      challengeId,
+    });
   };
 
   return (
@@ -111,6 +128,77 @@ export default function StyleSelectScreen() {
           </TouchableOpacity>
         )}
       />
+
+      {/* Style preview modal */}
+      <Modal visible={!!previewStyle} transparent animationType="fade">
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setPreviewStyle(null)}
+        >
+          <View style={styles.previewModal} onStartShouldSetResponder={() => true}>
+            {previewStyle && (
+              <>
+                <View
+                  style={[
+                    styles.previewIconContainer,
+                    { backgroundColor: previewStyle.previewColor },
+                  ]}
+                >
+                  <Text style={styles.previewIconLarge}>{previewStyle.icon}</Text>
+                </View>
+                <Text style={styles.previewName}>{previewStyle.displayName}</Text>
+                <Text style={styles.previewCategory}>{previewStyle.category}</Text>
+                <Text style={styles.previewDescription}>{previewStyle.description}</Text>
+
+                {/* Before -> After */}
+                <View style={styles.beforeAfterRow}>
+                  <View style={styles.beforeAfterBox}>
+                    <Text style={styles.beforeAfterLabel}>Before</Text>
+                    <Image source={{ uri: imageUri }} style={styles.beforeAfterImg} />
+                  </View>
+                  <Text style={styles.arrowText}>{'\u2192'}</Text>
+                  <View style={styles.beforeAfterBox}>
+                    <Text style={styles.beforeAfterLabel}>After</Text>
+                    <View
+                      style={[
+                        styles.beforeAfterImg,
+                        {
+                          backgroundColor: previewStyle.previewColor,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        },
+                      ]}
+                    >
+                      <Text style={{ fontSize: 28 }}>{previewStyle.icon}</Text>
+                    </View>
+                  </View>
+                </View>
+
+                {previewStyle.proOnly && !isPro && (
+                  <View style={styles.proNotice}>
+                    <ProBadge size="small" />
+                    <Text style={styles.proNoticeText}>Requires QuipPix Pro</Text>
+                  </View>
+                )}
+
+                <TouchableOpacity
+                  style={[
+                    styles.useStyleBtn,
+                    previewStyle.proOnly && !isPro && styles.useStyleBtnLocked,
+                  ]}
+                  onPress={handleConfirmStyle}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.useStyleBtnText}>
+                    {previewStyle.proOnly && !isPro ? 'Unlock with Pro' : 'Use This Style'}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -195,4 +283,70 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.textSecondary,
   },
+
+  // Preview modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  previewModal: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing.lg,
+    width: '85%',
+    alignItems: 'center',
+  },
+  previewIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: borderRadius.lg,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  previewIconLarge: { fontSize: 40 },
+  previewName: { ...typography.h3, color: colors.textPrimary, marginBottom: 4 },
+  previewCategory: { ...typography.caption, color: colors.primary, marginBottom: spacing.sm },
+  previewDescription: {
+    ...typography.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: spacing.md,
+  },
+  beforeAfterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+    gap: spacing.sm,
+  },
+  beforeAfterBox: { alignItems: 'center' },
+  beforeAfterLabel: { ...typography.small, color: colors.textMuted, marginBottom: 4 },
+  beforeAfterImg: {
+    width: 80,
+    height: 80,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.surfaceLight,
+  },
+  arrowText: { ...typography.h3, color: colors.textMuted },
+  proNotice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  proNoticeText: { ...typography.caption, color: colors.textSecondary },
+  useStyleBtn: {
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.lg,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.xl,
+    width: '100%',
+    alignItems: 'center',
+  },
+  useStyleBtnLocked: {
+    backgroundColor: colors.surfaceLight,
+  },
+  useStyleBtnText: { ...typography.bodyBold, color: colors.textPrimary },
 });

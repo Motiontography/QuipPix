@@ -4,6 +4,7 @@ import multipart from '@fastify/multipart';
 import rateLimit from '@fastify/rate-limit';
 import { config } from './config';
 import { logger } from './utils/logger';
+import { initDb, closeDb } from './db';
 import { generateRoutes } from './routes/generate';
 import { statusRoutes } from './routes/status';
 import { healthRoutes } from './routes/health';
@@ -11,7 +12,9 @@ import { batchRoutes } from './routes/batch';
 import { challengeRoutes } from './routes/challenge';
 import { remixRoutes } from './routes/remix';
 import { entitlementRoutes } from './routes/entitlement';
+import { deviceRoutes } from './routes/device';
 import { startCleanupScheduler, stopCleanupScheduler } from './jobs/queue';
+import { startChallengeReminderScheduler, stopChallengeReminderScheduler } from './jobs/challengeReminder';
 
 async function start() {
   const app = Fastify({
@@ -37,6 +40,9 @@ async function start() {
     timeWindow: config.rateLimit.windowMs,
   });
 
+  // Database
+  initDb();
+
   // Routes
   await app.register(healthRoutes);
   await app.register(generateRoutes);
@@ -45,6 +51,7 @@ async function start() {
   await app.register(challengeRoutes);
   await app.register(remixRoutes);
   await app.register(entitlementRoutes);
+  await app.register(deviceRoutes);
 
   // Error handler
   app.setErrorHandler((error, request, reply) => {
@@ -68,6 +75,7 @@ async function start() {
 
   // Start server
   startCleanupScheduler();
+  startChallengeReminderScheduler();
 
   try {
     await app.listen({ port: config.server.port, host: config.server.host });
@@ -84,6 +92,8 @@ async function start() {
   const shutdown = async () => {
     logger.info('Shutting down...');
     stopCleanupScheduler();
+    stopChallengeReminderScheduler();
+    closeDb();
     await app.close();
     process.exit(0);
   };

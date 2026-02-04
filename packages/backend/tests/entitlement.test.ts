@@ -8,6 +8,10 @@ import {
   setServerEntitlement,
   getEntitlementStoreSize,
 } from '../src/routes/entitlement';
+import { initDb, closeDb } from '../src/db';
+
+beforeAll(() => { initDb(':memory:'); });
+afterAll(() => { closeDb(); });
 
 describe('Entitlement System', () => {
   describe('ValidateReceiptRequest schema', () => {

@@ -28,6 +28,9 @@ packages/mobile/android/build/
 # Testing
 coverage/
 
+# Secrets
+API.txt
+
 # OS
 .DS_Store
 Thumbs.db

@@ -143,6 +143,7 @@ export default function GeneratingScreen() {
             jobId,
             resultUrl: finalStatus.resultUrl,
             params,
+            sourceImageUri: imageUri,
           });
         } else {
           setError(finalStatus.error || 'Generation failed. Please try again.');

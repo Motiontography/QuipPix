@@ -6,6 +6,10 @@ import {
   enqueueGenerate,
 } from '../src/jobs/queue';
 import { BatchGenerateRequest, BatchStatusResponse, BatchStatus } from '../src/types';
+import { initDb, closeDb } from '../src/db';
+
+beforeAll(() => { initDb(':memory:'); });
+afterAll(() => { closeDb(); });
 
 // ─── BatchGenerateRequest validation ────────────────────────────────
 

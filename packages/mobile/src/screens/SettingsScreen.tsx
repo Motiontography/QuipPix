@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,11 @@ import { RootStackParamList } from '../types';
 import { useAppStore } from '../store/useAppStore';
 import { useProStore } from '../store/useProStore';
 import { restorePurchases } from '../services/purchases';
+import {
+  isNotificationsEnabled,
+  setNotificationsEnabled,
+  requestNotificationPermission,
+} from '../services/pushNotifications';
 import { colors, spacing, borderRadius, typography } from '../styles/theme';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -25,6 +30,20 @@ export default function SettingsScreen() {
   const { watermarkEnabled, setWatermarkEnabled, clearGallery } = useAppStore();
   const entitlement = useProStore((s) => s.entitlement);
   const setEntitlement = useProStore((s) => s.setEntitlement);
+  const [notificationsOn, setNotificationsOn] = useState(false);
+
+  useEffect(() => {
+    isNotificationsEnabled().then(setNotificationsOn);
+  }, []);
+
+  const handleToggleNotifications = async (value: boolean) => {
+    if (value) {
+      const granted = await requestNotificationPermission();
+      if (!granted) return;
+    }
+    setNotificationsOn(value);
+    await setNotificationsEnabled(value);
+  };
 
   const handleRestore = async () => {
     try {
@@ -121,6 +140,37 @@ export default function SettingsScreen() {
               thumbColor={watermarkEnabled ? colors.primary : colors.textMuted}
             />
           </View>
+        </View>
+
+        {/* Notifications */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Notifications</Text>
+          <View style={styles.row}>
+            <View style={styles.rowInfo}>
+              <Text style={styles.rowLabel}>Daily Challenge Reminder</Text>
+              <Text style={styles.rowDesc}>
+                Get notified about the daily challenge each morning
+              </Text>
+            </View>
+            <Switch
+              value={notificationsOn}
+              onValueChange={handleToggleNotifications}
+              trackColor={{ false: colors.surfaceLight, true: colors.primary + '80' }}
+              thumbColor={notificationsOn ? colors.primary : colors.textMuted}
+            />
+          </View>
+        </View>
+
+        {/* Activity */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Activity</Text>
+          <TouchableOpacity
+            style={styles.linkRow}
+            onPress={() => navigation.navigate('Stats')}
+          >
+            <Text style={styles.linkLabel}>Your Stats</Text>
+            <Text style={styles.linkArrow}>{'\u2192'}</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Privacy */}

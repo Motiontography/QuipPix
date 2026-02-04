@@ -2,10 +2,15 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { RemixTemplateSchema, RemixRecord } from '../types';
 import { config } from '../config';
 import { logger } from '../utils/logger';
+import {
+  createRemixRecord as dbCreateRemix,
+  getRemixRecord as dbGetRemixRecord,
+  incrementRemixViews,
+  codeExists,
+  getRemixStoreSize as dbGetRemixStoreSize,
+} from '../db/repositories/remixRepository';
 
-// ─── In-memory remix store (swap for DB in production) ───────────────
-const remixStore = new Map<string, RemixRecord>();
-
+// ─── Code generation ─────────────────────────────────────────────────
 function generateCode(length: number): string {
   const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
   let code = '';
@@ -15,41 +20,22 @@ function generateCode(length: number): string {
   return code;
 }
 
-function isExpired(record: RemixRecord): boolean {
-  const created = new Date(record.createdAt).getTime();
-  const ttlMs = config.remix.codeTtlDays * 24 * 60 * 60 * 1000;
-  return Date.now() - created > ttlMs;
-}
-
 // Exported for testing
 export function getRemixRecord(code: string): RemixRecord | undefined {
-  const record = remixStore.get(code);
-  if (!record) return undefined;
-  if (isExpired(record)) {
-    remixStore.delete(code);
-    return undefined;
-  }
-  return record;
+  return dbGetRemixRecord(code);
 }
 
 export function createRemixRecord(template: RemixRecord['template']): RemixRecord {
   let code: string;
   do {
     code = generateCode(config.remix.codeLength);
-  } while (remixStore.has(code));
+  } while (codeExists(code));
 
-  const record: RemixRecord = {
-    code,
-    template,
-    createdAt: new Date().toISOString(),
-    views: 0,
-  };
-  remixStore.set(code, record);
-  return record;
+  return dbCreateRemix(code, template);
 }
 
 export function getRemixStoreSize(): number {
-  return remixStore.size;
+  return dbGetRemixStoreSize();
 }
 
 // ─── Routes ──────────────────────────────────────────────────────────
@@ -91,13 +77,13 @@ export async function remixRoutes(app: FastifyInstance) {
     }
 
     // Increment view count
-    record.views++;
+    incrementRemixViews(code);
 
     return reply.status(200).send({
       code: record.code,
       template: record.template,
       createdAt: record.createdAt,
-      views: record.views,
+      views: record.views + 1,
     });
   });
 

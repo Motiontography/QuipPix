@@ -23,6 +23,8 @@ import { useChallengeStore } from '../store/useChallengeStore';
 import { api } from '../api/client';
 import { colors, spacing, borderRadius, typography } from '../styles/theme';
 import { nanoid } from '../utils/id';
+import BeforeAfterSlider from '../components/BeforeAfterSlider';
+import { saveToPhotoLibrary } from '../services/cameraRoll';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Result'>;
 type Route = RouteProp<RootStackParamList, 'Result'>;
@@ -30,11 +32,12 @@ type Route = RouteProp<RootStackParamList, 'Result'>;
 export default function ResultScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
-  const { jobId, resultUrl, params } = route.params;
+  const { jobId, resultUrl, params, sourceImageUri } = route.params;
   const stylePack = getStylePack(params.styleId);
   const viewShotRef = useRef<ViewShot>(null);
   const [showInterstitial, setShowInterstitial] = useState(false);
   const [showPlatformPicker, setShowPlatformPicker] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
 
   const {
     addToGallery,
@@ -81,6 +84,17 @@ export default function ResultScreen() {
       Alert.alert('Error', 'Failed to save image.');
     }
   }, [resultUrl, params, stylePack, addToGallery, incrementCreationCount, hasShownInterstitial, setInterstitialShown, shouldShowSoftUpsell, dismissSoftUpsell, navigation]);
+
+  // Save to device photo library
+  const handleSaveToPhotos = useCallback(async () => {
+    try {
+      await saveToPhotoLibrary(resultUrl);
+      trackEvent('save_to_photos', { styleId: params.styleId });
+      Alert.alert('Saved!', 'Image saved to your photo library.');
+    } catch (err) {
+      Alert.alert('Error', 'Failed to save to photos. Please check permissions.');
+    }
+  }, [resultUrl, params.styleId]);
 
   // Share
   const handleShare = useCallback(async () => {
@@ -173,12 +187,21 @@ export default function ResultScreen() {
         <View style={{ width: 48 }} />
       </View>
 
-      {/* Result image */}
+      {/* Result image / Comparison */}
       <View style={styles.imageContainer}>
         <ViewShot ref={viewShotRef} style={styles.viewShot}>
-          <Image source={{ uri: resultUrl }} style={styles.resultImage} resizeMode="contain" />
-          {watermarkEnabled && (
-            <Text style={styles.watermark}>Made in QuipPix</Text>
+          {showComparison && sourceImageUri ? (
+            <BeforeAfterSlider
+              originalUri={sourceImageUri}
+              resultUri={resultUrl}
+            />
+          ) : (
+            <>
+              <Image source={{ uri: resultUrl }} style={styles.resultImage} resizeMode="contain" />
+              {watermarkEnabled && (
+                <Text style={styles.watermark}>Made in QuipPix</Text>
+              )}
+            </>
           )}
         </ViewShot>
       </View>
@@ -186,6 +209,14 @@ export default function ResultScreen() {
       {/* Actions */}
       <View style={styles.actions}>
         <ActionButton icon="💾" label="Save" onPress={handleSave} primary />
+        <ActionButton icon="📷" label="Photos" onPress={handleSaveToPhotos} />
+        {sourceImageUri && (
+          <ActionButton
+            icon={showComparison ? '🖼️' : '🔄'}
+            label={showComparison ? 'Result' : 'Compare'}
+            onPress={() => setShowComparison(!showComparison)}
+          />
+        )}
         <ActionButton icon="🎴" label="Card" onPress={handleShareCard} />
         <ActionButton icon="📤" label="Share" onPress={handleShare} />
         <ActionButton icon="📱" label="Post" onPress={handlePost} />

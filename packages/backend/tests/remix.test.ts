@@ -1,5 +1,9 @@
 import { RemixTemplateSchema } from '../src/types';
 import { createRemixRecord, getRemixRecord, getRemixStoreSize } from '../src/routes/remix';
+import { initDb, closeDb } from '../src/db';
+
+beforeAll(() => { initDb(':memory:'); });
+afterAll(() => { closeDb(); });
 
 describe('Remix System', () => {
   describe('RemixTemplateSchema', () => {

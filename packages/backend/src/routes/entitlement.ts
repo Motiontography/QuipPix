@@ -7,20 +7,23 @@ import {
   RevenueCatEventType,
   ProType,
 } from '../types';
+import {
+  getServerEntitlement as dbGetEntitlement,
+  setServerEntitlement as dbSetEntitlement,
+  getEntitlementStoreSize as dbGetEntitlementStoreSize,
+} from '../db/repositories/entitlementRepository';
 
-// ─── In-memory entitlement store (swap for DB in production) ─────────
-const entitlementStore = new Map<string, ServerEntitlement>();
-
+// ─── Re-export DB-backed entitlement functions ───────────────────────
 export function getServerEntitlement(appUserId: string): ServerEntitlement | undefined {
-  return entitlementStore.get(appUserId);
+  return dbGetEntitlement(appUserId);
 }
 
 export function setServerEntitlement(ent: ServerEntitlement): void {
-  entitlementStore.set(ent.appUserId, ent);
+  dbSetEntitlement(ent);
 }
 
 export function getEntitlementStoreSize(): number {
-  return entitlementStore.size;
+  return dbGetEntitlementStoreSize();
 }
 
 // ─── RevenueCat API helpers ──────────────────────────────────────────

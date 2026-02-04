@@ -78,6 +78,16 @@ export const config = {
     codeLength: envInt('REMIX_CODE_LENGTH', 8),
   },
 
+  db: {
+    path: env('DATABASE_PATH', './data/quippix.db'),
+  },
+
+  perUserRateLimit: {
+    freeMax: envInt('PER_USER_RATE_LIMIT_FREE', 10),
+    proMax: envInt('PER_USER_RATE_LIMIT_PRO', 30),
+    windowSeconds: envInt('PER_USER_RATE_LIMIT_WINDOW', 60),
+  },
+
   revenuecat: {
     apiKey: env('REVENUECAT_API_KEY', 'sk_placeholder'),
     webhookSecret: env('REVENUECAT_WEBHOOK_SECRET', 'whsec_placeholder'),

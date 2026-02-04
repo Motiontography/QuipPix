@@ -9,6 +9,20 @@ import { moderatePrompt, checkProviderFlags } from '../services/moderation';
 import { getObjectBuffer, uploadResult, deleteObject } from '../services/storage';
 import { GenerateRequest, ImageEngineRequest, JobStatus, JobStatusResponse } from '../types';
 import { Tier, OutputSize } from '../services/tierConfig';
+import {
+  createJob,
+  getJobEntry,
+  updateJobStatus,
+  updateJobProgress,
+  setJobResultKey as dbSetJobResultKey,
+  getJobStatus as dbGetJobStatus,
+  getJobResultKey as dbGetJobResultKey,
+  getJobInputKey as dbGetJobInputKey,
+  deleteJobRecord as dbDeleteJobRecord,
+  createBatch as dbCreateBatch,
+  getBatchJobIds as dbGetBatchJobIds,
+  getBatchCreatedAt as dbGetBatchCreatedAt,
+} from '../db/repositories/jobRepository';
 
 // ─── Redis connection ────────────────────────────────────────────────
 const connection = new IORedis({
@@ -18,46 +32,37 @@ const connection = new IORedis({
   maxRetriesPerRequest: null,
 });
 
-// ─── In-memory job status store (swap for Redis hash in production) ──
-const jobStore = new Map<
-  string,
-  {
-    status: JobStatus;
-    progress: number;
-    resultKey?: string;
-    inputKey: string;
-    error?: string;
-    createdAt: string;
-  }
->();
-
+// ─── Re-export DB-backed job/batch functions ─────────────────────────
 export function getJobStatus(jobId: string): JobStatusResponse | null {
-  const entry = jobStore.get(jobId);
-  if (!entry) return null;
-  return {
-    jobId,
-    status: entry.status,
-    progress: entry.progress,
-    error: entry.error,
-    createdAt: entry.createdAt,
-  };
+  return dbGetJobStatus(jobId);
 }
 
 export function setJobResultUrl(jobId: string, url: string): void {
-  const entry = jobStore.get(jobId);
-  if (entry) entry.resultKey = url;
+  dbSetJobResultKey(jobId, url);
 }
 
 export function getJobResultKey(jobId: string): string | undefined {
-  return jobStore.get(jobId)?.resultKey;
+  return dbGetJobResultKey(jobId);
 }
 
 export function getJobInputKey(jobId: string): string | undefined {
-  return jobStore.get(jobId)?.inputKey;
+  return dbGetJobInputKey(jobId);
 }
 
 export function deleteJobRecord(jobId: string): boolean {
-  return jobStore.delete(jobId);
+  return dbDeleteJobRecord(jobId);
+}
+
+export function createBatch(batchId: string, jobIds: string[]): void {
+  dbCreateBatch(batchId, jobIds);
+}
+
+export function getBatchJobIds(batchId: string): string[] | undefined {
+  return dbGetBatchJobIds(batchId);
+}
+
+export function getBatchCreatedAt(batchId: string): string | undefined {
+  return dbGetBatchCreatedAt(batchId);
 }
 
 // ─── Queue ───────────────────────────────────────────────────────────
@@ -78,12 +83,7 @@ export function enqueueGenerate(
   tier: Tier = 'free',
   outputSize: OutputSize = '1024x1024',
 ): void {
-  jobStore.set(jobId, {
-    status: 'queued',
-    progress: 0,
-    inputKey,
-    createdAt: new Date().toISOString(),
-  });
+  createJob(jobId, inputKey);
 
   generateQueue.add('generate', { jobId, inputKey, request, tier, outputSize } as GenerateJobData, {
     priority: tier === 'pro' ? 1 : 5,
@@ -100,12 +100,11 @@ export const generateWorker = new Worker<GenerateJobData>(
   'generate',
   async (job: Job<GenerateJobData>) => {
     const { jobId, inputKey, request, outputSize } = job.data;
-    const entry = jobStore.get(jobId);
+    const entry = getJobEntry(jobId);
     if (!entry) throw new Error(`No job entry for ${jobId}`);
 
     try {
-      entry.status = 'running';
-      entry.progress = 10;
+      updateJobStatus(jobId, 'running', 10);
 
       // 1. Compose prompt
       const { systemPrompt, userPrompt } = composePrompt(
@@ -116,21 +115,19 @@ export const generateWorker = new Worker<GenerateJobData>(
         request.styleOptions,
         request.proSliders,
       );
-      entry.progress = 20;
+      updateJobProgress(jobId, 20);
 
       // 2. Pre-generation moderation
       const modCheck = moderatePrompt(userPrompt);
       if (!modCheck.allowed) {
-        entry.status = 'failed';
-        entry.error = modCheck.reason;
-        entry.progress = 100;
+        updateJobStatus(jobId, 'failed', 100, modCheck.reason);
         return;
       }
-      entry.progress = 30;
+      updateJobProgress(jobId, 30);
 
       // 3. Fetch input image from S3
       const imageBuffer = await getObjectBuffer(inputKey);
-      entry.progress = 40;
+      updateJobProgress(jobId, 40);
 
       // 4. Get recipe output requirements
       const recipe = getRecipe(request.styleId);
@@ -145,17 +142,15 @@ export const generateWorker = new Worker<GenerateJobData>(
         quality: 'hd',
         responseFormat: 'b64_json',
       };
-      entry.progress = 50;
+      updateJobProgress(jobId, 50);
 
       const result = await imageEngine.generate(engineRequest);
-      entry.progress = 80;
+      updateJobProgress(jobId, 80);
 
       // 6. Post-generation moderation
       const postCheck = checkProviderFlags(result.moderationFlags);
       if (!postCheck.allowed) {
-        entry.status = 'failed';
-        entry.error = postCheck.reason;
-        entry.progress = 100;
+        updateJobStatus(jobId, 'failed', 100, postCheck.reason);
         return;
       }
 
@@ -171,15 +166,12 @@ export const generateWorker = new Worker<GenerateJobData>(
       }
 
       const resultKey = await uploadResult(result.imageData, jobId);
-      entry.resultKey = resultKey;
-      entry.status = 'done';
-      entry.progress = 100;
+      dbSetJobResultKey(jobId, resultKey);
+      updateJobStatus(jobId, 'done', 100);
 
       logger.info({ jobId, resultKey }, 'Job completed');
     } catch (err: any) {
-      entry.status = 'failed';
-      entry.error = err.message || 'Unknown error';
-      entry.progress = 100;
+      updateJobStatus(jobId, 'failed', 100, err.message || 'Unknown error');
       logger.error({ jobId, error: err.message }, 'Job failed');
     }
   },
@@ -193,29 +185,9 @@ generateWorker.on('failed', (job, err) => {
   logger.error({ jobId: job?.data?.jobId, error: err.message }, 'Worker job failed');
 });
 
-// ─── Batch store ────────────────────────────────────────────────────
-const batchStore = new Map<
-  string,
-  { jobIds: string[]; createdAt: string }
->();
-
-export function createBatch(batchId: string, jobIds: string[]): void {
-  batchStore.set(batchId, {
-    jobIds,
-    createdAt: new Date().toISOString(),
-  });
-}
-
-export function getBatchJobIds(batchId: string): string[] | undefined {
-  return batchStore.get(batchId)?.jobIds;
-}
-
-export function getBatchCreatedAt(batchId: string): string | undefined {
-  return batchStore.get(batchId)?.createdAt;
-}
-
 // ─── TTL cleanup scheduler ──────────────────────────────────────────
 import { cleanupExpired } from '../services/storage';
+import { cleanupExpiredRemixes } from '../db/repositories/remixRepository';
 
 let cleanupInterval: NodeJS.Timeout | null = null;
 
@@ -224,6 +196,7 @@ export function startCleanupScheduler(): void {
   cleanupInterval = setInterval(async () => {
     try {
       await cleanupExpired();
+      cleanupExpiredRemixes();
     } catch (err: any) {
       logger.error({ error: err.message }, 'TTL cleanup failed');
     }

@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text } from 'react-native';
 import { RootStackParamList, TabParamList } from '../types';
 import { colors } from '../styles/theme';
+import { useAppStore } from '../store/useAppStore';
 
 // Screens
 import HomeScreen from '../screens/HomeScreen';
@@ -20,20 +21,22 @@ import PaywallScreen from '../screens/PaywallScreen';
 import BatchGeneratingScreen from '../screens/BatchGeneratingScreen';
 import BatchResultsScreen from '../screens/BatchResultsScreen';
 import RemixScreen from '../screens/RemixScreen';
+import OnboardingScreen from '../screens/OnboardingScreen';
+import StatsScreen from '../screens/StatsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
 function TabIcon({ label, focused }: { label: string; focused: boolean }) {
   const icons: Record<string, string> = {
-    Home: '🏠',
-    Gallery: '🖼',
-    Challenges: '🏆',
-    Settings: '⚙️',
+    Home: '\uD83C\uDFE0',
+    Gallery: '\uD83D\uDDBC',
+    Challenges: '\uD83C\uDFC6',
+    Settings: '\u2699\uFE0F',
   };
   return (
     <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.5 }}>
-      {icons[label] || '•'}
+      {icons[label] || '\u2022'}
     </Text>
   );
 }
@@ -75,15 +78,25 @@ const linking = {
 };
 
 export default function AppNavigator() {
+  const hasSeenOnboarding = useAppStore((s) => s.hasSeenOnboarding);
+
   return (
     <NavigationContainer linking={linking}>
       <Stack.Navigator
+        initialRouteName={hasSeenOnboarding ? 'MainTabs' : 'Onboarding'}
         screenOptions={{
           headerShown: false,
           animation: 'slide_from_right',
           contentStyle: { backgroundColor: colors.background },
         }}
       >
+        {!hasSeenOnboarding && (
+          <Stack.Screen
+            name="Onboarding"
+            component={OnboardingScreen}
+            options={{ animation: 'fade' }}
+          />
+        )}
         <Stack.Screen name="MainTabs" component={MainTabs} />
         <Stack.Screen name="StyleSelect" component={StyleSelectScreen} />
         <Stack.Screen name="Customize" component={CustomizeScreen} />
@@ -93,6 +106,7 @@ export default function AppNavigator() {
         <Stack.Screen name="BatchResults" component={BatchResultsScreen} />
         <Stack.Screen name="ShareCard" component={ShareCardScreen} />
         <Stack.Screen name="Remix" component={RemixScreen} />
+        <Stack.Screen name="Stats" component={StatsScreen} />
         <Stack.Screen
           name="Paywall"
           component={PaywallScreen}

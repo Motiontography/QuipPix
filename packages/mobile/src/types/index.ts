@@ -115,6 +115,14 @@ export interface GalleryItem {
   params: GenerateParams;
 }
 
+// ─── Collections ────────────────────────────────────────────────────
+export interface Collection {
+  id: string;
+  name: string;
+  itemIds: string[];
+  createdAt: string;
+}
+
 // ─── Batch Types ────────────────────────────────────────────────────
 export type BatchStatus = 'processing' | 'done' | 'partial_failure';
 
@@ -189,12 +197,13 @@ export interface RemixResponse {
 
 // ─── Navigation ──────────────────────────────────────────────────────
 export type RootStackParamList = {
+  Onboarding: undefined;
   MainTabs: undefined;
   StyleSelect: { imageUri: string; imageUris?: string[]; challengeId?: string; preselectedStyleId?: StyleId };
   Customize: { imageUri: string; styleId: StyleId; imageUris?: string[]; challengeId?: string };
   Generating: { imageUri: string; params: GenerateParams; challengeId?: string };
   BatchGenerating: { imageUris: string[]; params: GenerateParams };
-  Result: { jobId: string; resultUrl: string; params: GenerateParams };
+  Result: { jobId: string; resultUrl: string; params: GenerateParams; sourceImageUri?: string };
   BatchResults: { results: BatchResultItem[]; params: GenerateParams };
   ShareCard: {
     localUri: string;
@@ -206,6 +215,7 @@ export type RootStackParamList = {
   };
   Remix: { code: string };
   Paywall: { trigger: string; context?: string };
+  Stats: undefined;
 };
 
 export type TabParamList = {

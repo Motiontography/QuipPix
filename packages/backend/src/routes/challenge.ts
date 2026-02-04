@@ -2,6 +2,10 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { DailyChallenge, ChallengeResponse, ChallengeSubmission } from '../types';
 import type { StyleId } from '../types';
 import { logger } from '../utils/logger';
+import {
+  addSubmission,
+  getSubmissionCount,
+} from '../db/repositories/challengeRepository';
 
 // ─── Challenge Pool ─────────────────────────────────────────────────
 // 90 challenges that rotate by day-of-year, ensuring all users see the
@@ -103,13 +107,6 @@ const CHALLENGE_POOL: Omit<DailyChallenge, 'id' | 'date'>[] = [
   { title: 'Crystal Portrait', description: 'Geometric crystal facet art', creativePrompt: 'Shatter my portrait into geometric crystal facets with prismatic light refractions', suggestedStyleId: 'cyberpunk-neon' as StyleId, icon: '💎', hashtag: '#QuipPixCrystal', difficulty: 'hard' },
 ];
 
-// ─── Submission tracking (in-memory; swap for DB in production) ─────
-const submissionStore = new Map<string, ChallengeSubmission[]>();
-
-function getSubmissionCount(challengeId: string): number {
-  return submissionStore.get(challengeId)?.length ?? 0;
-}
-
 // ─── Deterministic daily challenge selection ────────────────────────
 function getTodayString(): string {
   return new Date().toISOString().split('T')[0];
@@ -195,15 +192,13 @@ export async function challengeRoutes(app: FastifyInstance): Promise<void> {
       submittedAt: new Date().toISOString(),
     };
 
-    const existing = submissionStore.get(body.challengeId) ?? [];
-    existing.push(submission);
-    submissionStore.set(body.challengeId, existing);
+    addSubmission(submission);
 
     logger.info({ challengeId: body.challengeId, jobId: body.jobId }, 'Challenge submission recorded');
 
     return reply.status(201).send({
       success: true,
-      totalSubmissions: existing.length,
+      totalSubmissions: getSubmissionCount(body.challengeId),
     });
   });
 }
