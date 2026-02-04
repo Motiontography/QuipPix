@@ -18,6 +18,7 @@ import { RootStackParamList } from '../types';
 import { useAppStore } from '../store/useAppStore';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
+import { GradientButton } from '../components/GradientButton';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Onboarding'>;
 
@@ -152,14 +153,9 @@ export default function OnboardingScreen() {
       width: 24,
     },
     ctaButton: {
-      backgroundColor: colors.primary,
       borderRadius: borderRadius.lg,
-      paddingVertical: spacing.md,
-      paddingHorizontal: spacing.xl,
       width: '100%',
-      alignItems: 'center',
     },
-    ctaText: { ...typography.h3, color: colors.textPrimary },
   }), [colors]);
 
   const renderSlide = ({ item }: { item: Slide }) => (
@@ -210,15 +206,12 @@ export default function OnboardingScreen() {
             />
           ))}
         </View>
-        <TouchableOpacity
-          style={styles.ctaButton}
+        <GradientButton
+          title={currentIndex === SLIDES.length - 1 ? t('onboarding.getStarted') : t('onboarding.next')}
           onPress={handleNext}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.ctaText}>
-            {currentIndex === SLIDES.length - 1 ? t('onboarding.getStarted') : t('onboarding.next')}
-          </Text>
-        </TouchableOpacity>
+          variant="primary"
+          style={styles.ctaButton}
+        />
       </View>
     </SafeAreaView>
   );

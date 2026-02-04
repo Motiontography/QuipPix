@@ -27,6 +27,7 @@ import { triggerHaptic } from '../services/haptics';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
 import { t } from '../i18n';
+import { GradientButton } from '../components/GradientButton';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'ShareCard'>;
 type Route = RouteProp<RootStackParamList, 'ShareCard'>;
@@ -217,23 +218,7 @@ export default function ShareCardScreen() {
     },
     actionBtn: {
       flex: 1,
-      paddingVertical: spacing.md,
       borderRadius: borderRadius.lg,
-      alignItems: 'center',
-    },
-    saveBtn: {
-      backgroundColor: colors.surfaceLight,
-    },
-    saveBtnText: {
-      ...typography.bodyBold,
-      color: colors.textPrimary,
-    },
-    shareBtn: {
-      backgroundColor: colors.primary,
-    },
-    shareBtnText: {
-      ...typography.bodyBold,
-      color: colors.textPrimary,
     },
   }), [colors]);
 
@@ -348,20 +333,18 @@ export default function ShareCardScreen() {
 
       {/* Action Buttons */}
       <View style={styles.actionBar}>
-        <TouchableOpacity
-          style={[styles.actionBtn, styles.saveBtn]}
+        <GradientButton
+          title={t('shareCard.save')}
           onPress={handleSave}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.saveBtnText}>{t('shareCard.save')}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.actionBtn, styles.shareBtn]}
+          variant="accent"
+          style={styles.actionBtn}
+        />
+        <GradientButton
+          title={t('shareCard.share')}
           onPress={handleShare}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.shareBtnText}>{t('shareCard.share')}</Text>
-        </TouchableOpacity>
+          variant="primary"
+          style={styles.actionBtn}
+        />
       </View>
     </SafeAreaView>
   );

@@ -37,6 +37,7 @@ import { trackEvent } from '../services/analytics';
 import { t } from '../i18n';
 import ProBadge from '../components/ProBadge';
 import DailyLimitBanner from '../components/DailyLimitBanner';
+import { GradientButton } from '../components/GradientButton';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -296,12 +297,8 @@ export default function CustomizeScreen() {
     resetBtn: { alignItems: 'center', paddingVertical: spacing.sm, marginBottom: spacing.sm },
     resetText: { ...typography.caption, color: colors.error },
     generateBtn: {
-      backgroundColor: colors.primary,
       borderRadius: borderRadius.lg,
-      paddingVertical: spacing.md,
-      alignItems: 'center',
     },
-    generateText: { ...typography.h3, color: colors.textPrimary },
     presetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     presetActions: { flexDirection: 'row', gap: spacing.md },
     presetLoadText: { ...typography.bodyBold, color: colors.primary },
@@ -654,13 +651,13 @@ export default function CustomizeScreen() {
         >
           <Text style={styles.resetText}>{t('customize.resetDefaults')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.generateBtn}
+        <GradientButton
+          title={`Generate ${stylePack.icon}`}
           onPress={handleGenerate}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.generateText}>Generate {stylePack.icon}</Text>
-        </TouchableOpacity>
+          variant="primary"
+          size="large"
+          style={styles.generateBtn}
+        />
       </View>
 
       {/* Load Preset Modal */}

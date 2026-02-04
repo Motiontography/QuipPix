@@ -26,6 +26,8 @@ import { getAppVersion, getBuildNumber } from '../services/appInfo';
 import { api } from '../api/client';
 import { clearAuth } from '../services/auth';
 import { triggerHaptic } from '../services/haptics';
+import { trackEvent } from '../services/analytics';
+import { getCacheInfo, clearCache, CacheInfo } from '../services/cacheManager';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme, ThemeMode } from '../contexts/ThemeContext';
 import { t } from '../i18n';
@@ -37,13 +39,19 @@ export default function SettingsScreen() {
   const navigation = useNavigation<Nav>();
   const { watermarkEnabled, setWatermarkEnabled, clearGallery } = useAppStore();
   const setThemeMode = useAppStore((s) => s.setThemeMode);
+  const reduceMotionOverride = useAppStore((s) => s.reduceMotionOverride);
+  const setReduceMotionOverride = useAppStore((s) => s.setReduceMotionOverride);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [cacheInfo, setCacheInfo] = useState<CacheInfo | null>(null);
+  const [isClearing, setIsClearing] = useState(false);
   const entitlement = useProStore((s) => s.entitlement);
   const setEntitlement = useProStore((s) => s.setEntitlement);
   const [notificationsOn, setNotificationsOn] = useState(false);
 
   useEffect(() => {
     isNotificationsEnabled().then(setNotificationsOn);
+    getCacheInfo().then(setCacheInfo);
+    trackEvent('cache_size_viewed');
   }, []);
 
   const handleToggleNotifications = async (value: boolean) => {
@@ -306,6 +314,48 @@ export default function SettingsScreen() {
           </View>
         </View>
 
+        {/* Storage */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle} accessibilityRole="header">{t('settings.storage')}</Text>
+          <View style={styles.row}>
+            <View style={styles.rowInfo}>
+              <Text style={styles.rowLabel}>{t('settings.imageCache')}</Text>
+              <Text style={styles.rowDesc}>
+                {cacheInfo
+                  ? t('settings.cacheSize', { size: cacheInfo.formattedSize, count: String(cacheInfo.fileCount) })
+                  : t('settings.cacheSizeLoading')}
+              </Text>
+            </View>
+          </View>
+          <TouchableOpacity
+            style={[styles.dangerBtn, { marginTop: spacing.md }]}
+            disabled={isClearing}
+            onPress={() => {
+              Alert.alert(
+                t('settings.clearCacheTitle'),
+                t('settings.clearCacheMessage'),
+                [
+                  { text: t('common.cancel'), style: 'cancel' },
+                  { text: t('settings.clearCacheConfirm'), style: 'destructive', onPress: async () => {
+                    setIsClearing(true);
+                    await clearCache();
+                    trackEvent('cache_cleared');
+                    const info = await getCacheInfo();
+                    setCacheInfo(info);
+                    setIsClearing(false);
+                  }},
+                ]
+              );
+            }}
+            accessibilityLabel="Clear Cache"
+            accessibilityRole="button"
+          >
+            <Text style={styles.dangerText}>
+              {isClearing ? t('settings.clearing') : t('settings.clearCacheConfirm')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Appearance */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle} accessibilityRole="header">{t('settings.appearance')}</Text>
@@ -323,6 +373,20 @@ export default function SettingsScreen() {
                 </Text>
               </TouchableOpacity>
             ))}
+          </View>
+          <View style={[styles.row, { marginTop: spacing.md }]}>
+            <View style={styles.rowInfo}>
+              <Text style={styles.rowLabel}>{t('settings.reduceMotion')}</Text>
+              <Text style={styles.rowDesc}>{t('settings.reduceMotionDesc')}</Text>
+            </View>
+            <Switch
+              value={reduceMotionOverride === true}
+              onValueChange={(val) => {
+                setReduceMotionOverride(val ? true : null);
+                trackEvent('reduce_motion_toggled', { enabled: val });
+              }}
+              trackColor={{ false: colors.surfaceLight, true: colors.primary }}
+            />
           </View>
         </View>
 

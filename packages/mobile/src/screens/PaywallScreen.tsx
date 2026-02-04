@@ -19,6 +19,7 @@ import { trackEvent } from '../services/analytics';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
 import { t } from '../i18n';
+import { GradientButton } from '../components/GradientButton';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Paywall'>;
 type Route = RouteProp<RootStackParamList, 'Paywall'>;
@@ -211,20 +212,9 @@ export default function PaywallScreen() {
       color: colors.textMuted,
     },
     ctaBtn: {
-      backgroundColor: '#6C5CE7',
       borderRadius: borderRadius.lg,
-      paddingVertical: spacing.md,
-      paddingHorizontal: spacing.xxl,
       width: '100%',
-      alignItems: 'center',
       marginBottom: spacing.md,
-    },
-    ctaBtnDisabled: {
-      opacity: 0.6,
-    },
-    ctaText: {
-      ...typography.h3,
-      color: '#FFFFFF',
     },
     restoreBtn: {
       padding: spacing.md,
@@ -293,20 +283,14 @@ export default function PaywallScreen() {
         )}
 
         {/* CTA */}
-        <TouchableOpacity
-          style={[styles.ctaBtn, purchasing && styles.ctaBtnDisabled]}
+        <GradientButton
+          title={packages.length > 0 ? t('paywall.subscribe') : t('paywall.loading')}
           onPress={handlePurchase}
+          variant="primary"
+          loading={purchasing}
           disabled={purchasing || packages.length === 0}
-          activeOpacity={0.8}
-        >
-          {purchasing ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.ctaText}>
-              {packages.length > 0 ? t('paywall.subscribe') : t('paywall.loading')}
-            </Text>
-          )}
-        </TouchableOpacity>
+          style={styles.ctaBtn}
+        />
 
         {/* Restore */}
         <TouchableOpacity

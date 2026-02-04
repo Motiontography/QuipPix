@@ -22,10 +22,11 @@ interface ZoomableImageProps {
   maxZoom?: number;
   children?: React.ReactNode;
   accessibilityLabel?: string;
+  reduceMotion?: boolean;
 }
 
 const ZoomableImage = forwardRef<ZoomableImageHandle, ZoomableImageProps>(
-  ({ uri, style, minZoom = 1, maxZoom = 3, children, accessibilityLabel }, ref) => {
+  ({ uri, style, minZoom = 1, maxZoom = 3, children, accessibilityLabel, reduceMotion = false }, ref) => {
     const scrollRef = useRef<ScrollView>(null);
     const lastTapTimestamp = useRef<number>(0);
     const lastTapX = useRef<number>(0);
@@ -81,7 +82,7 @@ const ZoomableImage = forwardRef<ZoomableImageHandle, ZoomableImageProps>(
               y: 0,
               width: containerWidth.current,
               height: containerHeight.current,
-              animated: true,
+              animated: !reduceMotion,
             });
           } else {
             // At zoom 1 - zoom in
@@ -95,7 +96,7 @@ const ZoomableImage = forwardRef<ZoomableImageHandle, ZoomableImageProps>(
                 y: pageY - zoomHeight / 2,
                 width: zoomWidth,
                 height: zoomHeight,
-                animated: true,
+                animated: !reduceMotion,
               });
             } else {
               (scrollRef.current as any)?.scrollResponderZoomTo({
@@ -103,7 +104,7 @@ const ZoomableImage = forwardRef<ZoomableImageHandle, ZoomableImageProps>(
                 y: 0,
                 width: containerWidth.current / targetZoom,
                 height: containerHeight.current / targetZoom,
-                animated: true,
+                animated: !reduceMotion,
               });
             }
           }
@@ -116,7 +117,7 @@ const ZoomableImage = forwardRef<ZoomableImageHandle, ZoomableImageProps>(
           lastTapY.current = pageY;
         }
       },
-      [maxZoom],
+      [maxZoom, reduceMotion],
     );
 
     return (

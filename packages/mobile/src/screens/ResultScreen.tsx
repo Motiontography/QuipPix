@@ -31,6 +31,7 @@ import { cacheImage } from '../services/imageCache';
 import { maybePromptReview } from '../services/reviewPrompt';
 import { triggerHaptic } from '../services/haptics';
 import { t } from '../i18n';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 import CoachMark from '../components/CoachMark';
 import { COACH_MARKS } from '../constants/coachMarks';
 
@@ -39,6 +40,7 @@ type Route = RouteProp<RootStackParamList, 'Result'>;
 
 export default function ResultScreen() {
   const { colors } = useTheme();
+  const reduceMotion = useReducedMotion();
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { jobId, resultUrl, params, sourceImageUri } = route.params;
@@ -353,6 +355,7 @@ export default function ResultScreen() {
               ref={zoomRef}
               uri={resultUrl}
               style={styles.resultImage}
+              reduceMotion={reduceMotion}
               accessibilityLabel={`Generated ${stylePack.displayName} art`}
             >
               {watermarkEnabled && (

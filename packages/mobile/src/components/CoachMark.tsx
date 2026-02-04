@@ -14,6 +14,7 @@ import { trackEvent } from '../services/analytics';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
 import { t } from '../i18n';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 interface CoachMarkProps {
   markId: string;
@@ -36,6 +37,7 @@ export default function CoachMark({
   onDismiss,
 }: CoachMarkProps) {
   const { colors } = useTheme();
+  const reduceMotion = useReducedMotion();
   const hasSeenCoachMark = useAppStore((s) => s.hasSeenCoachMark);
   const dismissCoachMark = useAppStore((s) => s.dismissCoachMark);
   const opacity = useRef(new Animated.Value(0)).current;
@@ -67,20 +69,25 @@ export default function CoachMark({
 
   useEffect(() => {
     if (visible) {
-      Animated.parallel([
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(translateY, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      if (reduceMotion) {
+        opacity.setValue(1);
+        translateY.setValue(0);
+      } else {
+        Animated.parallel([
+          Animated.timing(opacity, {
+            toValue: 1,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(translateY, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }
     }
-  }, [visible, opacity, translateY]);
+  }, [visible, opacity, translateY, reduceMotion]);
 
   const handleDismiss = () => {
     triggerHaptic('light');

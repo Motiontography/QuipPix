@@ -85,6 +85,8 @@ export const en = {
   'gallery.recreate': 'Re-create',
   'gallery.recreateDesc': 'Open with same settings',
   'gallery.imageNotFound': 'The original image is no longer available.',
+  'gallery.listView': 'List',
+  'gallery.gridView': 'Grid',
 
   // Settings
   'settings.title': 'Settings',
@@ -118,6 +120,17 @@ export const en = {
   'settings.deleting': 'Deleting...',
   'settings.privacyNoteFull': 'Your photos are processed securely and automatically deleted from our servers within 1 hour. We strip all EXIF metadata before upload. No account required.',
   'settings.byMotiontography': 'by Motiontography',
+  'settings.reduceMotion': 'Reduce Motion',
+  'settings.reduceMotionDesc': 'Minimize animations throughout the app',
+  'settings.storage': 'Storage',
+  'settings.imageCache': 'Image Cache',
+  'settings.cacheSize': '{size} ({count} files)',
+  'settings.cacheSizeLoading': 'Calculating...',
+  'settings.clearCache': 'Clear Cache',
+  'settings.clearCacheTitle': 'Clear Image Cache',
+  'settings.clearCacheMessage': 'This will remove all cached images. They can be re-downloaded when needed.',
+  'settings.clearCacheConfirm': 'Clear',
+  'settings.clearing': 'Clearing...',
 
   // Style Select
   'styleSelect.title': 'Choose a Style',
@@ -249,6 +262,25 @@ export const en = {
   'coachMark.galleryRecreateDesc': 'Long-press any creation and tap Re-create to use the same settings.',
   'coachMark.challengesStreakTitle': 'Build Your Streak',
   'coachMark.challengesStreakDesc': 'Complete challenges daily to build your streak and stay creative!',
+
+  // Stats
+  'stats.title': 'Your Stats',
+  'stats.challengeStreaks': 'Challenge Streaks',
+  'stats.creations': 'Creations',
+  'stats.totalCreations': 'Total Creations',
+  'stats.gallerySize': 'Gallery Size',
+  'stats.favorites': 'Favorites',
+  'stats.collections': 'Collections',
+  'stats.avgPerDay': 'Avg Per Day',
+  'stats.generations': 'Generations',
+  'stats.successful': 'Successful',
+  'stats.usedToday': 'Used Today',
+  'stats.challengesCompleted': 'Challenges Completed',
+  'stats.styleBreakdown': 'Style Breakdown',
+  'stats.successfulGenerations': 'Successful Generations',
+  'stats.topStyles': 'Top Styles',
+  'stats.creationTimeline': 'Last 7 Days',
+  'stats.proMember': 'Pro Member',
 
   // Common
   'common.cancel': 'Cancel',

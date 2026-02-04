@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,9 @@ import { trackEvent } from '../services/analytics';
 import { spacing, typography, borderRadius } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
 import { t } from '../i18n';
+import { CircularProgress } from '../components/CircularProgress';
+import { FadingMessage } from '../components/FadingMessage';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'BatchGenerating'>;
 type Route = RouteProp<RootStackParamList, 'BatchGenerating'>;
@@ -38,23 +41,13 @@ export default function BatchGeneratingScreen() {
   const route = useRoute<Route>();
   const { imageUris, params } = route.params;
   const stylePack = getStylePack(params.styleId);
+  const reduceMotion = useReducedMotion();
 
   const [overallProgress, setOverallProgress] = useState(0);
   const [jobProgresses, setJobProgresses] = useState<number[]>(
     new Array(imageUris.length).fill(0),
   );
-  const [message, setMessage] = useState(FUN_MESSAGES[0]);
   const [error, setError] = useState<string | null>(null);
-
-  // Cycle fun messages
-  useEffect(() => {
-    let idx = 0;
-    const interval = setInterval(() => {
-      idx = (idx + 1) % FUN_MESSAGES.length;
-      setMessage(FUN_MESSAGES[idx]);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
 
   // Submit batch and poll
   useEffect(() => {
@@ -307,16 +300,8 @@ export default function BatchGeneratingScreen() {
 
       {/* Overall progress */}
       <View style={styles.footer}>
-        <Text style={styles.message}>{message}</Text>
-        <View style={styles.progressBar}>
-          <View
-            style={[
-              styles.progressFill,
-              { width: `${Math.max(overallProgress, 3)}%` },
-            ]}
-          />
-        </View>
-        <Text style={styles.progressText}>{overallProgress}%</Text>
+        <FadingMessage messages={FUN_MESSAGES} reduceMotion={reduceMotion} textStyle={styles.message} />
+        <CircularProgress progress={overallProgress} size={80} reduceMotion={reduceMotion} />
       </View>
     </SafeAreaView>
   );

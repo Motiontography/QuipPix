@@ -80,6 +80,10 @@ interface AppState {
   dismissedCoachMarks: string[];
   dismissCoachMark: (markId: string) => void;
   hasSeenCoachMark: (markId: string) => boolean;
+
+  // Reduce Motion
+  reduceMotionOverride: boolean | null;
+  setReduceMotionOverride: (value: boolean | null) => void;
 }
 
 const DEFAULT_SLIDERS: CommonSliders = {
@@ -105,6 +109,7 @@ const FAVORITE_STYLES_KEY = '@quippix/favoriteStyles';
 const RECENT_STYLES_KEY = '@quippix/recentStyles';
 const PRESETS_KEY = '@quippix/presets';
 const COACH_MARKS_KEY = '@quippix/coachMarks';
+const REDUCE_MOTION_KEY = '@quippix/reduceMotion';
 
 export const useAppStore = create<AppState>((set, get) => ({
   // Gallery
@@ -228,6 +233,15 @@ export const useAppStore = create<AppState>((set, get) => ({
       const coachMarks = await AsyncStorage.getItem(COACH_MARKS_KEY);
       if (coachMarks) {
         set({ dismissedCoachMarks: JSON.parse(coachMarks) });
+      }
+    } catch {
+      // Ignore
+    }
+
+    try {
+      const rmRaw = await AsyncStorage.getItem(REDUCE_MOTION_KEY);
+      if (rmRaw !== null) {
+        set({ reduceMotionOverride: JSON.parse(rmRaw) });
       }
     } catch {
       // Ignore
@@ -423,5 +437,17 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   hasSeenCoachMark: (markId: string) => {
     return get().dismissedCoachMarks.includes(markId);
+  },
+
+  // Reduce Motion
+  reduceMotionOverride: null,
+
+  setReduceMotionOverride: async (value: boolean | null) => {
+    set({ reduceMotionOverride: value });
+    if (value !== null) {
+      await AsyncStorage.setItem(REDUCE_MOTION_KEY, JSON.stringify(value));
+    } else {
+      await AsyncStorage.removeItem(REDUCE_MOTION_KEY);
+    }
   },
 }));

@@ -36,7 +36,14 @@ type AnalyticsEvent =
   | 'redo_used'
   | 'reset_to_defaults'
   | 'coach_mark_dismissed'
-  | 'recreate_from_gallery';
+  | 'recreate_from_gallery'
+  | 'reduce_motion_toggled'
+  | 'gallery_swipe_delete'
+  | 'gallery_swipe_favorite'
+  | 'gallery_view_mode_changed'
+  | 'cache_cleared'
+  | 'cache_size_viewed'
+  | 'stats_viewed';
 
 interface EventPayload {
   event: AnalyticsEvent;

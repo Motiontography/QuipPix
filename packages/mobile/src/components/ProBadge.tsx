@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from '../contexts/ThemeContext';
 
 interface ProBadgeProps {
@@ -12,7 +13,6 @@ export default function ProBadge({ size = 'default' }: ProBadgeProps) {
 
   const styles = useMemo(() => StyleSheet.create({
     badge: {
-      backgroundColor: colors.primary,
       paddingHorizontal: 8,
       paddingVertical: 3,
       borderRadius: 10,
@@ -34,8 +34,13 @@ export default function ProBadge({ size = 'default' }: ProBadgeProps) {
   }), [colors]);
 
   return (
-    <View style={[styles.badge, isSmall && styles.badgeSmall]}>
+    <LinearGradient
+      colors={[...colors.gradientPrimary]}
+      start={{x: 0, y: 0}}
+      end={{x: 1, y: 0}}
+      style={[styles.badge, isSmall && styles.badgeSmall]}
+    >
       <Text style={[styles.text, isSmall && styles.textSmall]}>PRO</Text>
-    </View>
+    </LinearGradient>
   );
 }

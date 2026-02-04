@@ -22,6 +22,9 @@ import { queueGeneration } from '../services/offlineQueue';
 import { triggerHaptic } from '../services/haptics';
 import { spacing, typography, borderRadius } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
+import { CircularProgress } from '../components/CircularProgress';
+import { FadingMessage } from '../components/FadingMessage';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Generating'>;
 type Route = RouteProp<RootStackParamList, 'Generating'>;
@@ -42,6 +45,7 @@ export default function GeneratingScreen() {
   const stylePack = getStylePack(params.styleId);
   const { colors } = useTheme();
   const { isConnected } = useNetworkStatus();
+  const reduceMotion = useReducedMotion();
 
   const entitlement = useProStore((s) => s.entitlement);
   const isDailyLimitReached = useProStore((s) => s.isDailyLimitReached);
@@ -49,13 +53,18 @@ export default function GeneratingScreen() {
   const incrementSuccessfulGenerations = useProStore((s) => s.incrementSuccessfulGenerations);
 
   const [progress, setProgress] = useState(0);
-  const [message, setMessage] = useState(FUN_MESSAGES[0]);
   const [error, setError] = useState<string | null>(null);
   const spinAnim = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   // Spin animation
   useEffect(() => {
+    if (reduceMotion) {
+      spinAnim.setValue(0);
+      pulseAnim.setValue(1);
+      return;
+    }
+
     const spin = Animated.loop(
       Animated.timing(spinAnim, {
         toValue: 1,
@@ -86,17 +95,7 @@ export default function GeneratingScreen() {
       spin.stop();
       pulse.stop();
     };
-  }, [spinAnim, pulseAnim]);
-
-  // Cycle fun messages
-  useEffect(() => {
-    let idx = 0;
-    const interval = setInterval(() => {
-      idx = (idx + 1) % FUN_MESSAGES.length;
-      setMessage(FUN_MESSAGES[idx]);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
+  }, [spinAnim, pulseAnim, reduceMotion]);
 
   // Submit job and poll
   useEffect(() => {
@@ -310,13 +309,9 @@ export default function GeneratingScreen() {
         </Animated.View>
 
         <Text style={styles.title}>{t('generating.creatingYour', { styleName: stylePack.displayName })}</Text>
-        <Text style={styles.message}>{message}</Text>
+        <FadingMessage messages={FUN_MESSAGES} reduceMotion={reduceMotion} textStyle={styles.message} />
 
-        {/* Progress bar */}
-        <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: `${Math.max(progress, 5)}%` }]} />
-        </View>
-        <Text style={styles.progressText}>{progress}%</Text>
+        <CircularProgress progress={progress} size={140} reduceMotion={reduceMotion} />
       </View>
     </SafeAreaView>
   );

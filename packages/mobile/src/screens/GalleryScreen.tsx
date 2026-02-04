@@ -27,6 +27,8 @@ import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
 import { COACH_MARKS } from '../constants/coachMarks';
 import { t } from '../i18n';
+import { SwipeableGalleryCard } from '../components/SwipeableGalleryCard';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -35,6 +37,7 @@ const SPOTLIGHT_INTERVAL = 7;
 export default function GalleryScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
+  const reduceMotion = useReducedMotion();
   const {
     gallery,
     removeFromGallery,
@@ -60,6 +63,7 @@ export default function GalleryScreen() {
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'style'>('newest');
   const [showSortMenu, setShowSortMenu] = useState(false);
+  const [listMode, setListMode] = useState<'grid' | 'list'>('grid');
   const searchTimeout = useRef<NodeJS.Timeout>();
   const galleryHeaderRef = useRef<View>(null);
 
@@ -253,6 +257,27 @@ export default function GalleryScreen() {
       paddingBottom: spacing.sm,
     },
 
+    // List mode
+    listCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      overflow: 'hidden',
+      marginBottom: spacing.sm,
+      padding: spacing.sm,
+    },
+    listCardImage: {
+      width: 64,
+      height: 64,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.surfaceLight,
+    },
+    listCardInfo: {
+      flex: 1,
+      marginLeft: spacing.sm,
+    },
+
     // Heart overlay
     heartOverlay: {
       position: 'absolute',
@@ -343,6 +368,20 @@ export default function GalleryScreen() {
               {sortOrder === 'newest' ? '\u2B07' : sortOrder === 'oldest' ? '\u2B06' : '\uD83D\uDD24'}
             </Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.sortButton}
+            onPress={() => {
+              const newMode = listMode === 'grid' ? 'list' : 'grid';
+              setListMode(newMode);
+              trackEvent('gallery_view_mode_changed', { mode: newMode });
+            }}
+            accessibilityLabel={listMode === 'grid' ? t('gallery.listView') : t('gallery.gridView')}
+            accessibilityRole="button"
+          >
+            <Text style={styles.sortIcon}>
+              {listMode === 'grid' ? '\u2630' : '\u229E'}
+            </Text>
+          </TouchableOpacity>
         </View>
       )}
 
@@ -429,53 +468,110 @@ export default function GalleryScreen() {
         </View>
       ) : (
         <FlatList
+          key={listMode}
           data={filteredGallery}
           keyExtractor={(item) => item.id}
-          numColumns={2}
+          numColumns={listMode === 'grid' ? 2 : 1}
           contentContainerStyle={styles.grid}
-          columnWrapperStyle={styles.gridRow}
+          columnWrapperStyle={listMode === 'grid' ? styles.gridRow : undefined}
           ListHeaderComponent={
             shouldShowSpotlight && activeFilter === 'all' ? <SpotlightCarousel /> : null
           }
-          renderItem={({ item }: { item: GalleryItem }) => (
-            <TouchableOpacity
-              style={styles.card}
-              onPress={() =>
-                navigation.navigate('ShareCard', {
-                  localUri: item.localUri,
-                  styleName: item.styleName,
-                  styleId: item.styleId,
-                })
-              }
-              onLongPress={() => {
-                setMenuItemId(item.id);
-                setMenuVisible(true);
-              }}
-              activeOpacity={0.8}
-              accessibilityLabel={`${item.styleName} created on ${new Date(item.createdAt).toLocaleDateString()}`}
-              accessibilityRole="button"
-              accessibilityHint="Tap to view, long press for options"
-            >
-              <View>
-                <FastImage source={{ uri: item.localUri, priority: FastImage.priority.normal }} style={styles.cardImage} resizeMode={FastImage.resizeMode.cover} />
+          renderItem={({ item }: { item: GalleryItem }) =>
+            listMode === 'list' ? (
+              <SwipeableGalleryCard
+                onDelete={() => {
+                  trackEvent('gallery_swipe_delete');
+                  handleDelete(item.id);
+                }}
+                onToggleFavorite={() => {
+                  trackEvent('gallery_swipe_favorite');
+                  toggleFavorite(item.id);
+                }}
+                isFavorite={favorites.includes(item.id)}
+                reduceMotion={reduceMotion}
+              >
                 <TouchableOpacity
-                  style={styles.heartOverlay}
-                  onPress={() => toggleFavorite(item.id)}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  accessibilityLabel={isFavorite(item.id) ? 'Remove from favorites' : 'Add to favorites'}
+                  style={styles.listCard}
+                  onPress={() =>
+                    navigation.navigate('ShareCard', {
+                      localUri: item.localUri,
+                      styleName: item.styleName,
+                      styleId: item.styleId,
+                    })
+                  }
+                  onLongPress={() => {
+                    setMenuItemId(item.id);
+                    setMenuVisible(true);
+                  }}
+                  activeOpacity={0.8}
+                  accessibilityLabel={`${item.styleName} created on ${new Date(item.createdAt).toLocaleDateString()}`}
                   accessibilityRole="button"
+                  accessibilityHint="Tap to view, long press for options"
                 >
-                  <Text style={styles.heartIcon}>
-                    {isFavorite(item.id) ? '\u2764\uFE0F' : '\uD83E\uDD0D'}
-                  </Text>
+                  <FastImage
+                    source={{ uri: item.localUri, priority: FastImage.priority.normal }}
+                    style={styles.listCardImage}
+                    resizeMode={FastImage.resizeMode.cover}
+                  />
+                  <View style={styles.listCardInfo}>
+                    <Text style={styles.cardStyle}>{item.styleName}</Text>
+                    <Text style={styles.cardDate}>
+                      {new Date(item.createdAt).toLocaleDateString()}
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => toggleFavorite(item.id)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    accessibilityLabel={isFavorite(item.id) ? 'Remove from favorites' : 'Add to favorites'}
+                    accessibilityRole="button"
+                  >
+                    <Text style={styles.heartIcon}>
+                      {isFavorite(item.id) ? '\u2764\uFE0F' : '\uD83E\uDD0D'}
+                    </Text>
+                  </TouchableOpacity>
                 </TouchableOpacity>
-              </View>
-              <Text style={styles.cardStyle}>{item.styleName}</Text>
-              <Text style={styles.cardDate}>
-                {new Date(item.createdAt).toLocaleDateString()}
-              </Text>
-            </TouchableOpacity>
-          )}
+              </SwipeableGalleryCard>
+            ) : (
+              <TouchableOpacity
+                style={styles.card}
+                onPress={() =>
+                  navigation.navigate('ShareCard', {
+                    localUri: item.localUri,
+                    styleName: item.styleName,
+                    styleId: item.styleId,
+                  })
+                }
+                onLongPress={() => {
+                  setMenuItemId(item.id);
+                  setMenuVisible(true);
+                }}
+                activeOpacity={0.8}
+                accessibilityLabel={`${item.styleName} created on ${new Date(item.createdAt).toLocaleDateString()}`}
+                accessibilityRole="button"
+                accessibilityHint="Tap to view, long press for options"
+              >
+                <View>
+                  <FastImage source={{ uri: item.localUri, priority: FastImage.priority.normal }} style={styles.cardImage} resizeMode={FastImage.resizeMode.cover} />
+                  <TouchableOpacity
+                    style={styles.heartOverlay}
+                    onPress={() => toggleFavorite(item.id)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    accessibilityLabel={isFavorite(item.id) ? 'Remove from favorites' : 'Add to favorites'}
+                    accessibilityRole="button"
+                  >
+                    <Text style={styles.heartIcon}>
+                      {isFavorite(item.id) ? '\u2764\uFE0F' : '\uD83E\uDD0D'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.cardStyle}>{item.styleName}</Text>
+                <Text style={styles.cardDate}>
+                  {new Date(item.createdAt).toLocaleDateString()}
+                </Text>
+              </TouchableOpacity>
+            )
+          }
         />
       )}
 
