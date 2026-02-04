@@ -3,8 +3,8 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
-RUN npm ci --ignore-scripts
+COPY package.json ./
+RUN npm install --ignore-scripts
 
 COPY tsconfig.json ./
 COPY src/ ./src/
@@ -18,8 +18,8 @@ RUN addgroup -S quippix && adduser -S quippix -G quippix
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
-RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
+COPY package.json ./
+RUN npm install --omit=dev --ignore-scripts && npm cache clean --force
 
 COPY --from=builder /app/dist ./dist
 
