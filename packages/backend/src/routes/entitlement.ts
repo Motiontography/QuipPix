@@ -61,8 +61,8 @@ async function fetchSubscriberInfo(
 
     if (!res.ok) return null;
 
-    const data = await res.json();
-    return data.subscriber as RevenueCatSubscriber;
+    const data = (await res.json()) as { subscriber: RevenueCatSubscriber };
+    return data.subscriber;
   } catch {
     return null;
   }
