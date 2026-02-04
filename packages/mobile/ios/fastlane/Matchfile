@@ -1,5 +1,5 @@
-git_url("YOUR_CERTIFICATES_REPO_URL") # Git repo for cert storage
+git_url(ENV["MATCH_GIT_URL"] || "https://github.com/Motiontography/certificates.git")
 storage_mode("git")
 type("appstore")
 app_identifier(["com.motiontography.quippix"])
-username("YOUR_APPLE_ID@example.com")
+username(ENV["APPLE_ID"] || "YOUR_APPLE_ID@example.com")

@@ -30,6 +30,13 @@ coverage/
 
 # Secrets
 API.txt
+*.p8
+*.p12
+*.pem
+*.mobileprovision
+**/keystore.properties
+**/google-play-service-account*.json
+**/service-account*.json
 
 # OS
 .DS_Store

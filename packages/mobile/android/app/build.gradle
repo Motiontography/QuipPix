@@ -32,11 +32,19 @@ android {
             keyPassword 'android'
         }
         release {
-            // Configure in local keystore.properties (not committed)
-            // storeFile file(RELEASE_STORE_FILE)
-            // storePassword RELEASE_STORE_PASSWORD
-            // keyAlias RELEASE_KEY_ALIAS
-            // keyPassword RELEASE_KEY_PASSWORD
+            // CI: reads from environment variables set by GitHub Actions
+            // Local: reads from keystore.properties (not committed)
+            if (System.getenv("ANDROID_KEYSTORE_FILE")) {
+                storeFile file(System.getenv("ANDROID_KEYSTORE_FILE"))
+                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("ANDROID_KEY_ALIAS")
+                keyPassword System.getenv("ANDROID_KEY_PASSWORD")
+            } else if (project.hasProperty('RELEASE_STORE_FILE')) {
+                storeFile file(RELEASE_STORE_FILE)
+                storePassword RELEASE_STORE_PASSWORD
+                keyAlias RELEASE_KEY_ALIAS
+                keyPassword RELEASE_KEY_PASSWORD
+            }
         }
     }
 
@@ -46,7 +54,7 @@ android {
             buildConfigField "String", "API_BASE_URL", "\"http://10.0.2.2:3000\""
         }
         release {
-            signingConfig signingConfigs.debug // Switch to release for production
+            signingConfig signingConfigs.release.storeFile ? signingConfigs.release : signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             buildConfigField "String", "API_BASE_URL", "\"https://api.quippix.app\""

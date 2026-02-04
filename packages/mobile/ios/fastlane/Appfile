@@ -1,6 +1,6 @@
 app_identifier("com.motiontography.quippix")
-apple_id("YOUR_APPLE_ID@example.com") # Your Apple Developer email
-team_id("YOUR_TEAM_ID") # Apple Developer Team ID
+apple_id(ENV["APPLE_ID"] || "YOUR_APPLE_ID@example.com")
+team_id("8ZXNTAGJB8")
 
 for_platform :ios do
   for_lane :beta do
