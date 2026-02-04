@@ -11,10 +11,156 @@ on:
           - ios
           - android
           - both
+      track:
+        description: 'Release track'
+        required: true
+        type: choice
+        options:
+          - beta
+          - release
+
+# Cancel any in-progress runs for the same workflow
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  placeholder:
+  # ──────────────────────────────────────────────
+  # Gate: run tests before building anything
+  # ──────────────────────────────────────────────
+  test:
+    name: Pre-flight tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: echo "Release workflow for ${{ inputs.platform }} -- TODO implement with EAS Build or Fastlane"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Type check (mobile)
+        run: npx tsc --noEmit --project packages/mobile/tsconfig.json
+
+      - name: Unit tests (mobile)
+        run: npm test --workspace=@quippix/mobile -- --verbose
+
+      - name: Type check (backend)
+        run: npx tsc --noEmit --project packages/backend/tsconfig.json
+
+  # ──────────────────────────────────────────────
+  # iOS — builds on macOS, uses Fastlane + Match
+  # ──────────────────────────────────────────────
+  ios:
+    name: iOS (${{ inputs.track }})
+    needs: test
+    if: inputs.platform == 'ios' || inputs.platform == 'both'
+    runs-on: macos-14
+    defaults:
+      run:
+        working-directory: packages/mobile/ios
+    env:
+      # Match (code signing)
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+      # App Store Connect API key (recommended over Apple ID login)
+      APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+      APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+      APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+      FASTLANE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: packages/mobile
+
+      - name: Install JS dependencies
+        run: npm ci
+        working-directory: .
+
+      - name: Install CocoaPods
+        run: bundle exec pod install
+
+      - name: Build & upload (${{ inputs.track }})
+        run: bundle exec fastlane ${{ inputs.track }}
+        env:
+          # Prevent Fastlane from opening a browser
+          FASTLANE_OPT_OUT_USAGE: 'YES'
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-build-logs
+          path: packages/mobile/ios/fastlane/logs/
+          retention-days: 14
+
+  # ──────────────────────────────────────────────
+  # Android — builds on Ubuntu, uses Fastlane + Gradle
+  # ──────────────────────────────────────────────
+  android:
+    name: Android (${{ inputs.track }})
+    needs: test
+    if: inputs.platform == 'android' || inputs.platform == 'both'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/mobile/android
+    env:
+      SUPPLY_JSON_KEY_DATA: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: gradle
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: packages/mobile
+
+      - name: Install JS dependencies
+        run: npm ci
+        working-directory: .
+
+      - name: Decode release keystore
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > app/release.keystore
+
+      - name: Build & upload (${{ inputs.track }})
+        run: bundle exec fastlane ${{ inputs.track }}
+        env:
+          ANDROID_KEYSTORE_FILE: app/release.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          FASTLANE_OPT_OUT_USAGE: 'YES'
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-build-logs
+          path: packages/mobile/android/fastlane/logs/
+          retention-days: 14

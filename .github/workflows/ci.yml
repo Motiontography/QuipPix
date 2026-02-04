@@ -42,8 +42,8 @@ jobs:
           REDIS_HOST: localhost
           REDIS_PORT: 6379
 
-  mobile-typecheck:
-    name: Mobile (typecheck)
+  mobile:
+    name: Mobile (test + typecheck)
     runs-on: ubuntu-latest
 
     steps:
@@ -58,3 +58,6 @@ jobs:
 
       - name: Type check
         run: npx tsc --noEmit --project packages/mobile/tsconfig.json
+
+      - name: Run tests
+        run: npm test --workspace=@quippix/mobile -- --verbose
