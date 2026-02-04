@@ -66,6 +66,10 @@ export const config = {
     cooldownMinutes: envInt('FREE_COOLDOWN_MINUTES', 30),
   },
 
+  proTier: {
+    dailyGenerationLimit: envInt('PRO_DAILY_GENERATION_LIMIT', 30),
+  },
+
   batch: {
     maxBatchSize: envInt('BATCH_MAX_SIZE', 10),
   },

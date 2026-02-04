@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { config } from '../config';
 import {
@@ -147,9 +148,13 @@ export async function entitlementRoutes(app: FastifyInstance) {
       request: FastifyRequest<{ Body: unknown }>,
       reply: FastifyReply,
     ) => {
-      // Verify webhook authorization
-      const authHeader = request.headers.authorization;
-      if (authHeader !== `Bearer ${config.revenuecat.webhookSecret}`) {
+      // Verify webhook authorization (timing-safe comparison)
+      const authHeader = request.headers.authorization ?? '';
+      const expected = `Bearer ${config.revenuecat.webhookSecret}`;
+      if (
+        authHeader.length !== expected.length ||
+        !crypto.timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected))
+      ) {
         return reply.status(401).send({ error: 'Invalid webhook secret' });
       }
 

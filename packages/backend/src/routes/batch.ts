@@ -16,6 +16,7 @@ import { perUserRateLimit } from '../middleware/perUserRateLimit';
 import { isStyleAllowed, isSizeAllowed, OutputSize } from '../services/tierConfig';
 import { moderatePrompt } from '../services/moderation';
 import { config } from '../config';
+import { getDailyCount, incrementDailyCount } from '../middleware/dailyGenerationLimit';
 import { logger } from '../utils/logger';
 
 export async function batchRoutes(app: FastifyInstance): Promise<void> {
@@ -63,6 +64,27 @@ export async function batchRoutes(app: FastifyInstance): Promise<void> {
         error: 'too_many_images',
         message: `Maximum ${config.batch.maxBatchSize} images per batch`,
       });
+    }
+
+    // Check daily generation limit for batch size
+    if (request.userId) {
+      const used = await getDailyCount(request.userId);
+      const tier = request.tier ?? 'free';
+      const limit = tier === 'pro'
+        ? config.proTier.dailyGenerationLimit
+        : config.freeTier.dailyGenerationLimit;
+      const remaining = limit - used;
+
+      if (remaining < imageBuffers.size) {
+        return reply.status(429).send({
+          error: 'daily_limit',
+          message: `Not enough daily generations remaining. Need ${imageBuffers.size}, have ${remaining} of ${limit}.`,
+          limit,
+          used,
+          remaining,
+          requested: imageBuffers.size,
+        });
+      }
     }
 
     // Parse and validate params
@@ -129,6 +151,12 @@ export async function batchRoutes(app: FastifyInstance): Promise<void> {
     }
 
     createBatch(batchId, jobIds);
+
+    if (request.userId) {
+      for (let i = 0; i < jobIds.length; i++) {
+        await incrementDailyCount(request.userId);
+      }
+    }
 
     logger.info(
       { batchId, jobCount: jobIds.length, styleId: genRequest.styleId },

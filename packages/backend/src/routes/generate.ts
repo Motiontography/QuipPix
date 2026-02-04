@@ -8,6 +8,7 @@ import { moderatePrompt, moderateImage } from '../services/moderation';
 import { tierGate } from '../middleware/tierGate';
 import { perUserRateLimit } from '../middleware/perUserRateLimit';
 import { isStyleAllowed, isSizeAllowed, OutputSize } from '../services/tierConfig';
+import { dailyGenerationLimit, incrementDailyCount } from '../middleware/dailyGenerationLimit';
 import { logger } from '../utils/logger';
 
 export async function generateRoutes(app: FastifyInstance): Promise<void> {
@@ -16,7 +17,7 @@ export async function generateRoutes(app: FastifyInstance): Promise<void> {
    * Accepts multipart: image file + JSON params
    * Returns: { jobId }
    */
-  app.post('/generate', { preHandler: [tierGate, perUserRateLimit] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  app.post('/generate', { preHandler: [tierGate, perUserRateLimit, dailyGenerationLimit] }, async (request: FastifyRequest, reply: FastifyReply) => {
     const parts = request.parts();
     let imageBuffer: Buffer | null = null;
     let params: any = {};
@@ -105,6 +106,10 @@ export async function generateRoutes(app: FastifyInstance): Promise<void> {
     // Enqueue generation job
     const jobId = nanoid(12);
     enqueueGenerate(jobId, inputKey, genRequest, request.tier, outputSize, request.userId);
+
+    if (request.userId) {
+      await incrementDailyCount(request.userId);
+    }
 
     logger.info({ jobId, styleId: genRequest.styleId, tier: request.tier }, 'Generation request accepted');
 

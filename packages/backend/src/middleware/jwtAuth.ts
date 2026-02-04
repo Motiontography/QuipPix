@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
-import { getServerEntitlement } from '../db/repositories/entitlementRepository';
+import { getServerEntitlement, setServerEntitlement } from '../db/repositories/entitlementRepository';
 import { Tier } from '../services/tierConfig';
 
 declare module 'fastify' {
@@ -34,7 +34,28 @@ export async function jwtAuth(
 
     // Determine tier from server-side entitlements
     const entitlement = getServerEntitlement(payload.sub);
-    request.tier = (entitlement?.proActive ? 'pro' : 'free') as Tier;
+    let isActive = entitlement?.proActive ?? false;
+
+    // Check if subscription has expired between webhook events
+    if (isActive && entitlement?.expiresAt) {
+      const expiresAtMs = new Date(entitlement.expiresAt).getTime();
+      if (Date.now() > expiresAtMs) {
+        isActive = false;
+        try {
+          setServerEntitlement({
+            appUserId: payload.sub,
+            proActive: false,
+            proType: null,
+            expiresAt: entitlement.expiresAt,
+            verifiedAt: new Date().toISOString(),
+          });
+        } catch {
+          // Non-critical — webhook will eventually update
+        }
+      }
+    }
+
+    request.tier = (isActive ? 'pro' : 'free') as Tier;
   } catch {
     // Invalid/expired JWT — fall through to legacy header-based auth
     return;
