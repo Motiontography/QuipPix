@@ -12,6 +12,8 @@ import {
   FlatList,
   Alert,
   Modal,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -348,296 +350,302 @@ export default function CustomizeScreen() {
         </View>
       </View>
 
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
-        {/* Preview */}
-        {isBatch ? (
-          <View style={styles.batchPreviewRow}>
-            <FlatList
-              horizontal
-              data={imageUris}
-              keyExtractor={(_, i) => `batch-preview-${i}`}
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.batchPreviewContent}
-              renderItem={({ item }) => (
-                <Image source={{ uri: item }} style={styles.batchPreviewThumb} />
-              )}
-            />
-            <Text style={styles.batchCount}>{imageUris!.length} photos selected</Text>
-          </View>
-        ) : (
-          <View style={styles.previewRow}>
-            <Image source={{ uri: imageUri }} style={styles.preview} />
-          </View>
-        )}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}
+      >
+        <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+          {/* Preview */}
+          {isBatch ? (
+            <View style={styles.batchPreviewRow}>
+              <FlatList
+                horizontal
+                data={imageUris}
+                keyExtractor={(_, i) => `batch-preview-${i}`}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.batchPreviewContent}
+                renderItem={({ item }) => (
+                  <Image source={{ uri: item }} style={styles.batchPreviewThumb} />
+                )}
+              />
+              <Text style={styles.batchCount}>{imageUris!.length} photos selected</Text>
+            </View>
+          ) : (
+            <View style={styles.previewRow}>
+              <Image source={{ uri: imageUri }} style={styles.preview} />
+            </View>
+          )}
 
-        {/* Presets */}
-        <View style={styles.section}>
-          <View style={styles.presetHeader}>
-            <Text style={styles.sectionTitle}>{t('customize.presets')}</Text>
-            <View style={styles.presetActions}>
-              <TouchableOpacity onPress={() => setShowPresetPicker(true)}>
-                <Text style={styles.presetLoadText}>{t('customize.loadPreset')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setShowSavePreset(true)}>
-                <Text style={styles.presetSaveText}>{t('customize.savePreset')}</Text>
-              </TouchableOpacity>
+          {/* Presets */}
+          <View style={styles.section}>
+            <View style={styles.presetHeader}>
+              <Text style={styles.sectionTitle}>{t('customize.presets')}</Text>
+              <View style={styles.presetActions}>
+                <TouchableOpacity onPress={() => setShowPresetPicker(true)}>
+                  <Text style={styles.presetLoadText}>{t('customize.loadPreset')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setShowSavePreset(true)}>
+                  <Text style={styles.presetSaveText}>{t('customize.savePreset')}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
 
-        {/* User prompt */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Your Creative Direction</Text>
-          <TextInput
-            style={styles.promptInput}
-            placeholder="e.g., Create a caricature of me as a superhero..."
-            placeholderTextColor={colors.textMuted}
-            value={userPrompt}
-            onChangeText={setUserPrompt}
-            multiline
-            maxLength={500}
-          />
-          <Text style={styles.charCount}>{userPrompt.length}/500</Text>
-        </View>
+          {/* User prompt */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Your Creative Direction</Text>
+            <TextInput
+              style={styles.promptInput}
+              placeholder="e.g., Create a caricature of me as a superhero..."
+              placeholderTextColor={colors.textMuted}
+              value={userPrompt}
+              onChangeText={setUserPrompt}
+              multiline
+              maxLength={500}
+            />
+            <Text style={styles.charCount}>{userPrompt.length}/500</Text>
+          </View>
 
-        {/* Common Sliders */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Adjustments</Text>
+          {/* Common Sliders */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Adjustments</Text>
 
-          <SliderRow
-            label="Intensity"
-            value={sliders.intensity}
-            onChange={(v) => updateSlider('intensity', v)}
-          />
-          <SliderRow
-            label="Face Fidelity"
-            value={sliders.faceFidelity}
-            onChange={(v) => updateSlider('faceFidelity', v)}
-          />
-          <SliderRow
-            label="Background"
-            value={sliders.backgroundStrength}
-            onChange={(v) => updateSlider('backgroundStrength', v)}
-          />
-          <SliderRow
-            label="Detail"
-            value={sliders.detail}
-            onChange={(v) => updateSlider('detail', v)}
-          />
+            <SliderRow
+              label="Intensity"
+              value={sliders.intensity}
+              onChange={(v) => updateSlider('intensity', v)}
+            />
+            <SliderRow
+              label="Face Fidelity"
+              value={sliders.faceFidelity}
+              onChange={(v) => updateSlider('faceFidelity', v)}
+            />
+            <SliderRow
+              label="Background"
+              value={sliders.backgroundStrength}
+              onChange={(v) => updateSlider('backgroundStrength', v)}
+            />
+            <SliderRow
+              label="Detail"
+              value={sliders.detail}
+              onChange={(v) => updateSlider('detail', v)}
+            />
 
-          {/* Color Mood */}
-          <Text style={styles.sliderLabel}>Color Mood</Text>
-          <View style={styles.moodRow}>
-            {COLOR_MOODS.map((m) => (
-              <TouchableOpacity
-                key={m.value}
-                style={[
-                  styles.moodChip,
-                  sliders.colorMood === m.value && styles.moodChipActive,
-                ]}
-                onPress={() => setCustomizeState((prev) => ({ ...prev, sliders: { ...prev.sliders, colorMood: m.value } }))}
-              >
-                <Text
+            {/* Color Mood */}
+            <Text style={styles.sliderLabel}>Color Mood</Text>
+            <View style={styles.moodRow}>
+              {COLOR_MOODS.map((m) => (
+                <TouchableOpacity
+                  key={m.value}
                   style={[
-                    styles.moodText,
-                    sliders.colorMood === m.value && styles.moodTextActive,
+                    styles.moodChip,
+                    sliders.colorMood === m.value && styles.moodChipActive,
                   ]}
+                  onPress={() => setCustomizeState((prev) => ({ ...prev, sliders: { ...prev.sliders, colorMood: m.value } }))}
                 >
-                  {m.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* Toggles */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Options</Text>
-          <ToggleRow
-            label="Keep Identity"
-            description="Preserve recognizable facial features"
-            value={toggles.keepIdentity}
-            onChange={(v) => setCustomizeState((prev) => ({ ...prev, toggles: { ...prev.toggles, keepIdentity: v } }))}
-          />
-          <ToggleRow
-            label="Preserve Skin Tone"
-            description="Prevent unwanted skin tone shifts"
-            value={toggles.preserveSkinTone}
-            onChange={(v) => setCustomizeState((prev) => ({ ...prev, toggles: { ...prev.toggles, preserveSkinTone: v } }))}
-          />
-        </View>
-
-        {/* Advanced Controls (Pro) */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Advanced Controls</Text>
-            {!isPro && <ProBadge />}
-          </View>
-
-          <View style={!isPro ? styles.lockedOverlay : undefined}>
-            <SliderRow
-              label="Micro Detail"
-              value={proSliders.microDetail ?? 0}
-              onChange={(v) => handleProSlider('microDetail', v)}
-              disabled={!isPro}
-            />
-            <SliderRow
-              label="Studio Relight"
-              value={proSliders.studioRelight ?? 0}
-              onChange={(v) => handleProSlider('studioRelight', v)}
-              disabled={!isPro}
-            />
-            <SliderRow
-              label="Background Pro"
-              value={proSliders.backgroundPro ?? 0}
-              onChange={(v) => handleProSlider('backgroundPro', v)}
-              disabled={!isPro}
-            />
-          </View>
-        </View>
-
-        {/* Output Size */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Output Size</Text>
-          <View style={styles.moodRow}>
-            {OUTPUT_SIZES.map((s) => (
-              <TouchableOpacity
-                key={s.value}
-                style={[
-                  styles.moodChip,
-                  outputSize === s.value && styles.moodChipActive,
-                ]}
-                onPress={() => handleOutputSize(s.value, s.pro)}
-              >
-                <View style={styles.sizeChipContent}>
                   <Text
                     style={[
                       styles.moodText,
-                      outputSize === s.value && styles.moodTextActive,
+                      sliders.colorMood === m.value && styles.moodTextActive,
                     ]}
                   >
-                    {s.label}
+                    {m.label}
                   </Text>
-                  {s.pro && !isPro && (
-                    <View style={styles.inlineBadge}>
-                      <ProBadge size="small" />
-                    </View>
-                  )}
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* Comic-specific */}
-        {styleId === 'comic-book' && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Comic Options</Text>
-            <SliderRow
-              label="Line Weight"
-              value={comicOpts.lineWeight}
-              onChange={(v) => setCustomizeState((prev) => ({ ...prev, comicOpts: { ...prev.comicOpts, lineWeight: v } }))}
-            />
-            <SliderRow
-              label="Halftone Amount"
-              value={comicOpts.halftoneAmount}
-              onChange={(v) => setCustomizeState((prev) => ({ ...prev, comicOpts: { ...prev.comicOpts, halftoneAmount: v } }))}
-            />
-          </View>
-        )}
-
-        {/* Magazine-specific */}
-        {styleId === 'magazine-cover' && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Magazine Options</Text>
-            <Text style={styles.sliderLabel}>Masthead Text</Text>
-            <TextInput
-              style={styles.textField}
-              value={magazineOpts.mastheadText}
-              onChangeText={(text) => setCustomizeState((prev) => ({ ...prev, magazineOpts: { ...prev.magazineOpts, mastheadText: text } }))}
-              maxLength={50}
-              placeholder="QUIPPIX"
-              placeholderTextColor={colors.textMuted}
-            />
-            <Text style={styles.sliderLabel}>Cover Lines</Text>
-            {magazineOpts.coverLines.map((line, idx) => (
-              <TextInput
-                key={idx}
-                style={styles.textField}
-                value={line}
-                onChangeText={(text) => {
-                  const updated = [...magazineOpts.coverLines];
-                  updated[idx] = text;
-                  setCustomizeState((prev) => ({ ...prev, magazineOpts: { ...prev.magazineOpts, coverLines: updated } }));
-                }}
-                maxLength={80}
-                placeholder={`Cover line ${idx + 1}`}
-                placeholderTextColor={colors.textMuted}
-              />
-            ))}
-            {magazineOpts.coverLines.length < 4 && (
-              <TouchableOpacity
-                onPress={() =>
-                  setCustomizeState((prev) => ({ ...prev, magazineOpts: { ...prev.magazineOpts, coverLines: [...prev.magazineOpts.coverLines, ''] } }))
-                }
-              >
-                <Text style={styles.addLine}>+ Add cover line</Text>
-              </TouchableOpacity>
-            )}
-            <Text style={styles.sliderLabel}>Issue Date</Text>
-            <TextInput
-              style={styles.textField}
-              value={magazineOpts.issueDate}
-              onChangeText={(text) => setCustomizeState((prev) => ({ ...prev, magazineOpts: { ...prev.magazineOpts, issueDate: text } }))}
-              maxLength={30}
-              placeholder="January 2026"
-              placeholderTextColor={colors.textMuted}
-            />
-            <ToggleRow
-              label="Show Barcode"
-              description="Small barcode in bottom-right corner"
-              value={magazineOpts.showBarcode}
-              onChange={(v) => setCustomizeState((prev) => ({ ...prev, magazineOpts: { ...prev.magazineOpts, showBarcode: v } }))}
-            />
-          </View>
-        )}
-
-        {/* Headshot-specific */}
-        {styleId === 'pro-headshot' && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Headshot Options</Text>
-            <Text style={styles.sliderLabel}>Backdrop Color</Text>
-            <View style={styles.moodRow}>
-              {['#E8E8E8', '#FFFFFF', '#1A1A2E', '#2C3E50', '#D4A373'].map((c) => (
-                <TouchableOpacity
-                  key={c}
-                  style={[
-                    styles.colorSwatch,
-                    { backgroundColor: c },
-                    headshotOpts.backdropColor === c && styles.swatchActive,
-                  ]}
-                  onPress={() => setCustomizeState((prev) => ({ ...prev, headshotOpts: { ...prev.headshotOpts, backdropColor: c } }))}
-                />
+                </TouchableOpacity>
               ))}
             </View>
-            <SliderRow
-              label="Softness"
-              value={headshotOpts.softness}
-              onChange={(v) => setCustomizeState((prev) => ({ ...prev, headshotOpts: { ...prev.headshotOpts, softness: v } }))}
+          </View>
+
+          {/* Toggles */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Options</Text>
+            <ToggleRow
+              label="Keep Identity"
+              description="Preserve recognizable facial features"
+              value={toggles.keepIdentity}
+              onChange={(v) => setCustomizeState((prev) => ({ ...prev, toggles: { ...prev.toggles, keepIdentity: v } }))}
             />
-            <SliderRow
-              label="Vignette"
-              value={headshotOpts.vignette}
-              onChange={(v) => setCustomizeState((prev) => ({ ...prev, headshotOpts: { ...prev.headshotOpts, vignette: v } }))}
+            <ToggleRow
+              label="Preserve Skin Tone"
+              description="Prevent unwanted skin tone shifts"
+              value={toggles.preserveSkinTone}
+              onChange={(v) => setCustomizeState((prev) => ({ ...prev, toggles: { ...prev.toggles, preserveSkinTone: v } }))}
             />
           </View>
-        )}
 
-        {/* Daily limit banner near generate */}
-        {isDailyLimitReached() || !isPro ? <DailyLimitBanner /> : null}
+          {/* Advanced Controls (Pro) */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Advanced Controls</Text>
+              {!isPro && <ProBadge />}
+            </View>
 
-        <View style={{ height: spacing.xxl }} />
-      </ScrollView>
+            <View style={!isPro ? styles.lockedOverlay : undefined}>
+              <SliderRow
+                label="Micro Detail"
+                value={proSliders.microDetail ?? 0}
+                onChange={(v) => handleProSlider('microDetail', v)}
+                disabled={!isPro}
+              />
+              <SliderRow
+                label="Studio Relight"
+                value={proSliders.studioRelight ?? 0}
+                onChange={(v) => handleProSlider('studioRelight', v)}
+                disabled={!isPro}
+              />
+              <SliderRow
+                label="Background Pro"
+                value={proSliders.backgroundPro ?? 0}
+                onChange={(v) => handleProSlider('backgroundPro', v)}
+                disabled={!isPro}
+              />
+            </View>
+          </View>
+
+          {/* Output Size */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Output Size</Text>
+            <View style={styles.moodRow}>
+              {OUTPUT_SIZES.map((s) => (
+                <TouchableOpacity
+                  key={s.value}
+                  style={[
+                    styles.moodChip,
+                    outputSize === s.value && styles.moodChipActive,
+                  ]}
+                  onPress={() => handleOutputSize(s.value, s.pro)}
+                >
+                  <View style={styles.sizeChipContent}>
+                    <Text
+                      style={[
+                        styles.moodText,
+                        outputSize === s.value && styles.moodTextActive,
+                      ]}
+                    >
+                      {s.label}
+                    </Text>
+                    {s.pro && !isPro && (
+                      <View style={styles.inlineBadge}>
+                        <ProBadge size="small" />
+                      </View>
+                    )}
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Comic-specific */}
+          {styleId === 'comic-book' && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Comic Options</Text>
+              <SliderRow
+                label="Line Weight"
+                value={comicOpts.lineWeight}
+                onChange={(v) => setCustomizeState((prev) => ({ ...prev, comicOpts: { ...prev.comicOpts, lineWeight: v } }))}
+              />
+              <SliderRow
+                label="Halftone Amount"
+                value={comicOpts.halftoneAmount}
+                onChange={(v) => setCustomizeState((prev) => ({ ...prev, comicOpts: { ...prev.comicOpts, halftoneAmount: v } }))}
+              />
+            </View>
+          )}
+
+          {/* Magazine-specific */}
+          {styleId === 'magazine-cover' && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Magazine Options</Text>
+              <Text style={styles.sliderLabel}>Masthead Text</Text>
+              <TextInput
+                style={styles.textField}
+                value={magazineOpts.mastheadText}
+                onChangeText={(text) => setCustomizeState((prev) => ({ ...prev, magazineOpts: { ...prev.magazineOpts, mastheadText: text } }))}
+                maxLength={50}
+                placeholder="QUIPPIX"
+                placeholderTextColor={colors.textMuted}
+              />
+              <Text style={styles.sliderLabel}>Cover Lines</Text>
+              {magazineOpts.coverLines.map((line, idx) => (
+                <TextInput
+                  key={idx}
+                  style={styles.textField}
+                  value={line}
+                  onChangeText={(text) => {
+                    const updated = [...magazineOpts.coverLines];
+                    updated[idx] = text;
+                    setCustomizeState((prev) => ({ ...prev, magazineOpts: { ...prev.magazineOpts, coverLines: updated } }));
+                  }}
+                  maxLength={80}
+                  placeholder={`Cover line ${idx + 1}`}
+                  placeholderTextColor={colors.textMuted}
+                />
+              ))}
+              {magazineOpts.coverLines.length < 4 && (
+                <TouchableOpacity
+                  onPress={() =>
+                    setCustomizeState((prev) => ({ ...prev, magazineOpts: { ...prev.magazineOpts, coverLines: [...prev.magazineOpts.coverLines, ''] } }))
+                  }
+                >
+                  <Text style={styles.addLine}>+ Add cover line</Text>
+                </TouchableOpacity>
+              )}
+              <Text style={styles.sliderLabel}>Issue Date</Text>
+              <TextInput
+                style={styles.textField}
+                value={magazineOpts.issueDate}
+                onChangeText={(text) => setCustomizeState((prev) => ({ ...prev, magazineOpts: { ...prev.magazineOpts, issueDate: text } }))}
+                maxLength={30}
+                placeholder="January 2026"
+                placeholderTextColor={colors.textMuted}
+              />
+              <ToggleRow
+                label="Show Barcode"
+                description="Small barcode in bottom-right corner"
+                value={magazineOpts.showBarcode}
+                onChange={(v) => setCustomizeState((prev) => ({ ...prev, magazineOpts: { ...prev.magazineOpts, showBarcode: v } }))}
+              />
+            </View>
+          )}
+
+          {/* Headshot-specific */}
+          {styleId === 'pro-headshot' && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Headshot Options</Text>
+              <Text style={styles.sliderLabel}>Backdrop Color</Text>
+              <View style={styles.moodRow}>
+                {['#E8E8E8', '#FFFFFF', '#1A1A2E', '#2C3E50', '#D4A373'].map((c) => (
+                  <TouchableOpacity
+                    key={c}
+                    style={[
+                      styles.colorSwatch,
+                      { backgroundColor: c },
+                      headshotOpts.backdropColor === c && styles.swatchActive,
+                    ]}
+                    onPress={() => setCustomizeState((prev) => ({ ...prev, headshotOpts: { ...prev.headshotOpts, backdropColor: c } }))}
+                  />
+                ))}
+              </View>
+              <SliderRow
+                label="Softness"
+                value={headshotOpts.softness}
+                onChange={(v) => setCustomizeState((prev) => ({ ...prev, headshotOpts: { ...prev.headshotOpts, softness: v } }))}
+              />
+              <SliderRow
+                label="Vignette"
+                value={headshotOpts.vignette}
+                onChange={(v) => setCustomizeState((prev) => ({ ...prev, headshotOpts: { ...prev.headshotOpts, vignette: v } }))}
+              />
+            </View>
+          )}
+
+          {/* Daily limit banner near generate */}
+          {isDailyLimitReached() || !isPro ? <DailyLimitBanner /> : null}
+
+          <View style={{ height: spacing.xxl }} />
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* Footer with Reset + Generate */}
       <View style={styles.footer}>

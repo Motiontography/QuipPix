@@ -31,6 +31,7 @@ import { getCacheInfo, clearCache, CacheInfo } from '../services/cacheManager';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme, ThemeMode } from '../contexts/ThemeContext';
 import { t } from '../i18n';
+import { UpdateBanner } from '../components/UpdateBanner';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -237,6 +238,7 @@ export default function SettingsScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <Text style={styles.title} accessibilityRole="header">{t('settings.title')}</Text>
+        <UpdateBanner />
 
         {/* QuipPix Pro section */}
         <View style={styles.section}>

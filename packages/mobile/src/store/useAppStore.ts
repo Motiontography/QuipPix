@@ -91,6 +91,11 @@ interface AppState {
   lastExportOptions: ExportOptions | null;
   setLastExportOptions: (options: ExportOptions) => void;
 
+  // Feedback
+  feedbackItems: Record<string, boolean>;
+  submitFeedback: (itemId: string, positive: boolean) => void;
+  hasFeedback: (itemId: string) => boolean;
+
   // Gallery Selectors
   getGalleryItemsBySource: (sourceUri: string) => GalleryItem[];
   getGalleryItem: (id: string) => GalleryItem | undefined;
@@ -121,6 +126,7 @@ const PRESETS_KEY = '@quippix/presets';
 const COACH_MARKS_KEY = '@quippix/coachMarks';
 const REDUCE_MOTION_KEY = '@quippix/reduceMotion';
 const EXPORT_PREFS_KEY = '@quippix/exportPrefs';
+const FEEDBACK_KEY = '@quippix/feedback';
 
 export const useAppStore = create<AppState>((set, get) => ({
   // Gallery
@@ -277,6 +283,15 @@ export const useAppStore = create<AppState>((set, get) => ({
       const exportRaw = await AsyncStorage.getItem(EXPORT_PREFS_KEY);
       if (exportRaw) {
         set({ lastExportOptions: JSON.parse(exportRaw) });
+      }
+    } catch {
+      // Ignore
+    }
+
+    try {
+      const fbRaw = await AsyncStorage.getItem(FEEDBACK_KEY);
+      if (fbRaw) {
+        set({ feedbackItems: JSON.parse(fbRaw) });
       }
     } catch {
       // Ignore
@@ -492,6 +507,19 @@ export const useAppStore = create<AppState>((set, get) => ({
   setLastExportOptions: async (options: ExportOptions) => {
     set({ lastExportOptions: options });
     await AsyncStorage.setItem(EXPORT_PREFS_KEY, JSON.stringify(options));
+  },
+
+  // Feedback
+  feedbackItems: {},
+
+  submitFeedback: async (itemId: string, positive: boolean) => {
+    const updated = { ...get().feedbackItems, [itemId]: positive };
+    set({ feedbackItems: updated });
+    await AsyncStorage.setItem(FEEDBACK_KEY, JSON.stringify(updated));
+  },
+
+  hasFeedback: (itemId: string) => {
+    return itemId in get().feedbackItems;
   },
 
   // Gallery Selectors

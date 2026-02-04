@@ -57,7 +57,13 @@ type AnalyticsEvent =
   | 'generation_max_retries'
   | 'comparison_carousel_viewed'
   | 'comparison_carousel_tapped'
-  | 'batch_export_completed';
+  | 'batch_export_completed'
+  | 'feedback_submitted'
+  | 'app_update_checked'
+  | 'app_update_prompted'
+  | 'generation_counter_viewed'
+  | 'toast_shown'
+  | 'gallery_pull_refresh';
 
 interface EventPayload {
   event: AnalyticsEvent;

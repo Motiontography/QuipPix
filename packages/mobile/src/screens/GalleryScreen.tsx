@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
+  RefreshControl,
   TouchableOpacity,
   SafeAreaView,
   Alert,
@@ -69,6 +70,7 @@ export default function GalleryScreen() {
   } = useMultiSelect();
 
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [activeFilter, setActiveFilter] = useState<'all' | 'favorites' | string>('all');
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuItemId, setMenuItemId] = useState<string | null>(null);
@@ -159,6 +161,13 @@ export default function GalleryScreen() {
       setNewCollectionVisible(false);
     }
   };
+
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    trackEvent('gallery_pull_refresh');
+    // Reload gallery from storage
+    loadGallery().finally(() => setRefreshing(false));
+  }, [loadGallery]);
 
   // --- Context menu BottomSheet actions ---
   const contextMenuActions = useMemo((): BottomSheetAction[] => {
@@ -703,6 +712,13 @@ export default function GalleryScreen() {
           numColumns={listMode === 'grid' ? 2 : 1}
           contentContainerStyle={styles.grid}
           columnWrapperStyle={listMode === 'grid' ? styles.gridRow : undefined}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              tintColor={colors.primary}
+            />
+          }
           ListHeaderComponent={
             shouldShowSpotlight && activeFilter === 'all' ? <SpotlightCarousel /> : null
           }

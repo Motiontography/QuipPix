@@ -16,6 +16,7 @@ import { RootStackParamList } from '../types';
 import { usePaywallGuard } from '../hooks/usePaywallGuard';
 import ProBadge from '../components/ProBadge';
 import OfflineBanner from '../components/OfflineBanner';
+import { GenerationCounter } from '../components/GenerationCounter';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -143,6 +144,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       <OfflineBanner />
+      <GenerationCounter />
 
       <View style={styles.header}>
         <Text style={styles.logo} accessibilityRole="header">{t('home.title')}</Text>

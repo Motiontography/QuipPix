@@ -36,6 +36,7 @@ import CoachMark from '../components/CoachMark';
 import { COACH_MARKS } from '../constants/coachMarks';
 import { ExportSheet } from '../components/ExportSheet';
 import { ComparisonCarousel } from '../components/ComparisonCarousel';
+import { FeedbackButtons } from '../components/FeedbackButtons';
 import { processExport } from '../services/imageExport';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Result'>;
@@ -417,6 +418,8 @@ export default function ResultScreen() {
         <ActionButton icon="📱" label={t('result.post')} onPress={handlePost} />
         <ActionButton icon="🔗" label={t('result.remix')} onPress={handleShareTemplate} />
       </View>
+
+      <FeedbackButtons itemId={jobId} />
 
       {/* Comparison Carousel */}
       <ComparisonCarousel

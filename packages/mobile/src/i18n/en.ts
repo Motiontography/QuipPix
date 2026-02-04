@@ -316,6 +316,33 @@ export const en = {
   'export.proRequired': 'Pro',
   'export.processing': 'Processing...',
 
+  // Toast
+  'toast.saved': 'Saved to gallery',
+  'toast.savedToPhotos': 'Saved to photo library',
+  'toast.deleted': 'Deleted',
+  'toast.shared': 'Shared successfully',
+  'toast.copied': 'Copied to clipboard',
+  'toast.error': 'Something went wrong',
+  'toast.feedbackThanks': 'Thanks for your feedback!',
+  'toast.exportComplete': 'Export complete',
+  'toast.addedToCollection': 'Added to collection',
+
+  // Generation Counter
+  'home.generationsToday': '{used} of {total} free generations today',
+  'home.unlimitedGenerations': 'Unlimited generations',
+  'home.generationsRemaining': '{count} generations remaining',
+
+  // Feedback
+  'result.rateResult': 'Rate this result',
+  'result.feedbackSubmitted': 'Feedback submitted',
+
+  // App Update
+  'settings.appVersion': 'Version',
+  'settings.updateAvailable': 'Update Available',
+  'settings.updateMessage': 'A new version of QuipPix ({version}) is available.',
+  'settings.updateNow': 'Update Now',
+  'settings.upToDate': 'Up to date',
+
   // Common
   'common.cancel': 'Cancel',
   'common.delete': 'Delete',
