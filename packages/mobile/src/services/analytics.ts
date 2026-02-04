@@ -43,7 +43,21 @@ type AnalyticsEvent =
   | 'gallery_view_mode_changed'
   | 'cache_cleared'
   | 'cache_size_viewed'
-  | 'stats_viewed';
+  | 'stats_viewed'
+  | 'gallery_multiselect_entered'
+  | 'gallery_multiselect_delete'
+  | 'gallery_multiselect_share'
+  | 'gallery_multiselect_collection'
+  | 'bottom_sheet_opened'
+  | 'bottom_sheet_dismissed'
+  | 'export_sheet_opened'
+  | 'export_completed'
+  | 'generation_retry'
+  | 'generation_error'
+  | 'generation_max_retries'
+  | 'comparison_carousel_viewed'
+  | 'comparison_carousel_tapped'
+  | 'batch_export_completed';
 
 interface EventPayload {
   event: AnalyticsEvent;

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import Share from 'react-native-share';
 import ViewShot from 'react-native-view-shot';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types';
+import { RootStackParamList, ExportOptions } from '../types';
 import { getStylePack } from '../services/stylePacks';
 import { useAppStore } from '../store/useAppStore';
 import { useProStore } from '../store/useProStore';
@@ -34,6 +34,9 @@ import { t } from '../i18n';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import CoachMark from '../components/CoachMark';
 import { COACH_MARKS } from '../constants/coachMarks';
+import { ExportSheet } from '../components/ExportSheet';
+import { ComparisonCarousel } from '../components/ComparisonCarousel';
+import { processExport } from '../services/imageExport';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Result'>;
 type Route = RouteProp<RootStackParamList, 'Result'>;
@@ -51,6 +54,8 @@ export default function ResultScreen() {
   const [showInterstitial, setShowInterstitial] = useState(false);
   const [showPlatformPicker, setShowPlatformPicker] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
+  const [showExportSheet, setShowExportSheet] = useState(false);
+  const saveModeRef = useRef<'gallery' | 'photos'>('gallery');
 
   const {
     addToGallery,
@@ -62,7 +67,15 @@ export default function ResultScreen() {
 
   const shouldShowSoftUpsell = useProStore((s) => s.shouldShowSoftUpsell);
   const dismissSoftUpsell = useProStore((s) => s.dismissSoftUpsell);
+  const entitlement = useProStore((s) => s.entitlement);
   const currentStreak = useChallengeStore((s) => s.currentStreak);
+
+  // Track comparison carousel viewed when sourceImageUri is available
+  useEffect(() => {
+    if (sourceImageUri) {
+      trackEvent('comparison_carousel_viewed', { alternativeCount: 1 });
+    }
+  }, [sourceImageUri]);
 
   // Capture ViewShot with watermark rendered into the image
   const captureWithWatermark = useCallback(async (): Promise<string> => {
@@ -81,63 +94,85 @@ export default function ResultScreen() {
     }
   }, [resultUrl]);
 
-  // Save to local gallery
-  const handleSave = useCallback(async () => {
+  // Open the export sheet for gallery save
+  const handleSave = useCallback(() => {
     triggerHaptic('light');
+    saveModeRef.current = 'gallery';
+    setShowExportSheet(true);
+    trackEvent('export_sheet_opened', { context: 'result' });
+  }, []);
+
+  // Open the export sheet for photos save
+  const handleSaveToPhotos = useCallback(() => {
+    saveModeRef.current = 'photos';
+    setShowExportSheet(true);
+    trackEvent('export_sheet_opened', { context: 'result' });
+  }, []);
+
+  // Handle confirmed export from ExportSheet
+  const handleExportConfirm = useCallback(async (options: ExportOptions) => {
     try {
-      const itemId = nanoid();
-      let localUri = resultUrl;
-      try {
-        // When watermark is enabled, capture the composited image via ViewShot
-        const sourceUri = watermarkEnabled ? await captureWithWatermark() : resultUrl;
-        localUri = await cacheImage(sourceUri, itemId);
-      } catch {
-        // Fall back to remote URL if caching fails
-      }
-      const item = {
-        id: itemId,
-        localUri,
-        resultUrl,
-        styleId: params.styleId,
-        styleName: stylePack.displayName,
-        createdAt: new Date().toISOString(),
-        params,
-      };
-      await addToGallery(item);
-      incrementCreationCount();
-      const count = useAppStore.getState().creationCount;
-      maybePromptReview(count).catch(() => {});
+      const processedUri = await processExport({
+        sourceUri: resultUrl,
+        resolution: options.resolution,
+        format: options.format,
+        quality: options.quality,
+      });
 
-      // Check soft upsell before Motiontography interstitial
-      if (shouldShowSoftUpsell()) {
-        dismissSoftUpsell();
-        navigation.navigate('Paywall', { trigger: 'soft_upsell' });
-        return;
-      }
+      trackEvent('export_completed', {
+        resolution: options.resolution,
+        format: options.format,
+        watermark: options.includeWatermark,
+      });
 
-      // Show gentle interstitial (max 1/session)
-      if (!hasShownInterstitial) {
-        setShowInterstitial(true);
-        setInterstitialShown();
-      }
+      if (saveModeRef.current === 'photos') {
+        const exportUri = options.includeWatermark ? await captureWithWatermark() : processedUri;
+        await saveToPhotoLibrary(exportUri);
+        trackEvent('save_to_photos', { styleId: params.styleId });
+        Alert.alert(t('result.saved'), t('result.savedToPhotos'));
+      } else {
+        const itemId = nanoid();
+        let localUri = processedUri;
+        try {
+          const sourceUri = options.includeWatermark ? await captureWithWatermark() : processedUri;
+          localUri = await cacheImage(sourceUri, itemId);
+        } catch {
+          // Fall back to processed URI if caching fails
+        }
+        const item = {
+          id: itemId,
+          localUri,
+          resultUrl,
+          sourceImageUri,
+          styleId: params.styleId,
+          styleName: stylePack.displayName,
+          createdAt: new Date().toISOString(),
+          params,
+        };
+        await addToGallery(item);
+        incrementCreationCount();
+        const count = useAppStore.getState().creationCount;
+        maybePromptReview(count).catch(() => {});
 
-      Alert.alert(t('result.saved'), t('result.savedMessage'));
+        // Check soft upsell before Motiontography interstitial
+        if (shouldShowSoftUpsell()) {
+          dismissSoftUpsell();
+          navigation.navigate('Paywall', { trigger: 'soft_upsell' });
+          return;
+        }
+
+        // Show gentle interstitial (max 1/session)
+        if (!hasShownInterstitial) {
+          setShowInterstitial(true);
+          setInterstitialShown();
+        }
+
+        Alert.alert(t('result.saved'), t('result.savedMessage'));
+      }
     } catch (err) {
       Alert.alert(t('common.error'), t('result.saveFailed'));
     }
-  }, [resultUrl, params, stylePack, addToGallery, incrementCreationCount, hasShownInterstitial, setInterstitialShown, shouldShowSoftUpsell, dismissSoftUpsell, navigation, watermarkEnabled, captureWithWatermark]);
-
-  // Save to device photo library
-  const handleSaveToPhotos = useCallback(async () => {
-    try {
-      const exportUri = watermarkEnabled ? await captureWithWatermark() : resultUrl;
-      await saveToPhotoLibrary(exportUri);
-      trackEvent('save_to_photos', { styleId: params.styleId });
-      Alert.alert(t('result.saved'), t('result.savedToPhotos'));
-    } catch (err) {
-      Alert.alert(t('common.error'), t('result.saveToPhotosFailed'));
-    }
-  }, [resultUrl, params.styleId, watermarkEnabled, captureWithWatermark]);
+  }, [resultUrl, sourceImageUri, params, stylePack, addToGallery, incrementCreationCount, hasShownInterstitial, setInterstitialShown, shouldShowSoftUpsell, dismissSoftUpsell, navigation, captureWithWatermark]);
 
   // Share
   const handleShare = useCallback(async () => {
@@ -383,12 +418,39 @@ export default function ResultScreen() {
         <ActionButton icon="🔗" label={t('result.remix')} onPress={handleShareTemplate} />
       </View>
 
+      {/* Comparison Carousel */}
+      <ComparisonCarousel
+        currentItemId={jobId}
+        sourceImageUri={sourceImageUri}
+        onSelectItem={(item) => {
+          trackEvent('comparison_carousel_tapped', {
+            fromStyleId: params.styleId,
+            toStyleId: item.styleId,
+          });
+          navigation.push('Result', {
+            jobId: item.id,
+            resultUrl: item.localUri,
+            params: item.params,
+            sourceImageUri: item.sourceImageUri,
+          });
+        }}
+      />
+
       {/* Platform Picker */}
       <PlatformPicker
         visible={showPlatformPicker}
         imageUri={resultUrl}
         styleName={stylePack.displayName}
         onClose={() => setShowPlatformPicker(false)}
+      />
+
+      {/* Export Sheet */}
+      <ExportSheet
+        visible={showExportSheet}
+        onClose={() => setShowExportSheet(false)}
+        onExport={handleExportConfirm}
+        defaultWatermark={watermarkEnabled}
+        isPro={entitlement.proActive}
       />
 
       {/* Footer */}

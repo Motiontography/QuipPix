@@ -8,6 +8,7 @@ import {
   Collection,
   StyleId,
   Preset,
+  ExportOptions,
 } from '../types';
 import { nanoid } from '../utils/id';
 import { deleteCachedImage, clearImageCache } from '../services/imageCache';
@@ -17,6 +18,7 @@ interface AppState {
   gallery: GalleryItem[];
   addToGallery: (item: GalleryItem) => void;
   removeFromGallery: (id: string) => void;
+  removeMultipleFromGallery: (ids: string[]) => void;
   clearGallery: () => void;
   loadGallery: () => Promise<void>;
 
@@ -84,6 +86,14 @@ interface AppState {
   // Reduce Motion
   reduceMotionOverride: boolean | null;
   setReduceMotionOverride: (value: boolean | null) => void;
+
+  // Export Preferences
+  lastExportOptions: ExportOptions | null;
+  setLastExportOptions: (options: ExportOptions) => void;
+
+  // Gallery Selectors
+  getGalleryItemsBySource: (sourceUri: string) => GalleryItem[];
+  getGalleryItem: (id: string) => GalleryItem | undefined;
 }
 
 const DEFAULT_SLIDERS: CommonSliders = {
@@ -110,6 +120,7 @@ const RECENT_STYLES_KEY = '@quippix/recentStyles';
 const PRESETS_KEY = '@quippix/presets';
 const COACH_MARKS_KEY = '@quippix/coachMarks';
 const REDUCE_MOTION_KEY = '@quippix/reduceMotion';
+const EXPORT_PREFS_KEY = '@quippix/exportPrefs';
 
 export const useAppStore = create<AppState>((set, get) => ({
   // Gallery
@@ -128,6 +139,21 @@ export const useAppStore = create<AppState>((set, get) => ({
     const updatedCollections = get().collections.map((c) => ({
       ...c,
       itemIds: c.itemIds.filter((iid) => iid !== id),
+    }));
+    set({ gallery: updated, favorites: updatedFavorites, collections: updatedCollections });
+    await AsyncStorage.setItem(GALLERY_KEY, JSON.stringify(updated));
+    await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(updatedFavorites));
+    await AsyncStorage.setItem(COLLECTIONS_KEY, JSON.stringify(updatedCollections));
+  },
+
+  removeMultipleFromGallery: async (ids: string[]) => {
+    const idSet = new Set(ids);
+    ids.forEach((id) => deleteCachedImage(id).catch(() => {}));
+    const updated = get().gallery.filter((g) => !idSet.has(g.id));
+    const updatedFavorites = get().favorites.filter((fid) => !idSet.has(fid));
+    const updatedCollections = get().collections.map((c) => ({
+      ...c,
+      itemIds: c.itemIds.filter((iid) => !idSet.has(iid)),
     }));
     set({ gallery: updated, favorites: updatedFavorites, collections: updatedCollections });
     await AsyncStorage.setItem(GALLERY_KEY, JSON.stringify(updated));
@@ -242,6 +268,15 @@ export const useAppStore = create<AppState>((set, get) => ({
       const rmRaw = await AsyncStorage.getItem(REDUCE_MOTION_KEY);
       if (rmRaw !== null) {
         set({ reduceMotionOverride: JSON.parse(rmRaw) });
+      }
+    } catch {
+      // Ignore
+    }
+
+    try {
+      const exportRaw = await AsyncStorage.getItem(EXPORT_PREFS_KEY);
+      if (exportRaw) {
+        set({ lastExportOptions: JSON.parse(exportRaw) });
       }
     } catch {
       // Ignore
@@ -449,5 +484,22 @@ export const useAppStore = create<AppState>((set, get) => ({
     } else {
       await AsyncStorage.removeItem(REDUCE_MOTION_KEY);
     }
+  },
+
+  // Export Preferences
+  lastExportOptions: null,
+
+  setLastExportOptions: async (options: ExportOptions) => {
+    set({ lastExportOptions: options });
+    await AsyncStorage.setItem(EXPORT_PREFS_KEY, JSON.stringify(options));
+  },
+
+  // Gallery Selectors
+  getGalleryItemsBySource: (sourceUri: string) => {
+    return get().gallery.filter((item) => item.sourceImageUri === sourceUri);
+  },
+
+  getGalleryItem: (id: string) => {
+    return get().gallery.find((item) => item.id === id);
   },
 }));

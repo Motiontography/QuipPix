@@ -113,10 +113,22 @@ export interface GalleryItem {
   id: string;
   localUri: string;
   resultUrl?: string;
+  sourceImageUri?: string;
   styleId: StyleId;
   styleName: string;
   createdAt: string;
   params: GenerateParams;
+}
+
+// ─── Export Options ─────────────────────────────────────────────────
+export type ExportResolution = 'original' | 'high' | 'medium';
+export type ExportFormat = 'png' | 'jpeg';
+
+export interface ExportOptions {
+  resolution: ExportResolution;
+  format: ExportFormat;
+  quality: number;
+  includeWatermark: boolean;
 }
 
 // ─── Collections ────────────────────────────────────────────────────

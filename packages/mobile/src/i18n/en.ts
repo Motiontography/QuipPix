@@ -36,6 +36,13 @@ export const en = {
   'generating.somethingWrong': 'Something went wrong. Please try again.',
   'generating.upgradeToPro': 'Upgrade to Pro',
   'generating.goBack': 'Go Back',
+  'generating.retry': 'Retry',
+  'generating.retryAttempt': 'Attempt {current} of {max}',
+  'generating.maxRetriesReached': 'Maximum retries reached',
+  'generating.networkError': 'Check your internet connection and try again.',
+  'generating.serverError': 'Our servers had a hiccup. Please try again.',
+  'generating.timeoutError': 'Generation took too long. Try again with a simpler image.',
+  'generating.unknownError': 'Something went wrong. Please try again.',
 
   // Batch Generating
   'batchGenerating.processing': 'Processing {count} Photos',
@@ -87,6 +94,13 @@ export const en = {
   'gallery.imageNotFound': 'The original image is no longer available.',
   'gallery.listView': 'List',
   'gallery.gridView': 'Grid',
+  'gallery.selected': '{count} selected',
+  'gallery.deleteSelected': 'Delete {count} Items',
+  'gallery.deleteSelectedMessage': 'Remove {count} creations? This cannot be undone.',
+  'gallery.shareSelected': 'Share',
+  'gallery.addSelectedToCollection': 'Add to Collection',
+  'gallery.selectAll': 'Select All',
+  'gallery.deselectAll': 'Deselect All',
 
   // Settings
   'settings.title': 'Settings',
@@ -182,6 +196,8 @@ export const en = {
   'result.visitMotiontography': 'Visit Motiontography',
   'result.skip': 'Skip',
   'result.pinchToZoom': 'Pinch to zoom',
+  'result.otherStyles': 'Same Photo, Different Styles',
+  'result.noAlternatives': 'Try another style on this photo!',
 
   // Challenges
   'challenges.title': 'Daily Challenge',
@@ -281,6 +297,24 @@ export const en = {
   'stats.topStyles': 'Top Styles',
   'stats.creationTimeline': 'Last 7 Days',
   'stats.proMember': 'Pro Member',
+
+  // Bottom Sheet
+  'bottomSheet.cancel': 'Cancel',
+
+  // Export
+  'export.title': 'Export Options',
+  'export.resolution': 'Resolution',
+  'export.resolutionOriginal': 'Original (2048px)',
+  'export.resolutionHigh': 'High (1024px)',
+  'export.resolutionMedium': 'Medium (512px)',
+  'export.format': 'Format',
+  'export.formatPng': 'PNG',
+  'export.formatJpeg': 'JPEG',
+  'export.quality': 'Quality',
+  'export.watermark': 'Include Watermark',
+  'export.export': 'Export',
+  'export.proRequired': 'Pro',
+  'export.processing': 'Processing...',
 
   // Common
   'common.cancel': 'Cancel',

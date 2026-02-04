@@ -25,6 +25,8 @@ import { useTheme } from '../contexts/ThemeContext';
 import { CircularProgress } from '../components/CircularProgress';
 import { FadingMessage } from '../components/FadingMessage';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import { RetryBanner } from '../components/RetryBanner';
+import { classifyError, ErrorCategory } from '../utils/errorClassifier';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Generating'>;
 type Route = RouteProp<RootStackParamList, 'Generating'>;
@@ -54,6 +56,9 @@ export default function GeneratingScreen() {
 
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const [errorCategory, setErrorCategory] = useState<ErrorCategory | null>(null);
+  const [retryTrigger, setRetryTrigger] = useState(0);
   const spinAnim = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -174,6 +179,9 @@ export default function GeneratingScreen() {
           } else {
             setError(err.message || t('generating.somethingWrong'));
           }
+          const category = classifyError(err);
+          setErrorCategory(category);
+          trackEvent('generation_error', { category, styleId: params.styleId });
         }
       }
     })();
@@ -181,7 +189,19 @@ export default function GeneratingScreen() {
     return () => {
       cancelled = true;
     };
-  }, [imageUri, params, challengeId, navigation, entitlement, isDailyLimitReached, incrementDailyGenerations, incrementSuccessfulGenerations, isConnected]);
+  }, [imageUri, params, challengeId, navigation, entitlement, isDailyLimitReached, incrementDailyGenerations, incrementSuccessfulGenerations, isConnected, retryTrigger]);
+
+  const handleRetry = () => {
+    if (retryCount >= 3) {
+      trackEvent('generation_max_retries', { styleId: params.styleId });
+      return;
+    }
+    setRetryCount((prev) => prev + 1);
+    setError('');
+    setErrorCategory(null);
+    setRetryTrigger((prev) => prev + 1);
+    trackEvent('generation_retry', { attempt: retryCount + 1, category: errorCategory || 'unknown', styleId: params.styleId });
+  };
 
   const styles = useMemo(() => StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
@@ -270,27 +290,18 @@ export default function GeneratingScreen() {
   });
 
   if (error) {
-    const isLimitError = error.includes('Daily generation limit');
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.center}>
-          <Text style={styles.errorIcon}>{isLimitError ? '⏳' : '!'}</Text>
-          <Text style={styles.errorTitle}>{isLimitError ? t('generating.limitReached') : t('generating.oops')}</Text>
-          <Text style={styles.errorMsg}>{error}</Text>
-          {isLimitError && (
-            <TouchableOpacity
-              style={styles.upgradeBtn}
-              onPress={() => navigation.navigate('Paywall', { trigger: 'daily_limit' })}
-            >
-              <Text style={styles.upgradeBtnText}>{t('generating.upgradeToPro')}</Text>
-            </TouchableOpacity>
-          )}
-          <Text
-            style={styles.retryBtn}
-            onPress={() => navigation.goBack()}
-          >
-            {t('generating.goBack')}
-          </Text>
+          <RetryBanner
+            error={error}
+            category={errorCategory || 'unknown'}
+            onRetry={handleRetry}
+            onGoBack={() => navigation.goBack()}
+            onUpgrade={() => navigation.navigate('Paywall', { trigger: 'daily_limit' })}
+            retryCount={retryCount}
+            maxRetries={3}
+          />
         </View>
       </SafeAreaView>
     );

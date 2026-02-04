@@ -7,6 +7,7 @@ import { RootStackParamList, TabParamList } from '../types';
 import { useTheme } from '../contexts/ThemeContext';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { useAppStore } from '../store/useAppStore';
+import { fadeTransition, slideBottomTransition, respectMotion } from './transitions';
 
 // Screens
 import HomeScreen from '../screens/HomeScreen';
@@ -92,6 +93,8 @@ const linking = {
 export default function AppNavigator() {
   const { colors } = useTheme();
   const hasSeenOnboarding = useAppStore((s) => s.hasSeenOnboarding);
+  const reduceMotionOverride = useAppStore((s) => s.reduceMotionOverride);
+  const reduceMotion = reduceMotionOverride === true;
 
   return (
     <NavigationContainer linking={linking}>
@@ -107,23 +110,23 @@ export default function AppNavigator() {
           <Stack.Screen
             name="Onboarding"
             component={OnboardingScreen}
-            options={{ animation: 'fade' }}
+            options={respectMotion(fadeTransition, reduceMotion)}
           />
         )}
         <Stack.Screen name="MainTabs" component={MainTabs} />
         <Stack.Screen name="StyleSelect" component={StyleSelectScreen} />
         <Stack.Screen name="Customize" component={CustomizeScreen} />
-        <Stack.Screen name="Generating" component={withErrorBoundary(GeneratingScreen)} />
-        <Stack.Screen name="BatchGenerating" component={withErrorBoundary(BatchGeneratingScreen)} />
-        <Stack.Screen name="Result" component={withErrorBoundary(ResultScreen)} />
-        <Stack.Screen name="BatchResults" component={withErrorBoundary(BatchResultsScreen)} />
-        <Stack.Screen name="ShareCard" component={withErrorBoundary(ShareCardScreen)} />
+        <Stack.Screen name="Generating" component={withErrorBoundary(GeneratingScreen)} options={respectMotion(fadeTransition, reduceMotion)} />
+        <Stack.Screen name="BatchGenerating" component={withErrorBoundary(BatchGeneratingScreen)} options={respectMotion(fadeTransition, reduceMotion)} />
+        <Stack.Screen name="Result" component={withErrorBoundary(ResultScreen)} options={respectMotion(fadeTransition, reduceMotion)} />
+        <Stack.Screen name="BatchResults" component={withErrorBoundary(BatchResultsScreen)} options={respectMotion(fadeTransition, reduceMotion)} />
+        <Stack.Screen name="ShareCard" component={withErrorBoundary(ShareCardScreen)} options={respectMotion(slideBottomTransition, reduceMotion)} />
         <Stack.Screen name="Remix" component={RemixScreen} />
-        <Stack.Screen name="Stats" component={StatsScreen} />
+        <Stack.Screen name="Stats" component={StatsScreen} options={respectMotion(slideBottomTransition, reduceMotion)} />
         <Stack.Screen
           name="Paywall"
           component={PaywallScreen}
-          options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+          options={{ presentation: 'modal', ...respectMotion(slideBottomTransition, reduceMotion) }}
         />
       </Stack.Navigator>
     </NavigationContainer>
