@@ -118,6 +118,7 @@ export interface GalleryItem {
   styleName: string;
   createdAt: string;
   params: GenerateParams;
+  tags?: string[];
 }
 
 // ─── Export Options ─────────────────────────────────────────────────

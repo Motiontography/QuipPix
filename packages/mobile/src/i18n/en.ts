@@ -316,6 +316,39 @@ export const en = {
   'export.proRequired': 'Pro',
   'export.processing': 'Processing...',
 
+  // Item Detail
+  'gallery.itemDetail': 'Details',
+  'gallery.itemStyle': 'Style',
+  'gallery.itemCreated': 'Created',
+  'gallery.itemSize': 'Output Size',
+  'gallery.itemIntensity': 'Intensity',
+  'gallery.itemFidelity': 'Face Fidelity',
+  'gallery.itemTags': 'Tags',
+  'gallery.addTag': 'Add tag...',
+  'gallery.noTags': 'No tags',
+  'gallery.tagExists': 'Tag already exists',
+
+  // Date Filter
+  'gallery.dateFilter': 'Date Filter',
+  'gallery.dateAll': 'All Time',
+  'gallery.dateToday': 'Today',
+  'gallery.dateWeek': 'This Week',
+  'gallery.dateMonth': 'This Month',
+
+  // Duplicate Detection
+  'gallery.duplicateTitle': 'Similar Creation Exists',
+  'gallery.duplicateMessage': 'You already have a {style} from this photo. Create another?',
+  'gallery.duplicateContinue': 'Continue Anyway',
+
+  // Bulk Export
+  'gallery.bulkExport': 'Export Selected',
+  'gallery.bulkExportProgress': 'Exporting {current} of {total}...',
+  'gallery.bulkExportComplete': '{count} images exported',
+
+  // Gallery Stats Footer
+  'gallery.statsFooter': '{count} creations',
+  'gallery.statsStorage': '{size} used',
+
   // Toast
   'toast.saved': 'Saved to gallery',
   'toast.savedToPhotos': 'Saved to photo library',

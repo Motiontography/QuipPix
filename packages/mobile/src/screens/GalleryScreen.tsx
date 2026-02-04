@@ -17,7 +17,7 @@ import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList, GalleryItem } from '../types';
+import { RootStackParamList, GalleryItem, ExportOptions } from '../types';
 import { useAppStore } from '../store/useAppStore';
 import OfflineBanner from '../components/OfflineBanner';
 import GallerySkeleton from '../components/GallerySkeleton';
@@ -33,6 +33,12 @@ import { COACH_MARKS } from '../constants/coachMarks';
 import { t } from '../i18n';
 import { SwipeableGalleryCard } from '../components/SwipeableGalleryCard';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import { ItemDetailSheet } from '../components/ItemDetailSheet';
+import { DateFilter, DateRange, getDateFilterStart } from '../components/DateFilter';
+import { GalleryStatsFooter } from '../components/GalleryStatsFooter';
+import { useBulkExport } from '../hooks/useBulkExport';
+import { ExportSheet } from '../components/ExportSheet';
+import { useProStore } from '../store/useProStore';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -56,6 +62,8 @@ export default function GalleryScreen() {
     addCollection,
     addToCollection,
     removeCollection,
+    addTag,
+    removeTag,
   } = useAppStore();
 
   const {
@@ -82,8 +90,14 @@ export default function GalleryScreen() {
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [listMode, setListMode] = useState<'grid' | 'list'>('grid');
   const [collectionPickerVisible, setCollectionPickerVisible] = useState(false);
+  const [detailItem, setDetailItem] = useState<GalleryItem | null>(null);
+  const [dateRange, setDateRange] = useState<DateRange>('all');
+  const [bulkExportVisible, setBulkExportVisible] = useState(false);
   const searchTimeout = useRef<NodeJS.Timeout>();
   const galleryHeaderRef = useRef<View>(null);
+
+  const { exporting, current, total, exportItems } = useBulkExport();
+  const entitlement = useProStore((s) => s.entitlement);
 
   useEffect(() => {
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
@@ -119,22 +133,30 @@ export default function GalleryScreen() {
     }
 
     // Step 3: Sort
-    const sorted = [...items];
+    let result = [...items];
     switch (sortOrder) {
       case 'oldest':
-        sorted.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        result.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
         break;
       case 'style':
-        sorted.sort((a, b) => a.styleName.localeCompare(b.styleName));
+        result.sort((a, b) => a.styleName.localeCompare(b.styleName));
         break;
       case 'newest':
       default:
-        sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
     }
 
-    return sorted;
-  }, [gallery, activeFilter, favorites, collections, debouncedQuery, sortOrder]);
+    // Step 4: Filter by date range
+    if (dateRange !== 'all') {
+      const start = getDateFilterStart(dateRange);
+      if (start) {
+        result = result.filter((item) => new Date(item.createdAt) >= start);
+      }
+    }
+
+    return result;
+  }, [gallery, activeFilter, favorites, collections, debouncedQuery, sortOrder, dateRange]);
 
   const shouldShowSpotlight =
     creationCount > 0 && creationCount % SPOTLIGHT_INTERVAL === 0;
@@ -173,6 +195,17 @@ export default function GalleryScreen() {
   const contextMenuActions = useMemo((): BottomSheetAction[] => {
     const item = gallery.find((g) => g.id === menuItemId);
     const actions: BottomSheetAction[] = [];
+
+    // Details action
+    actions.push({
+      label: t('gallery.itemDetail'),
+      icon: '\u2139\uFE0F',
+      onPress: () => {
+        const found = gallery.find((g) => g.id === menuItemId);
+        if (found) setDetailItem(found);
+        setMenuVisible(false);
+      },
+    });
 
     // Re-create action
     actions.push({
@@ -304,19 +337,15 @@ export default function GalleryScreen() {
     );
   };
 
-  const handleMultiSelectShare = async () => {
-    const uris: string[] = [];
-    selectedIds.forEach((id) => {
-      const item = gallery.find((g) => g.id === id);
-      if (item?.localUri) uris.push(item.localUri);
-    });
-    try {
-      await Share.open({ urls: uris });
-      trackEvent('gallery_multiselect_share', { count: selectedCount });
-    } catch {
-      // User cancelled share
-    }
+  const handleMultiSelectShare = () => {
+    setBulkExportVisible(true);
   };
+
+  const handleBulkExport = useCallback(async (options: ExportOptions) => {
+    const items = gallery.filter((g) => selectedIds.has(g.id));
+    await exportItems(items, options);
+    exitSelectionMode();
+  }, [gallery, selectedIds, exportItems, exitSelectionMode]);
 
   const handleMultiSelectAddToCollection = () => {
     setCollectionPickerVisible(true);
@@ -686,6 +715,10 @@ export default function GalleryScreen() {
         </ScrollView>
       )}
 
+      {gallery.length > 0 && !isSelectionMode && (
+        <DateFilter value={dateRange} onChange={setDateRange} />
+      )}
+
       {isLoading ? (
         <GallerySkeleton />
       ) : filteredGallery.length === 0 ? (
@@ -722,6 +755,7 @@ export default function GalleryScreen() {
           ListHeaderComponent={
             shouldShowSpotlight && activeFilter === 'all' ? <SpotlightCarousel /> : null
           }
+          ListFooterComponent={<GalleryStatsFooter />}
           renderItem={({ item }: { item: GalleryItem }) =>
             listMode === 'list' ? (
               <SwipeableGalleryCard
@@ -867,6 +901,24 @@ export default function GalleryScreen() {
         title={t('gallery.addSelectedToCollection')}
         actions={collectionPickerActions}
         onClose={() => setCollectionPickerVisible(false)}
+      />
+
+      {/* Item detail sheet */}
+      <ItemDetailSheet
+        visible={detailItem !== null}
+        item={detailItem}
+        onClose={() => setDetailItem(null)}
+        onAddTag={(tag) => { if (detailItem) addTag(detailItem.id, tag); }}
+        onRemoveTag={(tag) => { if (detailItem) removeTag(detailItem.id, tag); }}
+      />
+
+      {/* Bulk export sheet */}
+      <ExportSheet
+        visible={bulkExportVisible}
+        onClose={() => setBulkExportVisible(false)}
+        onExport={handleBulkExport}
+        defaultWatermark={false}
+        isPro={entitlement.proActive}
       />
 
       {/* Multi-select: selection bar */}

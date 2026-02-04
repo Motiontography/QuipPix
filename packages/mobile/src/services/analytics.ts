@@ -63,7 +63,16 @@ type AnalyticsEvent =
   | 'app_update_prompted'
   | 'generation_counter_viewed'
   | 'toast_shown'
-  | 'gallery_pull_refresh';
+  | 'gallery_pull_refresh'
+  | 'item_detail_viewed'
+  | 'tag_added'
+  | 'tag_removed'
+  | 'duplicate_detected'
+  | 'duplicate_continued'
+  | 'bulk_export_started'
+  | 'bulk_export_completed'
+  | 'date_filter_applied'
+  | 'gallery_stats_viewed';
 
 interface EventPayload {
   event: AnalyticsEvent;

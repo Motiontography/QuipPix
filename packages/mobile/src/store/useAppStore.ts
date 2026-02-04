@@ -91,6 +91,16 @@ interface AppState {
   lastExportOptions: ExportOptions | null;
   setLastExportOptions: (options: ExportOptions) => void;
 
+  // Tags
+  addTag: (itemId: string, tag: string) => void;
+  removeTag: (itemId: string, tag: string) => void;
+
+  // Duplicate Detection
+  hasDuplicate: (sourceUri: string, styleId: string) => boolean;
+
+  // Gallery Stats
+  getGalleryStats: () => { count: number; styleCount: number };
+
   // Feedback
   feedbackItems: Record<string, boolean>;
   submitFeedback: (itemId: string, positive: boolean) => void;
@@ -507,6 +517,41 @@ export const useAppStore = create<AppState>((set, get) => ({
   setLastExportOptions: async (options: ExportOptions) => {
     set({ lastExportOptions: options });
     await AsyncStorage.setItem(EXPORT_PREFS_KEY, JSON.stringify(options));
+  },
+
+  // Tags
+  addTag: async (itemId: string, tag: string) => {
+    const updated = get().gallery.map((item) => {
+      if (item.id !== itemId) return item;
+      const tags = item.tags ?? [];
+      if (tags.includes(tag)) return item;
+      return { ...item, tags: [...tags, tag] };
+    });
+    set({ gallery: updated });
+    await AsyncStorage.setItem(GALLERY_KEY, JSON.stringify(updated));
+  },
+
+  removeTag: async (itemId: string, tag: string) => {
+    const updated = get().gallery.map((item) => {
+      if (item.id !== itemId) return item;
+      return { ...item, tags: (item.tags ?? []).filter((t) => t !== tag) };
+    });
+    set({ gallery: updated });
+    await AsyncStorage.setItem(GALLERY_KEY, JSON.stringify(updated));
+  },
+
+  // Duplicate Detection
+  hasDuplicate: (sourceUri: string, styleId: string) => {
+    return get().gallery.some(
+      (item) => item.sourceImageUri === sourceUri && item.styleId === styleId,
+    );
+  },
+
+  // Gallery Stats
+  getGalleryStats: () => {
+    const gallery = get().gallery;
+    const styleSet = new Set(gallery.map((g) => g.styleId));
+    return { count: gallery.length, styleCount: styleSet.size };
   },
 
   // Feedback

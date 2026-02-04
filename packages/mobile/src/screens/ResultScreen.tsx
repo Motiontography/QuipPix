@@ -66,6 +66,8 @@ export default function ResultScreen() {
     watermarkEnabled,
   } = useAppStore();
 
+  const hasDuplicate = useAppStore((s) => s.hasDuplicate);
+
   const shouldShowSoftUpsell = useProStore((s) => s.shouldShowSoftUpsell);
   const dismissSoftUpsell = useProStore((s) => s.dismissSoftUpsell);
   const entitlement = useProStore((s) => s.entitlement);
@@ -98,10 +100,33 @@ export default function ResultScreen() {
   // Open the export sheet for gallery save
   const handleSave = useCallback(() => {
     triggerHaptic('light');
+
+    // Check for duplicates
+    if (sourceImageUri && hasDuplicate(sourceImageUri, params.styleId)) {
+      trackEvent('duplicate_detected', { styleId: params.styleId });
+      Alert.alert(
+        t('gallery.duplicateTitle'),
+        t('gallery.duplicateMessage', { style: stylePack.displayName }),
+        [
+          { text: t('common.cancel'), style: 'cancel' },
+          {
+            text: t('gallery.duplicateContinue'),
+            onPress: () => {
+              trackEvent('duplicate_continued', { styleId: params.styleId });
+              saveModeRef.current = 'gallery';
+              setShowExportSheet(true);
+              trackEvent('export_sheet_opened', { context: 'result' });
+            },
+          },
+        ],
+      );
+      return;
+    }
+
     saveModeRef.current = 'gallery';
     setShowExportSheet(true);
     trackEvent('export_sheet_opened', { context: 'result' });
-  }, []);
+  }, [sourceImageUri, hasDuplicate, params.styleId, stylePack.displayName]);
 
   // Open the export sheet for photos save
   const handleSaveToPhotos = useCallback(() => {
