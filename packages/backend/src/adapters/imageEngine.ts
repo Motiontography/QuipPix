@@ -82,12 +82,13 @@ export class ImageEngineAdapter {
     const formData = new FormData();
 
     // Image as file blob
-    const imageBlob = new Blob([request.image], { type: 'image/png' });
-    formData.append('image', imageBlob, 'input.png');
+    // Node.js FormData/Blob types diverge from browser — runtime behavior is correct
+    const fd = formData as any;
+    const BlobCtor = Blob as any;
+    fd.append('image', new BlobCtor([request.image], { type: 'image/png' }), 'input.png');
 
     if (request.mask) {
-      const maskBlob = new Blob([request.mask], { type: 'image/png' });
-      formData.append('mask', maskBlob, 'mask.png');
+      fd.append('mask', new BlobCtor([request.mask], { type: 'image/png' }), 'mask.png');
     }
 
     formData.append('model', request.model || this.model);

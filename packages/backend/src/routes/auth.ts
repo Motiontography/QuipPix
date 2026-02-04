@@ -30,8 +30,8 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     }
 
     const token = jwt.sign({ sub: userId }, config.jwt.secret, {
-      expiresIn: config.jwt.expiresIn,
-    });
+      expiresIn: config.jwt.expiresIn as string,
+    } as jwt.SignOptions);
 
     return reply.send({ token, userId });
   });
@@ -58,8 +58,8 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       }
 
       const newToken = jwt.sign({ sub: payload.sub }, config.jwt.secret, {
-        expiresIn: config.jwt.expiresIn,
-      });
+        expiresIn: config.jwt.expiresIn as string,
+      } as jwt.SignOptions);
 
       return reply.send({ token: newToken, userId: payload.sub });
     } catch {
