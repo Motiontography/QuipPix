@@ -38,6 +38,11 @@ import { ExportSheet } from '../components/ExportSheet';
 import { ComparisonCarousel } from '../components/ComparisonCarousel';
 import { FeedbackButtons } from '../components/FeedbackButtons';
 import { processExport } from '../services/imageExport';
+import { copyImageToClipboard } from '../services/clipboard';
+import { cropToStories } from '../services/storiesFormat';
+import { QuickShareBar } from '../components/QuickShareBar';
+import { ShareTip } from '../components/ShareTip';
+import { ShareHistorySheet } from '../components/ShareHistorySheet';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Result'>;
 type Route = RouteProp<RootStackParamList, 'Result'>;
@@ -57,6 +62,8 @@ export default function ResultScreen() {
   const [showComparison, setShowComparison] = useState(false);
   const [showExportSheet, setShowExportSheet] = useState(false);
   const saveModeRef = useRef<'gallery' | 'photos'>('gallery');
+  const [storiesMode, setStoriesMode] = useState(false);
+  const [historyVisible, setHistoryVisible] = useState(false);
 
   const {
     addToGallery,
@@ -67,6 +74,7 @@ export default function ResultScreen() {
   } = useAppStore();
 
   const hasDuplicate = useAppStore((s) => s.hasDuplicate);
+  const addShareRecord = useAppStore((s) => s.addShareRecord);
 
   const shouldShowSoftUpsell = useProStore((s) => s.shouldShowSoftUpsell);
   const dismissSoftUpsell = useProStore((s) => s.dismissSoftUpsell);
@@ -209,10 +217,34 @@ export default function ResultScreen() {
         title: `My ${stylePack.displayName} - Made in QuipPix`,
         message: `Check out my ${stylePack.displayName} made with QuipPix!`,
       });
+      addShareRecord(jobId, 'general');
     } catch {
       // User cancelled
     }
-  }, [resultUrl, stylePack, watermarkEnabled, captureWithWatermark]);
+  }, [resultUrl, stylePack, watermarkEnabled, captureWithWatermark, jobId, addShareRecord]);
+
+  // Copy to clipboard
+  const handleCopy = useCallback(async () => {
+    triggerHaptic('light');
+    await copyImageToClipboard(resultUrl);
+    trackEvent('image_copied_clipboard');
+  }, [resultUrl]);
+
+  // Stories format
+  const handleStoriesFormat = useCallback(async () => {
+    triggerHaptic('light');
+    try {
+      const storiesUri = await cropToStories(resultUrl);
+      trackEvent('stories_format_used');
+      await Share.open({
+        url: storiesUri,
+        title: `My ${stylePack.displayName} - Stories`,
+      });
+      addShareRecord(jobId, 'stories');
+    } catch {
+      // User cancelled
+    }
+  }, [resultUrl, stylePack, jobId, addShareRecord]);
 
   // Post to social
   const handlePost = useCallback(() => {
@@ -440,11 +472,18 @@ export default function ResultScreen() {
         )}
         <ActionButton icon="🎴" label={t('result.card')} onPress={handleShareCard} />
         <ActionButton icon="📤" label={t('result.share')} onPress={handleShare} />
+        <ActionButton icon="📋" label={t('share.copyToClipboard')} onPress={handleCopy} />
+        <ActionButton icon="📱" label={t('share.storiesFormat')} onPress={handleStoriesFormat} />
         <ActionButton icon="📱" label={t('result.post')} onPress={handlePost} />
         <ActionButton icon="🔗" label={t('result.remix')} onPress={handleShareTemplate} />
       </View>
 
       <FeedbackButtons itemId={jobId} />
+
+      <QuickShareBar onSelectPlatform={(platform) => {
+        addShareRecord(jobId, platform);
+        setShowPlatformPicker(true);
+      }} />
 
       {/* Comparison Carousel */}
       <ComparisonCarousel
@@ -480,6 +519,8 @@ export default function ResultScreen() {
         defaultWatermark={watermarkEnabled}
         isPro={entitlement.proActive}
       />
+
+      <ShareHistorySheet visible={historyVisible} onClose={() => setHistoryVisible(false)} />
 
       {/* Footer */}
       <TouchableOpacity

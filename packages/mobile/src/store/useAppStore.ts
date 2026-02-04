@@ -91,6 +91,11 @@ interface AppState {
   lastExportOptions: ExportOptions | null;
   setLastExportOptions: (options: ExportOptions) => void;
 
+  // Share History
+  shareHistory: Array<{ itemId: string; platform: string; sharedAt: string }>;
+  addShareRecord: (itemId: string, platform: string) => void;
+  getShareCount: (itemId: string) => number;
+
   // Tags
   addTag: (itemId: string, tag: string) => void;
   removeTag: (itemId: string, tag: string) => void;
@@ -137,6 +142,7 @@ const COACH_MARKS_KEY = '@quippix/coachMarks';
 const REDUCE_MOTION_KEY = '@quippix/reduceMotion';
 const EXPORT_PREFS_KEY = '@quippix/exportPrefs';
 const FEEDBACK_KEY = '@quippix/feedback';
+const SHARE_HISTORY_KEY = '@quippix/shareHistory';
 
 export const useAppStore = create<AppState>((set, get) => ({
   // Gallery
@@ -302,6 +308,15 @@ export const useAppStore = create<AppState>((set, get) => ({
       const fbRaw = await AsyncStorage.getItem(FEEDBACK_KEY);
       if (fbRaw) {
         set({ feedbackItems: JSON.parse(fbRaw) });
+      }
+    } catch {
+      // Ignore
+    }
+
+    try {
+      const shRaw = await AsyncStorage.getItem(SHARE_HISTORY_KEY);
+      if (shRaw) {
+        set({ shareHistory: JSON.parse(shRaw) });
       }
     } catch {
       // Ignore
@@ -517,6 +532,20 @@ export const useAppStore = create<AppState>((set, get) => ({
   setLastExportOptions: async (options: ExportOptions) => {
     set({ lastExportOptions: options });
     await AsyncStorage.setItem(EXPORT_PREFS_KEY, JSON.stringify(options));
+  },
+
+  // Share History
+  shareHistory: [],
+
+  addShareRecord: async (itemId: string, platform: string) => {
+    const record = { itemId, platform, sharedAt: new Date().toISOString() };
+    const updated = [record, ...get().shareHistory].slice(0, 100);
+    set({ shareHistory: updated });
+    await AsyncStorage.setItem(SHARE_HISTORY_KEY, JSON.stringify(updated));
+  },
+
+  getShareCount: (itemId: string) => {
+    return get().shareHistory.filter((r) => r.itemId === itemId).length;
   },
 
   // Tags

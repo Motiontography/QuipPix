@@ -349,6 +349,22 @@ export const en = {
   'gallery.statsFooter': '{count} creations',
   'gallery.statsStorage': '{size} used',
 
+  // Share
+  'share.copyToClipboard': 'Copy Image',
+  'share.copiedToClipboard': 'Image copied to clipboard',
+  'share.history': 'Share History',
+  'share.noHistory': 'No shares yet',
+  'share.storiesFormat': 'Stories Format',
+  'share.storiesFormatDesc': 'Crop to 9:16 for Instagram/TikTok Stories',
+  'share.quickShare': 'Quick Share',
+  'share.recentDestinations': 'Recent',
+  'share.shareCount': 'Shared {count} times',
+  'share.tip': 'Tip',
+  'share.tipInstagram': 'For best results on Instagram, use the Stories format or share as a square crop.',
+  'share.tipTwitter': 'Twitter compresses images. Export as PNG for best quality.',
+  'share.tipTikTok': 'Use Stories format (9:16) for TikTok. Add your creation to a video!',
+  'share.tipGeneral': 'Share your creation with friends and show off your style!',
+
   // Toast
   'toast.saved': 'Saved to gallery',
   'toast.savedToPhotos': 'Saved to photo library',

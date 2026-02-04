@@ -72,7 +72,13 @@ type AnalyticsEvent =
   | 'bulk_export_started'
   | 'bulk_export_completed'
   | 'date_filter_applied'
-  | 'gallery_stats_viewed';
+  | 'gallery_stats_viewed'
+  | 'image_copied_clipboard'
+  | 'share_history_viewed'
+  | 'stories_format_used'
+  | 'quick_share_used'
+  | 'share_count_viewed'
+  | 'share_tip_shown';
 
 interface EventPayload {
   event: AnalyticsEvent;
