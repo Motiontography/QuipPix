@@ -82,6 +82,9 @@ export const en = {
   'gallery.sortByStyleName': 'By Style Name',
   'gallery.deleteCollection': 'Delete Collection',
   'gallery.deleteCollectionMessage': 'Remove "{name}"?',
+  'gallery.recreate': 'Re-create',
+  'gallery.recreateDesc': 'Open with same settings',
+  'gallery.imageNotFound': 'The original image is no longer available.',
 
   // Settings
   'settings.title': 'Settings',
@@ -124,6 +127,27 @@ export const en = {
   'styleSelect.unlockWithPro': 'Unlock with Pro',
   'styleSelect.before': 'Before',
   'styleSelect.after': 'After',
+  'styleSelect.favorites': 'Favorites',
+  'styleSelect.recent': 'Recent',
+  'styleSelect.addFavorite': 'Add to favorites',
+  'styleSelect.removeFavorite': 'Remove from favorites',
+
+  // Customize
+  'customize.undo': 'Undo',
+  'customize.redo': 'Redo',
+  'customize.resetDefaults': 'Reset to Defaults',
+  'customize.presets': 'Presets',
+  'customize.loadPreset': 'Load',
+  'customize.savePreset': 'Save As...',
+  'customize.savePresetTitle': 'Save Preset',
+  'customize.presetName': 'Preset Name',
+  'customize.presetNamePlaceholder': 'My settings...',
+  'customize.presetSaved': 'Preset saved!',
+  'customize.presetLimit': 'Maximum 20 presets reached',
+  'customize.deletePreset': 'Delete Preset',
+  'customize.deletePresetMessage': 'Remove "{name}"?',
+  'customize.noPresets': 'No presets saved yet',
+  'customize.loadPresetTitle': 'Load Preset',
 
   // Result
   'result.done': 'Done',
@@ -144,6 +168,7 @@ export const en = {
   'result.motiontographyPromo': 'QuipPix is brought to you by Motiontography. Check out our professional photography and video work!',
   'result.visitMotiontography': 'Visit Motiontography',
   'result.skip': 'Skip',
+  'result.pinchToZoom': 'Pinch to zoom',
 
   // Challenges
   'challenges.title': 'Daily Challenge',
@@ -209,6 +234,21 @@ export const en = {
   'error.title': 'Something went wrong',
   'error.message': 'An unexpected error occurred. Please try again.',
   'error.retry': 'Try Again',
+
+  // Coach Marks
+  'coachMark.dismiss': 'Got it',
+  'coachMark.styleFavoriteTitle': 'Favorite Styles',
+  'coachMark.styleFavoriteDesc': 'Tap the heart to save your favorite styles for quick access.',
+  'coachMark.presetsTitle': 'Save Your Settings',
+  'coachMark.presetsDesc': 'Save slider combinations as presets and load them anytime.',
+  'coachMark.undoTitle': 'Undo & Redo',
+  'coachMark.undoDesc': 'Changed your mind? Use undo and redo to step through your edits.',
+  'coachMark.resultZoomTitle': 'Zoom In',
+  'coachMark.resultZoomDesc': 'Pinch to zoom in on your creation. Double-tap to zoom quickly.',
+  'coachMark.galleryRecreateTitle': 'Re-create',
+  'coachMark.galleryRecreateDesc': 'Long-press any creation and tap Re-create to use the same settings.',
+  'coachMark.challengesStreakTitle': 'Build Your Streak',
+  'coachMark.challengesStreakDesc': 'Complete challenges daily to build your streak and stay creative!',
 
   // Common
   'common.cancel': 'Cancel',

@@ -127,6 +127,16 @@ export interface Collection {
   createdAt: string;
 }
 
+// ─── Presets ────────────────────────────────────────────────────────
+export interface Preset {
+  id: string;
+  name: string;
+  sliders: CommonSliders;
+  toggles: Toggles;
+  styleOptions?: StyleSpecificOptions;
+  createdAt: string;
+}
+
 // ─── Batch Types ────────────────────────────────────────────────────
 export type BatchStatus = 'processing' | 'done' | 'partial_failure';
 
@@ -204,7 +214,7 @@ export type RootStackParamList = {
   Onboarding: undefined;
   MainTabs: undefined;
   StyleSelect: { imageUri: string; imageUris?: string[]; challengeId?: string; preselectedStyleId?: StyleId };
-  Customize: { imageUri: string; styleId: StyleId; imageUris?: string[]; challengeId?: string };
+  Customize: { imageUri: string; styleId: StyleId; imageUris?: string[]; challengeId?: string; prefillParams?: GenerateParams };
   Generating: { imageUri: string; params: GenerateParams; challengeId?: string };
   BatchGenerating: { imageUris: string[]; params: GenerateParams };
   Result: { jobId: string; resultUrl: string; params: GenerateParams; sourceImageUri?: string };

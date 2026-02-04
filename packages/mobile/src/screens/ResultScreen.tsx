@@ -25,11 +25,14 @@ import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
 import { nanoid } from '../utils/id';
 import BeforeAfterSlider from '../components/BeforeAfterSlider';
+import ZoomableImage, { ZoomableImageHandle } from '../components/ZoomableImage';
 import { saveToPhotoLibrary } from '../services/cameraRoll';
 import { cacheImage } from '../services/imageCache';
 import { maybePromptReview } from '../services/reviewPrompt';
 import { triggerHaptic } from '../services/haptics';
 import { t } from '../i18n';
+import CoachMark from '../components/CoachMark';
+import { COACH_MARKS } from '../constants/coachMarks';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Result'>;
 type Route = RouteProp<RootStackParamList, 'Result'>;
@@ -41,6 +44,8 @@ export default function ResultScreen() {
   const { jobId, resultUrl, params, sourceImageUri } = route.params;
   const stylePack = getStylePack(params.styleId);
   const viewShotRef = useRef<ViewShot>(null);
+  const zoomRef = useRef<ZoomableImageHandle>(null);
+  const imageCoachRef = useRef<View>(null);
   const [showInterstitial, setShowInterstitial] = useState(false);
   const [showPlatformPicker, setShowPlatformPicker] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
@@ -59,6 +64,7 @@ export default function ResultScreen() {
 
   // Capture ViewShot with watermark rendered into the image
   const captureWithWatermark = useCallback(async (): Promise<string> => {
+    zoomRef.current?.resetZoom();
     if (!viewShotRef.current?.capture) {
       return resultUrl;
     }
@@ -335,7 +341,7 @@ export default function ResultScreen() {
       </View>
 
       {/* Result image / Comparison */}
-      <View style={styles.imageContainer}>
+      <View style={styles.imageContainer} ref={imageCoachRef}>
         <ViewShot ref={viewShotRef} style={styles.viewShot}>
           {showComparison && sourceImageUri ? (
             <BeforeAfterSlider
@@ -343,12 +349,16 @@ export default function ResultScreen() {
               resultUri={resultUrl}
             />
           ) : (
-            <>
-              <Image source={{ uri: resultUrl }} style={styles.resultImage} resizeMode="contain" accessibilityLabel={`Generated ${stylePack.displayName} art`} accessibilityRole="image" />
+            <ZoomableImage
+              ref={zoomRef}
+              uri={resultUrl}
+              style={styles.resultImage}
+              accessibilityLabel={`Generated ${stylePack.displayName} art`}
+            >
               {watermarkEnabled && (
                 <Text style={styles.watermark}>Made in QuipPix</Text>
               )}
-            </>
+            </ZoomableImage>
           )}
         </ViewShot>
       </View>
@@ -385,6 +395,14 @@ export default function ResultScreen() {
       >
         <Text style={styles.footerText}>motiontography.com</Text>
       </TouchableOpacity>
+
+      <CoachMark
+        markId={COACH_MARKS.RESULT_ZOOM.id}
+        title={t(COACH_MARKS.RESULT_ZOOM.titleKey)}
+        description={t(COACH_MARKS.RESULT_ZOOM.descKey)}
+        targetRef={imageCoachRef}
+        position="below"
+      />
     </SafeAreaView>
   );
 }

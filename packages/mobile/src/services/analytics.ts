@@ -26,7 +26,17 @@ type AnalyticsEvent =
   | 'remix_opened'
   | 'remix_photo_selected'
   | 'save_to_photos'
-  | 'generation_queued_offline';
+  | 'generation_queued_offline'
+  | 'style_favorited'
+  | 'style_unfavorited'
+  | 'preset_saved'
+  | 'preset_loaded'
+  | 'preset_deleted'
+  | 'undo_used'
+  | 'redo_used'
+  | 'reset_to_defaults'
+  | 'coach_mark_dismissed'
+  | 'recreate_from_gallery';
 
 interface EventPayload {
   event: AnalyticsEvent;

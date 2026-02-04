@@ -6,6 +6,8 @@ import {
   Toggles,
   StyleSpecificOptions,
   Collection,
+  StyleId,
+  Preset,
 } from '../types';
 import { nanoid } from '../utils/id';
 import { deleteCachedImage, clearImageCache } from '../services/imageCache';
@@ -60,6 +62,24 @@ interface AppState {
   // Theme
   themeMode: 'system' | 'light' | 'dark';
   setThemeMode: (mode: 'system' | 'light' | 'dark') => void;
+
+  // Style Favorites & Recents
+  favoriteStyles: StyleId[];
+  recentStyles: StyleId[];
+  toggleFavoriteStyle: (id: StyleId) => void;
+  isStyleFavorite: (id: StyleId) => boolean;
+  addRecentStyle: (id: StyleId) => void;
+
+  // Presets
+  presets: Preset[];
+  addPreset: (name: string, sliders: CommonSliders, toggles: Toggles, styleOptions?: StyleSpecificOptions) => void;
+  removePreset: (id: string) => void;
+  renamePreset: (id: string, name: string) => void;
+
+  // Coach Marks
+  dismissedCoachMarks: string[];
+  dismissCoachMark: (markId: string) => void;
+  hasSeenCoachMark: (markId: string) => boolean;
 }
 
 const DEFAULT_SLIDERS: CommonSliders = {
@@ -81,6 +101,10 @@ const FAVORITES_KEY = '@quippix/favorites';
 const COLLECTIONS_KEY = '@quippix/collections';
 const ONBOARDING_KEY = '@quippix/onboarding';
 const THEME_KEY = '@quippix/theme';
+const FAVORITE_STYLES_KEY = '@quippix/favoriteStyles';
+const RECENT_STYLES_KEY = '@quippix/recentStyles';
+const PRESETS_KEY = '@quippix/presets';
+const COACH_MARKS_KEY = '@quippix/coachMarks';
 
 export const useAppStore = create<AppState>((set, get) => ({
   // Gallery
@@ -168,6 +192,42 @@ export const useAppStore = create<AppState>((set, get) => ({
       const theme = await AsyncStorage.getItem(THEME_KEY);
       if (theme === 'light' || theme === 'dark' || theme === 'system') {
         set({ themeMode: theme });
+      }
+    } catch {
+      // Ignore
+    }
+
+    try {
+      const favStyles = await AsyncStorage.getItem(FAVORITE_STYLES_KEY);
+      if (favStyles) {
+        set({ favoriteStyles: JSON.parse(favStyles) });
+      }
+    } catch {
+      // Ignore
+    }
+
+    try {
+      const recStyles = await AsyncStorage.getItem(RECENT_STYLES_KEY);
+      if (recStyles) {
+        set({ recentStyles: JSON.parse(recStyles) });
+      }
+    } catch {
+      // Ignore
+    }
+
+    try {
+      const presetsRaw = await AsyncStorage.getItem(PRESETS_KEY);
+      if (presetsRaw) {
+        set({ presets: JSON.parse(presetsRaw) });
+      }
+    } catch {
+      // Ignore
+    }
+
+    try {
+      const coachMarks = await AsyncStorage.getItem(COACH_MARKS_KEY);
+      if (coachMarks) {
+        set({ dismissedCoachMarks: JSON.parse(coachMarks) });
       }
     } catch {
       // Ignore
@@ -291,5 +351,77 @@ export const useAppStore = create<AppState>((set, get) => ({
   setThemeMode: async (mode: 'system' | 'light' | 'dark') => {
     set({ themeMode: mode });
     await AsyncStorage.setItem(THEME_KEY, mode);
+  },
+
+  // Style Favorites
+  favoriteStyles: [],
+  recentStyles: [],
+
+  toggleFavoriteStyle: async (id: StyleId) => {
+    const current = get().favoriteStyles;
+    const updated = current.includes(id)
+      ? current.filter((sid) => sid !== id)
+      : [...current, id];
+    set({ favoriteStyles: updated });
+    await AsyncStorage.setItem(FAVORITE_STYLES_KEY, JSON.stringify(updated));
+  },
+
+  isStyleFavorite: (id: StyleId) => {
+    return get().favoriteStyles.includes(id);
+  },
+
+  addRecentStyle: async (id: StyleId) => {
+    const current = get().recentStyles.filter((sid) => sid !== id);
+    const updated = [id, ...current].slice(0, 6);
+    set({ recentStyles: updated });
+    await AsyncStorage.setItem(RECENT_STYLES_KEY, JSON.stringify(updated));
+  },
+
+  // Presets
+  presets: [],
+
+  addPreset: async (name, sliders, toggles, styleOptions) => {
+    const current = get().presets;
+    if (current.length >= 20) return;
+    const newPreset: Preset = {
+      id: nanoid(),
+      name,
+      sliders: { ...sliders },
+      toggles: { ...toggles },
+      styleOptions,
+      createdAt: new Date().toISOString(),
+    };
+    const updated = [...current, newPreset];
+    set({ presets: updated });
+    await AsyncStorage.setItem(PRESETS_KEY, JSON.stringify(updated));
+  },
+
+  removePreset: async (id: string) => {
+    const updated = get().presets.filter((p) => p.id !== id);
+    set({ presets: updated });
+    await AsyncStorage.setItem(PRESETS_KEY, JSON.stringify(updated));
+  },
+
+  renamePreset: async (id: string, name: string) => {
+    const updated = get().presets.map((p) =>
+      p.id === id ? { ...p, name } : p,
+    );
+    set({ presets: updated });
+    await AsyncStorage.setItem(PRESETS_KEY, JSON.stringify(updated));
+  },
+
+  // Coach Marks
+  dismissedCoachMarks: [],
+
+  dismissCoachMark: async (markId: string) => {
+    const current = get().dismissedCoachMarks;
+    if (current.includes(markId)) return;
+    const updated = [...current, markId];
+    set({ dismissedCoachMarks: updated });
+    await AsyncStorage.setItem(COACH_MARKS_KEY, JSON.stringify(updated));
+  },
+
+  hasSeenCoachMark: (markId: string) => {
+    return get().dismissedCoachMarks.includes(markId);
   },
 }));

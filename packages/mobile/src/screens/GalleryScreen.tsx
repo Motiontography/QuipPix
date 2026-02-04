@@ -13,15 +13,19 @@ import {
   TextInput,
 } from 'react-native';
 import FastImage from 'react-native-fast-image';
+import RNFS from 'react-native-fs';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList, GalleryItem } from '../types';
 import { useAppStore } from '../store/useAppStore';
 import OfflineBanner from '../components/OfflineBanner';
 import GallerySkeleton from '../components/GallerySkeleton';
+import CoachMark from '../components/CoachMark';
 import { triggerHaptic } from '../services/haptics';
+import { trackEvent } from '../services/analytics';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
+import { COACH_MARKS } from '../constants/coachMarks';
 import { t } from '../i18n';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -57,6 +61,7 @@ export default function GalleryScreen() {
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'style'>('newest');
   const [showSortMenu, setShowSortMenu] = useState(false);
   const searchTimeout = useRef<NodeJS.Timeout>();
+  const galleryHeaderRef = useRef<View>(null);
 
   useEffect(() => {
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
@@ -301,7 +306,7 @@ export default function GalleryScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <OfflineBanner />
-      <View style={styles.header}>
+      <View style={styles.header} ref={galleryHeaderRef}>
         <Text style={styles.title}>{t('gallery.title')}</Text>
         {gallery.length > 0 && (
           <TouchableOpacity onPress={handleClearAll}>
@@ -483,6 +488,34 @@ export default function GalleryScreen() {
         >
           <View style={styles.menuCard}>
             <Text style={styles.menuTitle}>{t('gallery.actions')}</Text>
+            {/* Re-create */}
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={async () => {
+                setMenuVisible(false);
+                const item = gallery.find((g) => g.id === menuItemId);
+                if (!item) return;
+                if (!item.params) return;
+                try {
+                  const exists = await RNFS.exists(item.localUri);
+                  if (!exists) {
+                    Alert.alert(t('common.error'), t('gallery.imageNotFound'));
+                    return;
+                  }
+                } catch {
+                  // If check fails, try navigating anyway
+                }
+                triggerHaptic('light');
+                trackEvent('recreate_from_gallery', { styleId: item.params.styleId });
+                navigation.navigate('Customize', {
+                  imageUri: item.localUri,
+                  styleId: item.params.styleId,
+                  prefillParams: item.params,
+                });
+              }}
+            >
+              <Text style={styles.menuItemTextPrimary}>{t('gallery.recreate')}</Text>
+            </TouchableOpacity>
             <TouchableOpacity
               style={styles.menuItem}
               onPress={() => {
@@ -577,6 +610,15 @@ export default function GalleryScreen() {
           </View>
         </TouchableOpacity>
       </Modal>
+      {gallery.length > 0 && (
+        <CoachMark
+          markId={COACH_MARKS.GALLERY_RECREATE.id}
+          title={t(COACH_MARKS.GALLERY_RECREATE.titleKey)}
+          description={t(COACH_MARKS.GALLERY_RECREATE.descKey)}
+          targetRef={galleryHeaderRef}
+          position="below"
+        />
+      )}
     </SafeAreaView>
   );
 }

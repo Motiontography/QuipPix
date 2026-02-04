@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -19,6 +19,11 @@ import ProBadge from '../components/ProBadge';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
 import { t } from '../i18n';
+import { useAppStore } from '../store/useAppStore';
+import { triggerHaptic } from '../services/haptics';
+import { trackEvent } from '../services/analytics';
+import CoachMark from '../components/CoachMark';
+import { COACH_MARKS } from '../constants/coachMarks';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'StyleSelect'>;
 type Route = RouteProp<RootStackParamList, 'StyleSelect'>;
@@ -29,9 +34,20 @@ export default function StyleSelectScreen() {
   const { imageUri, imageUris, challengeId, preselectedStyleId } = route.params;
   const { isPro, guardStyle } = usePaywallGuard();
   const { colors } = useTheme();
+  const { favoriteStyles, recentStyles, toggleFavoriteStyle, isStyleFavorite, addRecentStyle } = useAppStore();
 
   const [selectedCategory, setSelectedCategory] = useState<string>(styleCategories[0]);
   const [previewStyle, setPreviewStyle] = useState<StylePack | null>(null);
+  const styleSelectCoachRef = useRef<View>(null);
+
+  const favoriteStylePacks = useMemo(
+    () => favoriteStyles.map(getStylePack).filter(Boolean),
+    [favoriteStyles]
+  );
+  const recentStylePacks = useMemo(
+    () => recentStyles.map(getStylePack).filter(Boolean),
+    [recentStyles]
+  );
 
   // Auto-navigate if preselected style from challenge
   React.useEffect(() => {
@@ -51,6 +67,7 @@ export default function StyleSelectScreen() {
       setPreviewStyle(null);
       return;
     }
+    addRecentStyle(previewStyle.id);
     setPreviewStyle(null);
     navigation.navigate('Customize', {
       imageUri,
@@ -140,6 +157,39 @@ export default function StyleSelectScreen() {
       ...typography.caption,
       color: colors.textSecondary,
     },
+    favRecentsSection: {
+      marginBottom: spacing.sm,
+      paddingHorizontal: spacing.md,
+    },
+    sectionLabel: {
+      ...typography.bodyBold,
+      color: colors.textPrimary,
+      marginBottom: spacing.xs,
+    },
+    horizontalList: {
+      paddingBottom: spacing.sm,
+      gap: spacing.sm,
+    },
+    horizontalCard: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.md,
+      padding: spacing.sm,
+      alignItems: 'center' as const,
+      width: 80,
+    },
+    horizontalCardIcon: { fontSize: 28, marginBottom: 4 },
+    horizontalCardName: {
+      ...typography.small,
+      color: colors.textPrimary,
+      textAlign: 'center' as const,
+    },
+    heartOverlay: {
+      position: 'absolute' as const,
+      top: 6,
+      left: 6,
+      zIndex: 1,
+    },
+    heartIcon: { fontSize: 18 },
 
     // Preview modal
     modalOverlay: {
@@ -219,7 +269,7 @@ export default function StyleSelectScreen() {
       </View>
 
       {/* Preview thumbnail */}
-      <View style={styles.previewContainer}>
+      <View style={styles.previewContainer} ref={styleSelectCoachRef}>
         <FastImage source={{ uri: imageUri, priority: FastImage.priority.normal }} style={styles.previewImage} resizeMode={FastImage.resizeMode.cover} />
       </View>
 
@@ -261,6 +311,60 @@ export default function StyleSelectScreen() {
         numColumns={2}
         contentContainerStyle={styles.grid}
         columnWrapperStyle={styles.gridRow}
+        ListHeaderComponent={
+          (favoriteStylePacks.length > 0 || recentStylePacks.length > 0) ? (
+            <View>
+              {favoriteStylePacks.length > 0 && (
+                <View style={styles.favRecentsSection}>
+                  <Text style={styles.sectionLabel}>{t('styleSelect.favorites')}</Text>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.horizontalList}
+                  >
+                    {favoriteStylePacks.map((pack) => pack && (
+                      <TouchableOpacity
+                        key={pack.id}
+                        style={styles.horizontalCard}
+                        onPress={() => handleSelectStyle(pack.id)}
+                        activeOpacity={0.7}
+                        accessibilityLabel={`${pack.displayName} style`}
+                        accessibilityRole="button"
+                      >
+                        <Text style={styles.horizontalCardIcon}>{pack.icon}</Text>
+                        <Text style={styles.horizontalCardName} numberOfLines={2}>{pack.displayName}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+              {recentStylePacks.length > 0 && (
+                <View style={styles.favRecentsSection}>
+                  <Text style={styles.sectionLabel}>{t('styleSelect.recent')}</Text>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.horizontalList}
+                  >
+                    {recentStylePacks.map((pack) => pack && (
+                      <TouchableOpacity
+                        key={pack.id}
+                        style={styles.horizontalCard}
+                        onPress={() => handleSelectStyle(pack.id)}
+                        activeOpacity={0.7}
+                        accessibilityLabel={`${pack.displayName} style`}
+                        accessibilityRole="button"
+                      >
+                        <Text style={styles.horizontalCardIcon}>{pack.icon}</Text>
+                        <Text style={styles.horizontalCardName} numberOfLines={2}>{pack.displayName}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+            </View>
+          ) : null
+        }
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.styleCard}
@@ -272,6 +376,20 @@ export default function StyleSelectScreen() {
           >
             <View style={[styles.stylePreview, { backgroundColor: item.previewColor }]}>
               <Text style={styles.styleIcon}>{item.icon}</Text>
+              <TouchableOpacity
+                style={styles.heartOverlay}
+                onPress={(e) => {
+                  e.stopPropagation?.();
+                  triggerHaptic('selection');
+                  const wasFav = isStyleFavorite(item.id);
+                  toggleFavoriteStyle(item.id);
+                  trackEvent(wasFav ? 'style_unfavorited' : 'style_favorited', { styleId: item.id });
+                }}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                accessibilityLabel={isStyleFavorite(item.id) ? t('styleSelect.removeFavorite') : t('styleSelect.addFavorite')}
+              >
+                <Text style={styles.heartIcon}>{isStyleFavorite(item.id) ? '\u2764\uFE0F' : '\uD83E\uDD0D'}</Text>
+              </TouchableOpacity>
               {item.proOnly && !isPro && (
                 <View style={styles.proBadgePosition}>
                   <ProBadge size="small" />
@@ -356,6 +474,14 @@ export default function StyleSelectScreen() {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      <CoachMark
+        markId={COACH_MARKS.STYLE_FAVORITE.id}
+        title={t(COACH_MARKS.STYLE_FAVORITE.titleKey)}
+        description={t(COACH_MARKS.STYLE_FAVORITE.descKey)}
+        targetRef={styleSelectCoachRef}
+        position="below"
+      />
     </SafeAreaView>
   );
 }

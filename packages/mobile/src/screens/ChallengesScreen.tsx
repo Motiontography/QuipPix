@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -28,6 +28,8 @@ import { triggerHaptic } from '../services/haptics';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
 import { t } from '../i18n';
+import CoachMark from '../components/CoachMark';
+import { COACH_MARKS } from '../constants/coachMarks';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -42,6 +44,7 @@ export default function ChallengesScreen() {
     loadChallengeState,
   } = useChallengeStore();
 
+  const streakCoachRef = useRef<View>(null);
   const [challenge, setChallenge] = useState<DailyChallenge | null>(null);
   const [totalSubmissions, setTotalSubmissions] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -358,7 +361,7 @@ export default function ChallengesScreen() {
             </View>
 
             {/* Streak */}
-            <View style={styles.section}>
+            <View style={styles.section} ref={streakCoachRef}>
               <StreakBadge
                 currentStreak={currentStreak}
                 longestStreak={longestStreak}
@@ -496,6 +499,14 @@ export default function ChallengesScreen() {
           ) : null
         }
         contentContainerStyle={styles.listContent}
+      />
+
+      <CoachMark
+        markId={COACH_MARKS.CHALLENGES_STREAK.id}
+        title={t(COACH_MARKS.CHALLENGES_STREAK.titleKey)}
+        description={t(COACH_MARKS.CHALLENGES_STREAK.descKey)}
+        targetRef={streakCoachRef}
+        position="below"
       />
     </SafeAreaView>
   );
