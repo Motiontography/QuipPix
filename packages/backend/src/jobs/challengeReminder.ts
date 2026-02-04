@@ -1,16 +1,10 @@
 import { Queue, Worker, Job } from 'bullmq';
-import IORedis from 'ioredis';
-import { config } from '../config';
 import { logger } from '../utils/logger';
 import { sendNotificationToAll } from '../services/notificationSender';
 import { getChallengeForDate } from '../routes/challenge';
+import { createRedisConnection } from '../lib/redisConnection';
 
-const connection = new IORedis({
-  host: config.redis.host,
-  port: config.redis.port,
-  password: config.redis.password,
-  maxRetriesPerRequest: null,
-});
+const connection = createRedisConnection();
 
 export const challengeReminderQueue = new Queue('challenge-reminder', {
   connection,
@@ -41,18 +35,24 @@ export const challengeReminderWorker = new Worker(
 );
 
 export function startChallengeReminderScheduler(): void {
-  challengeReminderQueue.add(
-    'daily-reminder',
-    {},
-    {
-      repeat: {
-        pattern: '0 9 * * *', // 9 AM UTC daily
+  challengeReminderQueue
+    .add(
+      'daily-reminder',
+      {},
+      {
+        repeat: {
+          pattern: '0 9 * * *', // 9 AM UTC daily
+        },
+        removeOnComplete: 10,
+        removeOnFail: 10,
       },
-      removeOnComplete: 10,
-      removeOnFail: 10,
-    },
-  );
-  logger.info('Challenge reminder scheduler started (9:00 AM UTC daily)');
+    )
+    .then(() => {
+      logger.info('Challenge reminder scheduler started (9:00 AM UTC daily)');
+    })
+    .catch((err) => {
+      logger.error({ error: err.message }, 'Failed to start challenge reminder scheduler');
+    });
 }
 
 export function stopChallengeReminderScheduler(): void {

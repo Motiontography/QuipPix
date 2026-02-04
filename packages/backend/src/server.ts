@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
@@ -50,16 +51,21 @@ async function start() {
   });
 
   // Static files (.well-known for universal links)
-  await app.register(fastifyStatic, {
-    root: path.join(__dirname, '..', 'public'),
-    prefix: '/',
-    decorateReply: false,
-    setHeaders: (res, filePath) => {
-      if (filePath.includes('.well-known')) {
-        res.setHeader('Content-Type', 'application/json');
-      }
-    },
-  });
+  const publicDir = path.join(__dirname, '..', 'public');
+  if (fs.existsSync(publicDir)) {
+    await app.register(fastifyStatic, {
+      root: publicDir,
+      prefix: '/',
+      decorateReply: false,
+      setHeaders: (res, filePath) => {
+        if (filePath.includes('.well-known')) {
+          res.setHeader('Content-Type', 'application/json');
+        }
+      },
+    });
+  } else {
+    logger.warn({ path: publicDir }, 'Public directory not found, skipping static file serving');
+  }
 
   // Error monitoring
   initSentry();

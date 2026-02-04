@@ -1,5 +1,4 @@
 import { Queue, Worker, Job } from 'bullmq';
-import IORedis from 'ioredis';
 import { config } from '../config';
 import { logger } from '../utils/logger';
 import { imageEngine } from '../adapters/imageEngine';
@@ -23,14 +22,10 @@ import {
   getBatchJobIds as dbGetBatchJobIds,
   getBatchCreatedAt as dbGetBatchCreatedAt,
 } from '../db/repositories/jobRepository';
+import { createRedisConnection } from '../lib/redisConnection';
 
 // ─── Redis connection ────────────────────────────────────────────────
-const connection = new IORedis({
-  host: config.redis.host,
-  port: config.redis.port,
-  password: config.redis.password,
-  maxRetriesPerRequest: null,
-});
+const connection = createRedisConnection();
 
 // ─── Re-export DB-backed job/batch functions ─────────────────────────
 export function getJobStatus(jobId: string): JobStatusResponse | null {
