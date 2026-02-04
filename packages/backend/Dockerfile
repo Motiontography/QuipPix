@@ -19,8 +19,6 @@ RUN npm prune --omit=dev
 # Production stage
 FROM node:20-alpine AS runtime
 
-RUN addgroup -S quippix && adduser -S quippix -G quippix
-
 WORKDIR /app
 
 COPY package.json ./
@@ -28,9 +26,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY public ./public
 
-RUN mkdir -p /app/data && chown -R quippix:quippix /app
-
-USER quippix
+RUN mkdir -p /app/data
 
 EXPOSE 3000
 
