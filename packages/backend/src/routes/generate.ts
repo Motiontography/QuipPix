@@ -4,7 +4,7 @@ import { GenerateRequest } from '../types';
 import { stripExif, validateImage } from '../utils/exif';
 import { uploadInput } from '../services/storage';
 import { enqueueGenerate } from '../jobs/queue';
-import { moderatePrompt } from '../services/moderation';
+import { moderatePrompt, moderateImage } from '../services/moderation';
 import { tierGate } from '../middleware/tierGate';
 import { perUserRateLimit } from '../middleware/perUserRateLimit';
 import { isStyleAllowed, isSizeAllowed, OutputSize } from '../services/tierConfig';
@@ -87,6 +87,15 @@ export async function generateRoutes(app: FastifyInstance): Promise<void> {
       }
     }
 
+    // Image content moderation
+    const imageModCheck = await moderateImage(imageBuffer);
+    if (!imageModCheck.allowed) {
+      return reply.status(422).send({
+        error: 'content_policy',
+        message: imageModCheck.reason,
+      });
+    }
+
     // Strip EXIF metadata
     const cleanImage = await stripExif(imageBuffer);
 
@@ -95,7 +104,7 @@ export async function generateRoutes(app: FastifyInstance): Promise<void> {
 
     // Enqueue generation job
     const jobId = nanoid(12);
-    enqueueGenerate(jobId, inputKey, genRequest, request.tier, outputSize);
+    enqueueGenerate(jobId, inputKey, genRequest, request.tier, outputSize, request.userId);
 
     logger.info({ jobId, styleId: genRequest.styleId, tier: request.tier }, 'Generation request accepted');
 

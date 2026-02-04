@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text } from 'react-native';
 import { RootStackParamList, TabParamList } from '../types';
-import { colors } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
 import { useAppStore } from '../store/useAppStore';
 
 // Screens
@@ -42,6 +42,7 @@ function TabIcon({ label, focused }: { label: string; focused: boolean }) {
 }
 
 function MainTabs() {
+  const { colors } = useTheme();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -78,6 +79,7 @@ const linking = {
 };
 
 export default function AppNavigator() {
+  const { colors } = useTheme();
   const hasSeenOnboarding = useAppStore((s) => s.hasSeenOnboarding);
 
   return (

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,8 @@ import {
   shareToPlatform,
 } from '../services/socialShare';
 import { trackEvent } from '../services/analytics';
-import { colors, spacing, borderRadius, typography } from '../styles/theme';
+import { spacing, borderRadius, typography } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface PlatformPickerProps {
   visible: boolean;
@@ -29,6 +30,7 @@ export default function PlatformPicker({
   styleName,
   onClose,
 }: PlatformPickerProps) {
+  const { colors } = useTheme();
   const [installed, setInstalled] = useState<Record<string, boolean>>({});
   const [includeFrame, setIncludeFrame] = useState(false);
 
@@ -49,6 +51,78 @@ export default function PlatformPicker({
     await shareToPlatform(imageUri, platform, caption, includeFrame);
     onClose();
   };
+
+  const styles = useMemo(() => StyleSheet.create({
+    backdrop: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      justifyContent: 'flex-end',
+    },
+    sheet: {
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: borderRadius.xl,
+      borderTopRightRadius: borderRadius.xl,
+      padding: spacing.lg,
+      paddingBottom: 40,
+    },
+    handleBar: {
+      width: 36,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: colors.surfaceLight,
+      alignSelf: 'center',
+      marginBottom: spacing.md,
+    },
+    title: {
+      ...typography.h3,
+      color: colors.textPrimary,
+      textAlign: 'center',
+      marginBottom: spacing.lg,
+    },
+    grid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-around',
+      marginBottom: spacing.lg,
+    },
+    platformBtn: {
+      alignItems: 'center',
+      width: '30%',
+      paddingVertical: spacing.md,
+    },
+    platformBtnDimmed: {
+      opacity: 0.4,
+    },
+    platformIcon: {
+      fontSize: 32,
+      marginBottom: spacing.xs,
+    },
+    platformLabel: {
+      ...typography.caption,
+      color: colors.textSecondary,
+    },
+    toggleRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      borderTopWidth: 1,
+      borderTopColor: colors.surfaceLight,
+      marginBottom: spacing.md,
+    },
+    toggleLabel: {
+      ...typography.body,
+      color: colors.textPrimary,
+    },
+    closeBtn: {
+      alignItems: 'center',
+      padding: spacing.sm,
+    },
+    closeText: {
+      ...typography.bodyBold,
+      color: colors.textMuted,
+    },
+  }), [colors]);
 
   return (
     <Modal
@@ -109,75 +183,3 @@ export default function PlatformPicker({
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
-  },
-  sheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: borderRadius.xl,
-    borderTopRightRadius: borderRadius.xl,
-    padding: spacing.lg,
-    paddingBottom: 40,
-  },
-  handleBar: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.surfaceLight,
-    alignSelf: 'center',
-    marginBottom: spacing.md,
-  },
-  title: {
-    ...typography.h3,
-    color: colors.textPrimary,
-    textAlign: 'center',
-    marginBottom: spacing.lg,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
-    marginBottom: spacing.lg,
-  },
-  platformBtn: {
-    alignItems: 'center',
-    width: '30%',
-    paddingVertical: spacing.md,
-  },
-  platformBtnDimmed: {
-    opacity: 0.4,
-  },
-  platformIcon: {
-    fontSize: 32,
-    marginBottom: spacing.xs,
-  },
-  platformLabel: {
-    ...typography.caption,
-    color: colors.textSecondary,
-  },
-  toggleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: colors.surfaceLight,
-    marginBottom: spacing.md,
-  },
-  toggleLabel: {
-    ...typography.body,
-    color: colors.textPrimary,
-  },
-  closeBtn: {
-    alignItems: 'center',
-    padding: spacing.sm,
-  },
-  closeText: {
-    ...typography.bodyBold,
-    color: colors.textMuted,
-  },
-});

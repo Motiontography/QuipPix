@@ -82,8 +82,9 @@ export function enqueueGenerate(
   request: GenerateRequest,
   tier: Tier = 'free',
   outputSize: OutputSize = '1024x1024',
+  userId?: string,
 ): void {
-  createJob(jobId, inputKey);
+  createJob(jobId, inputKey, userId);
 
   generateQueue.add('generate', { jobId, inputKey, request, tier, outputSize } as GenerateJobData, {
     priority: tier === 'pro' ? 1 : 5,

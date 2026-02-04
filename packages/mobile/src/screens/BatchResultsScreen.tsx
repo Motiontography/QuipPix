@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -16,13 +16,15 @@ import { RootStackParamList, BatchResultItem } from '../types';
 import { getStylePack } from '../services/stylePacks';
 import { useAppStore } from '../store/useAppStore';
 import { trackEvent } from '../services/analytics';
-import { colors, spacing, borderRadius, typography } from '../styles/theme';
+import { spacing, borderRadius, typography } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
 import { nanoid } from '../utils/id';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'BatchResults'>;
 type Route = RouteProp<RootStackParamList, 'BatchResults'>;
 
 export default function BatchResultsScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { results, params } = route.params;
@@ -76,6 +78,91 @@ export default function BatchResultsScreen() {
     },
     [navigation],
   );
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+    },
+    headerLeft: {},
+    title: {
+      ...typography.h3,
+      color: colors.textPrimary,
+    },
+    subtitle: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    doneText: {
+      ...typography.bodyBold,
+      color: colors.primary,
+    },
+    failureBanner: {
+      backgroundColor: '#FFA00020',
+      marginHorizontal: spacing.md,
+      padding: spacing.sm,
+      borderRadius: borderRadius.md,
+      marginBottom: spacing.sm,
+    },
+    failureText: {
+      ...typography.caption,
+      color: '#FFA000',
+      textAlign: 'center',
+    },
+    grid: {
+      padding: spacing.md,
+    },
+    gridRow: {
+      gap: spacing.md,
+      marginBottom: spacing.md,
+    },
+    resultCard: {
+      flex: 1,
+      aspectRatio: 1,
+      borderRadius: borderRadius.lg,
+      overflow: 'hidden',
+      backgroundColor: colors.surface,
+    },
+    resultImage: {
+      width: '100%',
+      height: '100%',
+    },
+    actionBar: {
+      flexDirection: 'row',
+      padding: spacing.md,
+      gap: spacing.md,
+      backgroundColor: colors.surface,
+      borderTopWidth: 1,
+      borderTopColor: colors.surfaceLight,
+    },
+    actionBtn: {
+      flex: 1,
+      paddingVertical: spacing.md,
+      borderRadius: borderRadius.lg,
+      alignItems: 'center',
+    },
+    primaryAction: {
+      backgroundColor: colors.primary,
+    },
+    secondaryAction: {
+      backgroundColor: colors.surfaceLight,
+      borderWidth: 1,
+      borderColor: colors.primary + '40',
+    },
+    actionBtnText: {
+      ...typography.bodyBold,
+      color: colors.textPrimary,
+    },
+    secondaryActionText: {
+      ...typography.bodyBold,
+      color: colors.primary,
+    },
+  }), [colors]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -137,88 +224,3 @@ export default function BatchResultsScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  headerLeft: {},
-  title: {
-    ...typography.h3,
-    color: colors.textPrimary,
-  },
-  subtitle: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  doneText: {
-    ...typography.bodyBold,
-    color: colors.primary,
-  },
-  failureBanner: {
-    backgroundColor: '#FFA00020',
-    marginHorizontal: spacing.md,
-    padding: spacing.sm,
-    borderRadius: borderRadius.md,
-    marginBottom: spacing.sm,
-  },
-  failureText: {
-    ...typography.caption,
-    color: '#FFA000',
-    textAlign: 'center',
-  },
-  grid: {
-    padding: spacing.md,
-  },
-  gridRow: {
-    gap: spacing.md,
-    marginBottom: spacing.md,
-  },
-  resultCard: {
-    flex: 1,
-    aspectRatio: 1,
-    borderRadius: borderRadius.lg,
-    overflow: 'hidden',
-    backgroundColor: colors.surface,
-  },
-  resultImage: {
-    width: '100%',
-    height: '100%',
-  },
-  actionBar: {
-    flexDirection: 'row',
-    padding: spacing.md,
-    gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.surfaceLight,
-  },
-  actionBtn: {
-    flex: 1,
-    paddingVertical: spacing.md,
-    borderRadius: borderRadius.lg,
-    alignItems: 'center',
-  },
-  primaryAction: {
-    backgroundColor: colors.primary,
-  },
-  secondaryAction: {
-    backgroundColor: colors.surfaceLight,
-    borderWidth: 1,
-    borderColor: colors.primary + '40',
-  },
-  actionBtnText: {
-    ...typography.bodyBold,
-    color: colors.textPrimary,
-  },
-  secondaryActionText: {
-    ...typography.bodyBold,
-    color: colors.primary,
-  },
-});

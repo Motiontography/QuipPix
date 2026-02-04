@@ -56,6 +56,61 @@ export function moderatePrompt(prompt: string): ModerationResult {
 }
 
 /**
+ * Pre-generation image moderation using OpenAI moderation API.
+ * Fail-open: returns allowed on API errors to avoid blocking all generations.
+ */
+export async function moderateImage(imageBuffer: Buffer): Promise<ModerationResult> {
+  if (!config.moderation.enabled || !config.moderation.imageCheckEnabled) {
+    return { allowed: true };
+  }
+
+  try {
+    const base64Image = imageBuffer.toString('base64');
+    const response = await fetch(`${config.imageEngine.baseUrl}/moderations`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${config.imageEngine.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'omni-moderation-latest',
+        input: [
+          {
+            type: 'image_url',
+            image_url: { url: `data:image/png;base64,${base64Image}` },
+          },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      logger.warn({ status: response.status }, 'Image moderation API error — allowing image (fail-open)');
+      return { allowed: true };
+    }
+
+    const data = (await response.json()) as {
+      results: Array<{ flagged: boolean; categories: Record<string, boolean> }>;
+    };
+
+    if (data.results?.[0]?.flagged) {
+      const flaggedCategories = Object.entries(data.results[0].categories)
+        .filter(([, v]) => v)
+        .map(([k]) => k);
+      logger.warn({ categories: flaggedCategories }, 'Image blocked by moderation');
+      return {
+        allowed: false,
+        reason: 'The uploaded image was flagged by our safety system. Please choose a different photo.',
+      };
+    }
+
+    return { allowed: true };
+  } catch (err) {
+    logger.warn({ error: (err as Error).message }, 'Image moderation failed — allowing image (fail-open)');
+    return { allowed: true };
+  }
+}
+
+/**
  * Post-generation moderation check using provider safety flags.
  */
 export function checkProviderFlags(flags: ModerationFlags): ModerationResult {

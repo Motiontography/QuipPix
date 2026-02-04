@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -31,7 +31,8 @@ import { usePaywallGuard } from '../hooks/usePaywallGuard';
 import { useProStore } from '../store/useProStore';
 import ProBadge from '../components/ProBadge';
 import DailyLimitBanner from '../components/DailyLimitBanner';
-import { colors, spacing, borderRadius, typography } from '../styles/theme';
+import { spacing, borderRadius, typography } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Customize'>;
 type Route = RouteProp<RootStackParamList, 'Customize'>;
@@ -57,6 +58,7 @@ export default function CustomizeScreen() {
   const stylePack = getStylePack(styleId);
   const { lastSliders, lastToggles, saveLastSettings } = useAppStore();
   const { isPro, guardExport, guardSlider } = usePaywallGuard();
+  const { colors } = useTheme();
   const isDailyLimitReached = useProStore((s) => s.isDailyLimitReached);
 
   // Common sliders
@@ -132,6 +134,138 @@ export default function CustomizeScreen() {
       });
     }
   }, [sliders, toggles, userPrompt, comicOpts, magazineOpts, headshotOpts, proSliders, outputSize, styleId, imageUri, challengeId, navigation, saveLastSettings]);
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+    },
+    backBtn: { paddingRight: spacing.md },
+    backText: { ...typography.body, color: colors.primary },
+    headerCenter: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    styleIcon: { fontSize: 24 },
+    title: { ...typography.h3, color: colors.textPrimary },
+    scroll: { flex: 1 },
+    scrollContent: { paddingHorizontal: spacing.md },
+    previewRow: { alignItems: 'center', paddingVertical: spacing.md },
+    preview: {
+      width: 160,
+      height: 160,
+      borderRadius: borderRadius.lg,
+      backgroundColor: colors.surface,
+    },
+    batchPreviewRow: {
+      paddingVertical: spacing.md,
+      alignItems: 'center',
+    },
+    batchPreviewContent: {
+      paddingHorizontal: spacing.sm,
+      gap: spacing.sm,
+    },
+    batchPreviewThumb: {
+      width: 72,
+      height: 72,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.surface,
+    },
+    batchCount: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      marginTop: spacing.xs,
+    },
+    section: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      marginBottom: spacing.md,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    sectionTitle: {
+      ...typography.bodyBold,
+      color: colors.textPrimary,
+      marginBottom: spacing.md,
+    },
+    promptInput: {
+      backgroundColor: colors.surfaceLight,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      color: colors.textPrimary,
+      ...typography.body,
+      minHeight: 80,
+      textAlignVertical: 'top',
+    },
+    charCount: {
+      ...typography.small,
+      color: colors.textMuted,
+      textAlign: 'right',
+      marginTop: spacing.xs,
+    },
+    sliderLabel: { ...typography.caption, color: colors.textSecondary, marginBottom: spacing.xs },
+    moodRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+      flexWrap: 'wrap',
+      marginBottom: spacing.md,
+    },
+    moodChip: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.full,
+      backgroundColor: colors.surfaceLight,
+    },
+    moodChipActive: { backgroundColor: colors.primary },
+    moodText: { ...typography.caption, color: colors.textSecondary },
+    moodTextActive: { color: colors.textPrimary },
+    sizeChipContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    inlineBadge: {
+      marginLeft: 4,
+    },
+    lockedOverlay: {
+      opacity: 0.5,
+    },
+    textField: {
+      backgroundColor: colors.surfaceLight,
+      borderRadius: borderRadius.md,
+      padding: spacing.sm,
+      color: colors.textPrimary,
+      ...typography.body,
+      marginBottom: spacing.sm,
+    },
+    addLine: { ...typography.caption, color: colors.primary, marginBottom: spacing.sm },
+    colorSwatch: {
+      width: 36,
+      height: 36,
+      borderRadius: borderRadius.full,
+      borderWidth: 2,
+      borderColor: 'transparent',
+    },
+    swatchActive: { borderColor: colors.primary },
+    footer: {
+      padding: spacing.md,
+      backgroundColor: colors.surface,
+      borderTopWidth: 1,
+      borderTopColor: colors.surfaceLight,
+    },
+    generateBtn: {
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.lg,
+      paddingVertical: spacing.md,
+      alignItems: 'center',
+    },
+    generateText: { ...typography.h3, color: colors.textPrimary },
+  }), [colors]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -449,6 +583,20 @@ function SliderRow({
   onChange: (v: number) => void;
   disabled?: boolean;
 }) {
+  const { colors } = useTheme();
+
+  const styles = useMemo(() => StyleSheet.create({
+    sliderRow: { marginBottom: spacing.md },
+    sliderHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    sliderLabel: { ...typography.caption, color: colors.textSecondary, marginBottom: spacing.xs },
+    sliderValue: { ...typography.caption, color: colors.primaryLight },
+    slider: { width: '100%', height: 36 },
+  }), [colors]);
+
   return (
     <View style={[styles.sliderRow, disabled && { opacity: 0.5 }]}>
       <View style={styles.sliderHeader}>
@@ -482,6 +630,20 @@ function ToggleRow({
   value: boolean;
   onChange: (v: boolean) => void;
 }) {
+  const { colors } = useTheme();
+
+  const styles = useMemo(() => StyleSheet.create({
+    toggleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing.md,
+    },
+    toggleInfo: { flex: 1, marginRight: spacing.md },
+    toggleLabel: { ...typography.bodyBold, color: colors.textPrimary },
+    toggleDesc: { ...typography.caption, color: colors.textSecondary },
+  }), [colors]);
+
   return (
     <View style={styles.toggleRow}>
       <View style={styles.toggleInfo}>
@@ -497,152 +659,3 @@ function ToggleRow({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  backBtn: { paddingRight: spacing.md },
-  backText: { ...typography.body, color: colors.primary },
-  headerCenter: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  styleIcon: { fontSize: 24 },
-  title: { ...typography.h3, color: colors.textPrimary },
-  scroll: { flex: 1 },
-  scrollContent: { paddingHorizontal: spacing.md },
-  previewRow: { alignItems: 'center', paddingVertical: spacing.md },
-  preview: {
-    width: 160,
-    height: 160,
-    borderRadius: borderRadius.lg,
-    backgroundColor: colors.surface,
-  },
-  batchPreviewRow: {
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-  },
-  batchPreviewContent: {
-    paddingHorizontal: spacing.sm,
-    gap: spacing.sm,
-  },
-  batchPreviewThumb: {
-    width: 72,
-    height: 72,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.surface,
-  },
-  batchCount: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-  },
-  section: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  sectionTitle: {
-    ...typography.bodyBold,
-    color: colors.textPrimary,
-    marginBottom: spacing.md,
-  },
-  promptInput: {
-    backgroundColor: colors.surfaceLight,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    color: colors.textPrimary,
-    ...typography.body,
-    minHeight: 80,
-    textAlignVertical: 'top',
-  },
-  charCount: {
-    ...typography.small,
-    color: colors.textMuted,
-    textAlign: 'right',
-    marginTop: spacing.xs,
-  },
-  sliderRow: { marginBottom: spacing.md },
-  sliderHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  sliderLabel: { ...typography.caption, color: colors.textSecondary, marginBottom: spacing.xs },
-  sliderValue: { ...typography.caption, color: colors.primaryLight },
-  slider: { width: '100%', height: 36 },
-  moodRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    flexWrap: 'wrap',
-    marginBottom: spacing.md,
-  },
-  moodChip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.full,
-    backgroundColor: colors.surfaceLight,
-  },
-  moodChipActive: { backgroundColor: colors.primary },
-  moodText: { ...typography.caption, color: colors.textSecondary },
-  moodTextActive: { color: colors.textPrimary },
-  sizeChipContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  inlineBadge: {
-    marginLeft: 4,
-  },
-  lockedOverlay: {
-    opacity: 0.5,
-  },
-  toggleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.md,
-  },
-  toggleInfo: { flex: 1, marginRight: spacing.md },
-  toggleLabel: { ...typography.bodyBold, color: colors.textPrimary },
-  toggleDesc: { ...typography.caption, color: colors.textSecondary },
-  textField: {
-    backgroundColor: colors.surfaceLight,
-    borderRadius: borderRadius.md,
-    padding: spacing.sm,
-    color: colors.textPrimary,
-    ...typography.body,
-    marginBottom: spacing.sm,
-  },
-  addLine: { ...typography.caption, color: colors.primary, marginBottom: spacing.sm },
-  colorSwatch: {
-    width: 36,
-    height: 36,
-    borderRadius: borderRadius.full,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  swatchActive: { borderColor: colors.primary },
-  footer: {
-    padding: spacing.md,
-    backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.surfaceLight,
-  },
-  generateBtn: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-  },
-  generateText: { ...typography.h3, color: colors.textPrimary },
-});

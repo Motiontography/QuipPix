@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius, typography } from '../styles/theme';
+import { spacing, borderRadius, typography } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface StreakBadgeProps {
   currentStreak: number;
@@ -8,6 +9,37 @@ interface StreakBadgeProps {
 }
 
 export default function StreakBadge({ currentStreak, longestStreak }: StreakBadgeProps) {
+  const { colors } = useTheme();
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      alignItems: 'center',
+    },
+    streakItem: {
+      flex: 1,
+      alignItems: 'center',
+    },
+    streakNumber: {
+      ...typography.h1,
+      color: colors.accent,
+      fontSize: 28,
+    },
+    streakLabel: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    divider: {
+      width: 1,
+      height: 40,
+      backgroundColor: colors.surfaceLight,
+    },
+  }), [colors]);
+
   return (
     <View style={styles.container}>
       <View style={styles.streakItem}>
@@ -22,32 +54,3 @@ export default function StreakBadge({ currentStreak, longestStreak }: StreakBadg
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    alignItems: 'center',
-  },
-  streakItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  streakNumber: {
-    ...typography.h1,
-    color: colors.accent,
-    fontSize: 28,
-  },
-  streakLabel: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  divider: {
-    width: 1,
-    height: 40,
-    backgroundColor: colors.surfaceLight,
-  },
-});

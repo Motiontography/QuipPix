@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,8 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { useAppStore } from '../store/useAppStore';
-import { colors, spacing, borderRadius, typography } from '../styles/theme';
+import { spacing, borderRadius, typography } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Onboarding'>;
 
@@ -60,6 +61,7 @@ const SLIDES: Slide[] = [
 ];
 
 export default function OnboardingScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation<Nav>();
   const setOnboardingComplete = useAppStore((s) => s.setOnboardingComplete);
   const flatListRef = useRef<FlatList>(null);
@@ -85,6 +87,83 @@ export default function OnboardingScreen() {
     const index = Math.round(e.nativeEvent.contentOffset.x / width);
     setCurrentIndex(index);
   };
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    skipButton: {
+      position: 'absolute',
+      top: spacing.xl + 20,
+      right: spacing.md,
+      zIndex: 10,
+      padding: spacing.sm,
+    },
+    skipText: { ...typography.body, color: colors.textMuted },
+    slide: {
+      width,
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: spacing.xl,
+    },
+    slideIcon: { fontSize: 72, marginBottom: spacing.lg },
+    slideTitle: {
+      ...typography.h1,
+      color: colors.textPrimary,
+      textAlign: 'center',
+      marginBottom: spacing.md,
+    },
+    slideDescription: {
+      ...typography.body,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: spacing.lg,
+      lineHeight: 24,
+    },
+    highlightContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      gap: spacing.sm,
+    },
+    highlightChip: {
+      backgroundColor: colors.primary + '20',
+      borderRadius: borderRadius.full,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderWidth: 1,
+      borderColor: colors.primary + '40',
+    },
+    highlightText: { ...typography.caption, color: colors.primaryLight },
+    footer: {
+      paddingHorizontal: spacing.xl,
+      paddingBottom: spacing.xl,
+      alignItems: 'center',
+    },
+    dots: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+      marginBottom: spacing.lg,
+    },
+    dot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.surfaceLight,
+    },
+    dotActive: {
+      backgroundColor: colors.primary,
+      width: 24,
+    },
+    ctaButton: {
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.lg,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.xl,
+      width: '100%',
+      alignItems: 'center',
+    },
+    ctaText: { ...typography.h3, color: colors.textPrimary },
+  }), [colors]);
 
   const renderSlide = ({ item }: { item: Slide }) => (
     <View style={styles.slide}>
@@ -147,80 +226,3 @@ export default function OnboardingScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  skipButton: {
-    position: 'absolute',
-    top: spacing.xl + 20,
-    right: spacing.md,
-    zIndex: 10,
-    padding: spacing.sm,
-  },
-  skipText: { ...typography.body, color: colors.textMuted },
-  slide: {
-    width,
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: spacing.xl,
-  },
-  slideIcon: { fontSize: 72, marginBottom: spacing.lg },
-  slideTitle: {
-    ...typography.h1,
-    color: colors.textPrimary,
-    textAlign: 'center',
-    marginBottom: spacing.md,
-  },
-  slideDescription: {
-    ...typography.body,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: spacing.lg,
-    lineHeight: 24,
-  },
-  highlightContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: spacing.sm,
-  },
-  highlightChip: {
-    backgroundColor: colors.primary + '20',
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderWidth: 1,
-    borderColor: colors.primary + '40',
-  },
-  highlightText: { ...typography.caption, color: colors.primaryLight },
-  footer: {
-    paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.xl,
-    alignItems: 'center',
-  },
-  dots: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.surfaceLight,
-  },
-  dotActive: {
-    backgroundColor: colors.primary,
-    width: 24,
-  },
-  ctaButton: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xl,
-    width: '100%',
-    alignItems: 'center',
-  },
-  ctaText: { ...typography.h3, color: colors.textPrimary },
-});

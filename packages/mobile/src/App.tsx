@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { View, StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './navigation/AppNavigator';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { useAppStore } from './store/useAppStore';
 import { useProStore } from './store/useProStore';
 import { initPurchases, addEntitlementListener } from './services/purchases';
@@ -9,9 +10,11 @@ import { registerForPushNotifications, onNotificationOpened } from './services/p
 import { initAuth } from './services/auth';
 import { initAnalytics } from './services/analytics';
 import { initErrorReporting } from './services/errorReporting';
-import { colors } from './styles/theme';
+import { initOfflineQueue } from './services/offlineQueue';
+import { darkColors } from './styles/theme';
 
-export default function App() {
+function AppContent() {
+  const { colors, isDark } = useTheme();
   const loadGallery = useAppStore((s) => s.loadGallery);
   const refreshEntitlement = useProStore((s) => s.refreshEntitlement);
   const setEntitlement = useProStore((s) => s.setEntitlement);
@@ -33,7 +36,7 @@ export default function App() {
     return unsubscribe;
   }, [loadGallery, loadProState, refreshEntitlement, setEntitlement]);
 
-  // Analytics + Auth + Push notifications
+  // Analytics + Auth + Push notifications + Offline queue
   useEffect(() => {
     initErrorReporting();
     initAnalytics();
@@ -47,20 +50,34 @@ export default function App() {
       // Navigation ref integration can be added later
     });
 
-    return unsubscribeNotification;
+    const unsubscribeQueue = initOfflineQueue();
+
+    return () => {
+      unsubscribeNotification();
+      unsubscribeQueue();
+    };
   }, []);
 
   if (!isReady) {
     return (
-      <SafeAreaProvider>
-        <View style={{ flex: 1, backgroundColor: colors.background }} />
-      </SafeAreaProvider>
+      <View style={{ flex: 1, backgroundColor: colors.background }} />
     );
   }
 
   return (
-    <SafeAreaProvider>
+    <>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <AppNavigator />
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }

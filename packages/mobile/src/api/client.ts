@@ -1,4 +1,5 @@
 import { GenerateParams, JobStatusResponse, BatchStatusResponse, ChallengeResponse, RemixTemplate, RemixResponse } from '../types';
+import { compressForUpload } from '../services/imageCompressor';
 
 const API_BASE = __DEV__
   ? 'http://localhost:3000'
@@ -48,11 +49,12 @@ class ApiClient {
     imageUri: string,
     params: GenerateParams,
   ): Promise<{ jobId: string }> {
+    const compressedUri = await compressForUpload(imageUri);
     const formData = new FormData();
 
-    // Append image file
+    // Append compressed image file
     formData.append('image', {
-      uri: imageUri,
+      uri: compressedUri,
       type: 'image/png',
       name: 'photo.png',
     } as any);
@@ -108,13 +110,14 @@ class ApiClient {
   ): Promise<{ batchId: string; jobIds: string[] }> {
     const formData = new FormData();
 
-    imageUris.forEach((uri, i) => {
+    for (let i = 0; i < imageUris.length; i++) {
+      const compressed = await compressForUpload(imageUris[i]);
       formData.append(`image_${i}`, {
-        uri,
+        uri: compressed,
         type: 'image/png',
         name: `photo_${i}.png`,
       } as any);
-    });
+    }
 
     formData.append('params', JSON.stringify(params));
 
@@ -298,6 +301,22 @@ class ApiClient {
 
     if (!res.ok) {
       throw new ApiError(res.status, 'Failed to send analytics events');
+    }
+
+    return res.json();
+  }
+
+  /**
+   * DELETE /account
+   * Permanently deletes all user data
+   */
+  async deleteAccount(): Promise<{ deleted: boolean }> {
+    const res = await this.request(`${this.baseUrl}/account`, {
+      method: 'DELETE',
+    });
+
+    if (!res.ok) {
+      throw new ApiError(res.status, 'Failed to delete account');
     }
 
     return res.json();

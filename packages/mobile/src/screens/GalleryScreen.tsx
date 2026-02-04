@@ -18,7 +18,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList, GalleryItem } from '../types';
 import { useAppStore } from '../store/useAppStore';
 import OfflineBanner from '../components/OfflineBanner';
-import { colors, spacing, borderRadius, typography } from '../styles/theme';
+import { spacing, borderRadius, typography } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -26,6 +27,7 @@ const SPOTLIGHT_INTERVAL = 7;
 
 export default function GalleryScreen() {
   const navigation = useNavigation<Nav>();
+  const { colors } = useTheme();
   const {
     gallery,
     removeFromGallery,
@@ -128,6 +130,169 @@ export default function GalleryScreen() {
       setNewCollectionVisible(false);
     }
   };
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+    },
+    title: { ...typography.h2, color: colors.textPrimary },
+    clearAll: { ...typography.caption, color: colors.error },
+
+    // Search + Sort
+    searchContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      marginBottom: spacing.sm,
+      gap: spacing.sm,
+    },
+    searchBar: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.md,
+      paddingHorizontal: spacing.sm,
+      height: 40,
+    },
+    searchIcon: { fontSize: 16, marginRight: spacing.xs },
+    searchInput: {
+      flex: 1,
+      ...typography.body,
+      color: colors.textPrimary,
+      paddingVertical: 0,
+    },
+    clearSearch: {
+      ...typography.bodyBold,
+      color: colors.textMuted,
+      padding: spacing.xs,
+    },
+    sortButton: {
+      width: 40,
+      height: 40,
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.md,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    sortIcon: { fontSize: 18 },
+
+    // Filter tabs
+    filterBar: { maxHeight: 44, marginBottom: spacing.sm },
+    filterContent: { paddingHorizontal: spacing.md, gap: spacing.sm },
+    filterTab: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.full,
+      backgroundColor: colors.surface,
+    },
+    filterTabActive: { backgroundColor: colors.primary },
+    filterTabAdd: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.full,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.primary + '40',
+      borderStyle: 'dashed',
+    },
+    filterText: { ...typography.caption, color: colors.textSecondary, fontWeight: '600' },
+    filterTextActive: { color: colors.textPrimary },
+    filterTextAdd: { ...typography.caption, color: colors.primary, fontWeight: '700' },
+
+    // Empty state
+    empty: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: spacing.xl,
+    },
+    emptyIcon: { fontSize: 48, marginBottom: spacing.md },
+    emptyTitle: { ...typography.h3, color: colors.textPrimary, marginBottom: spacing.sm },
+    emptyBody: { ...typography.body, color: colors.textSecondary, textAlign: 'center' },
+
+    // Grid
+    grid: { padding: spacing.md },
+    gridRow: { gap: spacing.md },
+    card: {
+      flex: 1,
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      overflow: 'hidden',
+      marginBottom: spacing.md,
+    },
+    cardImage: {
+      width: '100%',
+      aspectRatio: 1,
+      backgroundColor: colors.surfaceLight,
+    },
+    cardStyle: {
+      ...typography.caption,
+      color: colors.textPrimary,
+      paddingHorizontal: spacing.sm,
+      paddingTop: spacing.xs,
+    },
+    cardDate: {
+      ...typography.small,
+      color: colors.textMuted,
+      paddingHorizontal: spacing.sm,
+      paddingBottom: spacing.sm,
+    },
+
+    // Heart overlay
+    heartOverlay: {
+      position: 'absolute',
+      top: spacing.xs,
+      right: spacing.xs,
+    },
+    heartIcon: { fontSize: 20 },
+
+    // Context menu
+    menuOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    menuCard: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      width: '80%',
+    },
+    menuTitle: {
+      ...typography.bodyBold,
+      color: colors.textPrimary,
+      marginBottom: spacing.md,
+    },
+    menuItem: { paddingVertical: spacing.sm },
+    menuItemText: { ...typography.body, color: colors.textPrimary },
+    menuItemTextPrimary: { ...typography.bodyBold, color: colors.primary },
+    menuItemTextDestructive: { ...typography.bodyBold, color: colors.error },
+
+    // New collection
+    collectionInput: {
+      ...typography.body,
+      color: colors.textPrimary,
+      backgroundColor: colors.surfaceLight,
+      borderRadius: borderRadius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      marginBottom: spacing.md,
+    },
+    createButton: {
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.md,
+      paddingVertical: spacing.sm,
+      alignItems: 'center',
+    },
+    createButtonText: { ...typography.bodyBold, color: colors.textPrimary },
+  }), [colors]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -411,6 +576,31 @@ export default function GalleryScreen() {
 }
 
 function SpotlightCarousel() {
+  const { colors } = useTheme();
+
+  const styles = useMemo(() => StyleSheet.create({
+    spotlight: {
+      backgroundColor: colors.primary + '15',
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      marginBottom: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.primary + '30',
+    },
+    spotlightBadge: {
+      backgroundColor: colors.primary + '30',
+      borderRadius: borderRadius.full,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 2,
+      alignSelf: 'flex-start',
+      marginBottom: spacing.sm,
+    },
+    spotlightBadgeText: { ...typography.small, color: colors.primaryLight },
+    spotlightTitle: { ...typography.bodyBold, color: colors.textPrimary, marginBottom: 4 },
+    spotlightBody: { ...typography.caption, color: colors.textSecondary, marginBottom: spacing.sm },
+    spotlightCta: { ...typography.bodyBold, color: colors.primary },
+  }), [colors]);
+
   return (
     <TouchableOpacity
       style={styles.spotlight}
@@ -428,188 +618,3 @@ function SpotlightCarousel() {
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-  },
-  title: { ...typography.h2, color: colors.textPrimary },
-  clearAll: { ...typography.caption, color: colors.error },
-
-  // Search + Sort
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    marginBottom: spacing.sm,
-    gap: spacing.sm,
-  },
-  searchBar: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.sm,
-    height: 40,
-  },
-  searchIcon: { fontSize: 16, marginRight: spacing.xs },
-  searchInput: {
-    flex: 1,
-    ...typography.body,
-    color: colors.textPrimary,
-    paddingVertical: 0,
-  },
-  clearSearch: {
-    ...typography.bodyBold,
-    color: colors.textMuted,
-    padding: spacing.xs,
-  },
-  sortButton: {
-    width: 40,
-    height: 40,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  sortIcon: { fontSize: 18 },
-
-  // Filter tabs
-  filterBar: { maxHeight: 44, marginBottom: spacing.sm },
-  filterContent: { paddingHorizontal: spacing.md, gap: spacing.sm },
-  filterTab: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.full,
-    backgroundColor: colors.surface,
-  },
-  filterTabActive: { backgroundColor: colors.primary },
-  filterTabAdd: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.full,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.primary + '40',
-    borderStyle: 'dashed',
-  },
-  filterText: { ...typography.caption, color: colors.textSecondary, fontWeight: '600' },
-  filterTextActive: { color: colors.textPrimary },
-  filterTextAdd: { ...typography.caption, color: colors.primary, fontWeight: '700' },
-
-  // Empty state
-  empty: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.xl,
-  },
-  emptyIcon: { fontSize: 48, marginBottom: spacing.md },
-  emptyTitle: { ...typography.h3, color: colors.textPrimary, marginBottom: spacing.sm },
-  emptyBody: { ...typography.body, color: colors.textSecondary, textAlign: 'center' },
-
-  // Grid
-  grid: { padding: spacing.md },
-  gridRow: { gap: spacing.md },
-  card: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    overflow: 'hidden',
-    marginBottom: spacing.md,
-  },
-  cardImage: {
-    width: '100%',
-    aspectRatio: 1,
-    backgroundColor: colors.surfaceLight,
-  },
-  cardStyle: {
-    ...typography.caption,
-    color: colors.textPrimary,
-    paddingHorizontal: spacing.sm,
-    paddingTop: spacing.xs,
-  },
-  cardDate: {
-    ...typography.small,
-    color: colors.textMuted,
-    paddingHorizontal: spacing.sm,
-    paddingBottom: spacing.sm,
-  },
-
-  // Heart overlay
-  heartOverlay: {
-    position: 'absolute',
-    top: spacing.xs,
-    right: spacing.xs,
-  },
-  heartIcon: { fontSize: 20 },
-
-  // Context menu
-  menuOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  menuCard: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    width: '80%',
-  },
-  menuTitle: {
-    ...typography.bodyBold,
-    color: colors.textPrimary,
-    marginBottom: spacing.md,
-  },
-  menuItem: { paddingVertical: spacing.sm },
-  menuItemText: { ...typography.body, color: colors.textPrimary },
-  menuItemTextPrimary: { ...typography.bodyBold, color: colors.primary },
-  menuItemTextDestructive: { ...typography.bodyBold, color: colors.error },
-
-  // New collection
-  collectionInput: {
-    ...typography.body,
-    color: colors.textPrimary,
-    backgroundColor: colors.surfaceLight,
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  createButton: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.md,
-    paddingVertical: spacing.sm,
-    alignItems: 'center',
-  },
-  createButtonText: { ...typography.bodyBold, color: colors.textPrimary },
-
-  // Spotlight
-  spotlight: {
-    backgroundColor: colors.primary + '15',
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.primary + '30',
-  },
-  spotlightBadge: {
-    backgroundColor: colors.primary + '30',
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-    alignSelf: 'flex-start',
-    marginBottom: spacing.sm,
-  },
-  spotlightBadgeText: { ...typography.small, color: colors.primaryLight },
-  spotlightTitle: { ...typography.bodyBold, color: colors.textPrimary, marginBottom: 4 },
-  spotlightBody: { ...typography.caption, color: colors.textSecondary, marginBottom: spacing.sm },
-  spotlightCta: { ...typography.bodyBold, color: colors.primary },
-});

@@ -1,4 +1,25 @@
-export const colors = {
+export interface ThemeColors {
+  primary: string;
+  primaryLight: string;
+  primaryDark: string;
+  accent: string;
+  accentLight: string;
+  background: string;
+  surface: string;
+  surfaceLight: string;
+  card: string;
+  textPrimary: string;
+  textSecondary: string;
+  textMuted: string;
+  success: string;
+  warning: string;
+  error: string;
+  gradientPrimary: readonly [string, string];
+  gradientAccent: readonly [string, string];
+  gradientDark: readonly [string, string];
+}
+
+export const darkColors: ThemeColors = {
   // Primary
   primary: '#6C5CE7',
   primaryLight: '#A29BFE',
@@ -29,6 +50,41 @@ export const colors = {
   gradientAccent: ['#FD79A8', '#FDCB6E'] as const,
   gradientDark: ['#0F0F1A', '#1A1A2E'] as const,
 };
+
+export const lightColors: ThemeColors = {
+  // Primary (same)
+  primary: '#6C5CE7',
+  primaryLight: '#A29BFE',
+  primaryDark: '#4A3FC7',
+
+  // Accent (same)
+  accent: '#FD79A8',
+  accentLight: '#FDCB6E',
+
+  // Neutrals (inverted)
+  background: '#F5F5FA',
+  surface: '#FFFFFF',
+  surfaceLight: '#EEEEF4',
+  card: '#F0F0F8',
+
+  // Text (inverted)
+  textPrimary: '#1A1A2E',
+  textSecondary: '#636E72',
+  textMuted: '#A0A0B8',
+
+  // Status (same)
+  success: '#00B894',
+  warning: '#FDCB6E',
+  error: '#E17055',
+
+  // Gradients
+  gradientPrimary: ['#6C5CE7', '#A29BFE'] as const,
+  gradientAccent: ['#FD79A8', '#FDCB6E'] as const,
+  gradientDark: ['#F5F5FA', '#EEEEF4'] as const,
+};
+
+// Backwards compatibility — default dark palette
+export const colors = darkColors;
 
 export const spacing = {
   xs: 4,

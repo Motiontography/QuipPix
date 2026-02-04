@@ -50,8 +50,11 @@ function runMigrations(database: Database.Database): void {
       result_key TEXT,
       input_key TEXT NOT NULL,
       error TEXT,
+      user_id TEXT,
       created_at TEXT NOT NULL
     );
+
+    CREATE INDEX IF NOT EXISTS idx_jobs_user_id ON jobs(user_id);
 
     CREATE TABLE IF NOT EXISTS batches (
       id TEXT PRIMARY KEY,

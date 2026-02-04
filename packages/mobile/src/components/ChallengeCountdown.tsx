@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Text, StyleSheet } from 'react-native';
-import { colors, typography } from '../styles/theme';
+import { Text } from 'react-native';
+import { typography } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 function getTimeUntilMidnight(): { hours: number; minutes: number; seconds: number } {
   const now = new Date();
@@ -20,6 +21,7 @@ function pad(n: number): string {
 }
 
 export default function ChallengeCountdown() {
+  const { colors } = useTheme();
   const [time, setTime] = useState(getTimeUntilMidnight());
 
   useEffect(() => {
@@ -30,16 +32,8 @@ export default function ChallengeCountdown() {
   }, []);
 
   return (
-    <Text style={styles.countdown}>
+    <Text style={{ ...typography.caption, color: colors.textMuted, textAlign: 'center' }}>
       New challenge in {pad(time.hours)}:{pad(time.minutes)}:{pad(time.seconds)}
     </Text>
   );
 }
-
-const styles = StyleSheet.create({
-  countdown: {
-    ...typography.caption,
-    color: colors.textMuted,
-    textAlign: 'center',
-  },
-});

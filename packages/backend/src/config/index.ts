@@ -58,6 +58,7 @@ export const config = {
 
   moderation: {
     enabled: envBool('MODERATION_ENABLED', true),
+    imageCheckEnabled: envBool('MODERATION_IMAGE_CHECK', true),
   },
 
   freeTier: {

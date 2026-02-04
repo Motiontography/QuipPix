@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,12 +14,14 @@ import { RootStackParamList, RemixResponse } from '../types';
 import { api } from '../api/client';
 import { getStylePack } from '../services/stylePacks';
 import { trackEvent } from '../services/analytics';
-import { colors, spacing, borderRadius, typography } from '../styles/theme';
+import { spacing, borderRadius, typography } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Remix'>;
 type Route = RouteProp<RootStackParamList, 'Remix'>;
 
 export default function RemixScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { code } = route.params;
@@ -81,6 +83,158 @@ export default function RemixScreen() {
       });
     }
   }, [remix, code, navigation]);
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    center: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: spacing.xl,
+    },
+    loadingText: {
+      ...typography.body,
+      color: colors.textSecondary,
+      marginTop: spacing.md,
+    },
+    errorIcon: { fontSize: 48, marginBottom: spacing.md },
+    errorTitle: {
+      ...typography.h2,
+      color: colors.textPrimary,
+      marginBottom: spacing.sm,
+    },
+    errorMsg: {
+      ...typography.body,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: spacing.lg,
+    },
+    homeBtn: {
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.lg,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.xl,
+    },
+    homeBtnText: { ...typography.bodyBold, color: colors.textPrimary },
+    content: { flex: 1, paddingHorizontal: spacing.md },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+    },
+    backText: { ...typography.body, color: colors.primary },
+    title: { ...typography.h3, color: colors.textPrimary },
+    styleCard: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.lg,
+      alignItems: 'center',
+      marginTop: spacing.md,
+    },
+    stylePreview: {
+      width: 80,
+      height: 80,
+      borderRadius: borderRadius.lg,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    styleIcon: { fontSize: 40 },
+    styleName: {
+      ...typography.h2,
+      color: colors.textPrimary,
+      marginBottom: spacing.xs,
+    },
+    styleDesc: {
+      ...typography.body,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+    creator: {
+      ...typography.caption,
+      color: colors.primaryLight,
+      marginTop: spacing.sm,
+    },
+    settingsCard: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      marginTop: spacing.md,
+    },
+    settingsTitle: {
+      ...typography.bodyBold,
+      color: colors.textPrimary,
+      marginBottom: spacing.sm,
+    },
+    settingsGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+    },
+    pill: {
+      backgroundColor: colors.surfaceLight,
+      borderRadius: borderRadius.full,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 4,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    pillLabel: { ...typography.small, color: colors.textMuted },
+    pillValue: { ...typography.small, color: colors.primaryLight, fontWeight: '600' },
+    viewCount: {
+      ...typography.caption,
+      color: colors.textMuted,
+      marginTop: spacing.sm,
+    },
+    actionArea: {
+      paddingBottom: spacing.lg,
+    },
+    ctaText: {
+      ...typography.body,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: spacing.md,
+    },
+    actionRow: {
+      flexDirection: 'row',
+      gap: spacing.md,
+    },
+    actionBtn: {
+      flex: 1,
+      paddingVertical: spacing.md,
+      borderRadius: borderRadius.lg,
+      alignItems: 'center',
+    },
+    primaryBtn: {
+      backgroundColor: colors.primary,
+    },
+    primaryBtnText: {
+      ...typography.bodyBold,
+      color: colors.textPrimary,
+    },
+    secondaryBtn: {
+      backgroundColor: colors.surfaceLight,
+      borderWidth: 1,
+      borderColor: colors.primary + '40',
+    },
+    secondaryBtnText: {
+      ...typography.bodyBold,
+      color: colors.primary,
+    },
+  }), [colors]);
+
+  function SettingPill({ label, value }: { label: string; value: string | number }) {
+    return (
+      <View style={styles.pill}>
+        <Text style={styles.pillLabel}>{label}</Text>
+        <Text style={styles.pillValue}>
+          {typeof value === 'number' ? value : value}
+        </Text>
+      </View>
+    );
+  }
 
   if (loading) {
     return (
@@ -192,161 +346,3 @@ export default function RemixScreen() {
     </SafeAreaView>
   );
 }
-
-function SettingPill({ label, value }: { label: string; value: string | number }) {
-  return (
-    <View style={styles.pill}>
-      <Text style={styles.pillLabel}>{label}</Text>
-      <Text style={styles.pillValue}>
-        {typeof value === 'number' ? value : value}
-      </Text>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: spacing.xl,
-  },
-  loadingText: {
-    ...typography.body,
-    color: colors.textSecondary,
-    marginTop: spacing.md,
-  },
-  errorIcon: { fontSize: 48, marginBottom: spacing.md },
-  errorTitle: {
-    ...typography.h2,
-    color: colors.textPrimary,
-    marginBottom: spacing.sm,
-  },
-  errorMsg: {
-    ...typography.body,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: spacing.lg,
-  },
-  homeBtn: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xl,
-  },
-  homeBtnText: { ...typography.bodyBold, color: colors.textPrimary },
-  content: { flex: 1, paddingHorizontal: spacing.md },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-  },
-  backText: { ...typography.body, color: colors.primary },
-  title: { ...typography.h3, color: colors.textPrimary },
-
-  // Style Card
-  styleCard: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    alignItems: 'center',
-    marginTop: spacing.md,
-  },
-  stylePreview: {
-    width: 80,
-    height: 80,
-    borderRadius: borderRadius.lg,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  styleIcon: { fontSize: 40 },
-  styleName: {
-    ...typography.h2,
-    color: colors.textPrimary,
-    marginBottom: spacing.xs,
-  },
-  styleDesc: {
-    ...typography.body,
-    color: colors.textSecondary,
-    textAlign: 'center',
-  },
-  creator: {
-    ...typography.caption,
-    color: colors.primaryLight,
-    marginTop: spacing.sm,
-  },
-
-  // Settings Preview
-  settingsCard: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    marginTop: spacing.md,
-  },
-  settingsTitle: {
-    ...typography.bodyBold,
-    color: colors.textPrimary,
-    marginBottom: spacing.sm,
-  },
-  settingsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  pill: {
-    backgroundColor: colors.surfaceLight,
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  pillLabel: { ...typography.small, color: colors.textMuted },
-  pillValue: { ...typography.small, color: colors.primaryLight, fontWeight: '600' },
-  viewCount: {
-    ...typography.caption,
-    color: colors.textMuted,
-    marginTop: spacing.sm,
-  },
-
-  // Actions
-  actionArea: {
-    paddingBottom: spacing.lg,
-  },
-  ctaText: {
-    ...typography.body,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: spacing.md,
-  },
-  actionRow: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  actionBtn: {
-    flex: 1,
-    paddingVertical: spacing.md,
-    borderRadius: borderRadius.lg,
-    alignItems: 'center',
-  },
-  primaryBtn: {
-    backgroundColor: colors.primary,
-  },
-  primaryBtnText: {
-    ...typography.bodyBold,
-    color: colors.textPrimary,
-  },
-  secondaryBtn: {
-    backgroundColor: colors.surfaceLight,
-    borderWidth: 1,
-    borderColor: colors.primary + '40',
-  },
-  secondaryBtnText: {
-    ...typography.bodyBold,
-    color: colors.primary,
-  },
-});

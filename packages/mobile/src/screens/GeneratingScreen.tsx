@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -16,7 +16,10 @@ import { getStylePack } from '../services/stylePacks';
 import { useProStore } from '../store/useProStore';
 import { useChallengeStore } from '../store/useChallengeStore';
 import { trackEvent } from '../services/analytics';
-import { colors, spacing, typography, borderRadius } from '../styles/theme';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { queueGeneration } from '../services/offlineQueue';
+import { spacing, typography, borderRadius } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Generating'>;
 type Route = RouteProp<RootStackParamList, 'Generating'>;
@@ -35,6 +38,8 @@ export default function GeneratingScreen() {
   const route = useRoute<Route>();
   const { imageUri, params, challengeId } = route.params;
   const stylePack = getStylePack(params.styleId);
+  const { colors } = useTheme();
+  const { isConnected } = useNetworkStatus();
 
   const entitlement = useProStore((s) => s.entitlement);
   const isDailyLimitReached = useProStore((s) => s.isDailyLimitReached);
@@ -103,6 +108,16 @@ export default function GeneratingScreen() {
         return;
       }
 
+      // Queue for later if offline
+      if (!isConnected) {
+        await queueGeneration(imageUri, params);
+        trackEvent('generation_queued_offline', { styleId: params.styleId });
+        if (!cancelled) {
+          setError('You\'re offline. Your generation has been queued and will be submitted when you\'re back online.');
+        }
+        return;
+      }
+
       try {
         const { jobId } = await api.generate(imageUri, params);
 
@@ -162,7 +177,88 @@ export default function GeneratingScreen() {
     return () => {
       cancelled = true;
     };
-  }, [imageUri, params, challengeId, navigation, entitlement, isDailyLimitReached, incrementDailyGenerations, incrementSuccessfulGenerations]);
+  }, [imageUri, params, challengeId, navigation, entitlement, isDailyLimitReached, incrementDailyGenerations, incrementSuccessfulGenerations, isConnected]);
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    center: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: spacing.xl,
+    },
+    iconContainer: {
+      width: 100,
+      height: 100,
+      borderRadius: 50,
+      backgroundColor: colors.surface,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: spacing.lg,
+    },
+    icon: { fontSize: 48 },
+    title: {
+      ...typography.h2,
+      color: colors.textPrimary,
+      textAlign: 'center',
+      marginBottom: spacing.sm,
+    },
+    message: {
+      ...typography.body,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: spacing.xl,
+    },
+    progressBar: {
+      width: '100%',
+      height: 8,
+      backgroundColor: colors.surfaceLight,
+      borderRadius: 4,
+      overflow: 'hidden',
+    },
+    progressFill: {
+      height: '100%',
+      backgroundColor: colors.primary,
+      borderRadius: 4,
+    },
+    progressText: {
+      ...typography.caption,
+      color: colors.textMuted,
+      marginTop: spacing.sm,
+    },
+    errorIcon: {
+      fontSize: 48,
+      color: colors.error,
+      marginBottom: spacing.md,
+    },
+    errorTitle: {
+      ...typography.h2,
+      color: colors.error,
+      marginBottom: spacing.sm,
+    },
+    errorMsg: {
+      ...typography.body,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: spacing.lg,
+    },
+    upgradeBtn: {
+      backgroundColor: '#6C5CE7',
+      borderRadius: borderRadius.lg,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.xl,
+      marginBottom: spacing.md,
+    },
+    upgradeBtnText: {
+      ...typography.bodyBold,
+      color: '#FFFFFF',
+    },
+    retryBtn: {
+      ...typography.bodyBold,
+      color: colors.primary,
+      padding: spacing.md,
+    },
+  }), [colors]);
 
   const spinInterp = spinAnim.interpolate({
     inputRange: [0, 1],
@@ -220,84 +316,3 @@ export default function GeneratingScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: spacing.xl,
-  },
-  iconContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: colors.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing.lg,
-  },
-  icon: { fontSize: 48 },
-  title: {
-    ...typography.h2,
-    color: colors.textPrimary,
-    textAlign: 'center',
-    marginBottom: spacing.sm,
-  },
-  message: {
-    ...typography.body,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: spacing.xl,
-  },
-  progressBar: {
-    width: '100%',
-    height: 8,
-    backgroundColor: colors.surfaceLight,
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: colors.primary,
-    borderRadius: 4,
-  },
-  progressText: {
-    ...typography.caption,
-    color: colors.textMuted,
-    marginTop: spacing.sm,
-  },
-  errorIcon: {
-    fontSize: 48,
-    color: colors.error,
-    marginBottom: spacing.md,
-  },
-  errorTitle: {
-    ...typography.h2,
-    color: colors.error,
-    marginBottom: spacing.sm,
-  },
-  errorMsg: {
-    ...typography.body,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: spacing.lg,
-  },
-  upgradeBtn: {
-    backgroundColor: '#6C5CE7',
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.xl,
-    marginBottom: spacing.md,
-  },
-  upgradeBtnText: {
-    ...typography.bodyBold,
-    color: '#FFFFFF',
-  },
-  retryBtn: {
-    ...typography.bodyBold,
-    color: colors.primary,
-    padding: spacing.md,
-  },
-});

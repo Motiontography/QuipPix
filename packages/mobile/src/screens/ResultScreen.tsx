@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -21,7 +21,8 @@ import { useProStore } from '../store/useProStore';
 import { trackEvent } from '../services/analytics';
 import { useChallengeStore } from '../store/useChallengeStore';
 import { api } from '../api/client';
-import { colors, spacing, borderRadius, typography } from '../styles/theme';
+import { spacing, borderRadius, typography } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
 import { nanoid } from '../utils/id';
 import BeforeAfterSlider from '../components/BeforeAfterSlider';
 import { saveToPhotoLibrary } from '../services/cameraRoll';
@@ -32,6 +33,7 @@ type Nav = NativeStackNavigationProp<RootStackParamList, 'Result'>;
 type Route = RouteProp<RootStackParamList, 'Result'>;
 
 export default function ResultScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { jobId, resultUrl, params, sourceImageUri } = route.params;
@@ -177,6 +179,95 @@ export default function ResultScreen() {
     }
   }, [params, stylePack]);
 
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+    },
+    backText: { ...typography.bodyBold, color: colors.primary },
+    title: { ...typography.h3, color: colors.textPrimary },
+    imageContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: spacing.md,
+    },
+    viewShot: {
+      width: '100%',
+      aspectRatio: 1,
+      borderRadius: borderRadius.lg,
+      overflow: 'hidden',
+      backgroundColor: colors.surface,
+    },
+    resultImage: {
+      width: '100%',
+      height: '100%',
+    },
+    watermark: {
+      position: 'absolute',
+      bottom: spacing.sm,
+      right: spacing.sm,
+      ...typography.small,
+      color: 'rgba(255,255,255,0.4)',
+    },
+    actions: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+    },
+    actionBtn: {
+      alignItems: 'center',
+      padding: spacing.sm,
+      borderRadius: borderRadius.md,
+      minWidth: 60,
+    },
+    actionBtnPrimary: {
+      backgroundColor: colors.primary + '20',
+    },
+    actionIcon: { fontSize: 24, marginBottom: 4 },
+    actionLabel: { ...typography.small, color: colors.textSecondary },
+    actionLabelPrimary: { color: colors.primary },
+    footer: {
+      alignItems: 'center',
+      paddingBottom: spacing.md,
+    },
+    footerText: { ...typography.small, color: colors.textMuted },
+
+    // Interstitial
+    interstitial: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: spacing.xl,
+    },
+    interstitialTitle: {
+      ...typography.h2,
+      color: colors.textPrimary,
+      marginBottom: spacing.md,
+    },
+    interstitialBody: {
+      ...typography.body,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: spacing.lg,
+    },
+    interstitialCta: {
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.lg,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.xl,
+      marginBottom: spacing.md,
+    },
+    interstitialCtaText: { ...typography.bodyBold, color: colors.textPrimary },
+    skipBtn: { padding: spacing.md },
+    skipText: { ...typography.body, color: colors.textMuted },
+  }), [colors]);
+
   // Gentle interstitial overlay
   if (showInterstitial) {
     return (
@@ -206,6 +297,29 @@ export default function ResultScreen() {
 
   // Import PlatformPicker dynamically to avoid circular deps
   const PlatformPicker = require('../components/PlatformPicker').default;
+
+  const ActionButton = ({
+    icon,
+    label,
+    onPress,
+    primary,
+  }: {
+    icon: string;
+    label: string;
+    onPress: () => void;
+    primary?: boolean;
+  }) => (
+    <TouchableOpacity
+      style={[styles.actionBtn, primary && styles.actionBtnPrimary]}
+      onPress={onPress}
+      activeOpacity={0.7}
+      accessibilityLabel={label}
+      accessibilityRole="button"
+    >
+      <Text style={styles.actionIcon}>{icon}</Text>
+      <Text style={[styles.actionLabel, primary && styles.actionLabelPrimary]}>{label}</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -272,117 +386,3 @@ export default function ResultScreen() {
     </SafeAreaView>
   );
 }
-
-function ActionButton({
-  icon,
-  label,
-  onPress,
-  primary,
-}: {
-  icon: string;
-  label: string;
-  onPress: () => void;
-  primary?: boolean;
-}) {
-  return (
-    <TouchableOpacity
-      style={[styles.actionBtn, primary && styles.actionBtnPrimary]}
-      onPress={onPress}
-      activeOpacity={0.7}
-      accessibilityLabel={label}
-      accessibilityRole="button"
-    >
-      <Text style={styles.actionIcon}>{icon}</Text>
-      <Text style={[styles.actionLabel, primary && styles.actionLabelPrimary]}>{label}</Text>
-    </TouchableOpacity>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  backText: { ...typography.bodyBold, color: colors.primary },
-  title: { ...typography.h3, color: colors.textPrimary },
-  imageContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.md,
-  },
-  viewShot: {
-    width: '100%',
-    aspectRatio: 1,
-    borderRadius: borderRadius.lg,
-    overflow: 'hidden',
-    backgroundColor: colors.surface,
-  },
-  resultImage: {
-    width: '100%',
-    height: '100%',
-  },
-  watermark: {
-    position: 'absolute',
-    bottom: spacing.sm,
-    right: spacing.sm,
-    ...typography.small,
-    color: 'rgba(255,255,255,0.4)',
-  },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-  },
-  actionBtn: {
-    alignItems: 'center',
-    padding: spacing.sm,
-    borderRadius: borderRadius.md,
-    minWidth: 60,
-  },
-  actionBtnPrimary: {
-    backgroundColor: colors.primary + '20',
-  },
-  actionIcon: { fontSize: 24, marginBottom: 4 },
-  actionLabel: { ...typography.small, color: colors.textSecondary },
-  actionLabelPrimary: { color: colors.primary },
-  footer: {
-    alignItems: 'center',
-    paddingBottom: spacing.md,
-  },
-  footerText: { ...typography.small, color: colors.textMuted },
-
-  // Interstitial
-  interstitial: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.xl,
-  },
-  interstitialTitle: {
-    ...typography.h2,
-    color: colors.textPrimary,
-    marginBottom: spacing.md,
-  },
-  interstitialBody: {
-    ...typography.body,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: spacing.lg,
-  },
-  interstitialCta: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xl,
-    marginBottom: spacing.md,
-  },
-  interstitialCtaText: { ...typography.bodyBold, color: colors.textPrimary },
-  skipBtn: { padding: spacing.md },
-  skipText: { ...typography.body, color: colors.textMuted },
-});

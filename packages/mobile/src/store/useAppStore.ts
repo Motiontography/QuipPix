@@ -56,6 +56,10 @@ interface AppState {
   // Onboarding
   hasSeenOnboarding: boolean;
   setOnboardingComplete: () => void;
+
+  // Theme
+  themeMode: 'system' | 'light' | 'dark';
+  setThemeMode: (mode: 'system' | 'light' | 'dark') => void;
 }
 
 const DEFAULT_SLIDERS: CommonSliders = {
@@ -76,6 +80,7 @@ const PREFS_KEY = '@quippix/prefs';
 const FAVORITES_KEY = '@quippix/favorites';
 const COLLECTIONS_KEY = '@quippix/collections';
 const ONBOARDING_KEY = '@quippix/onboarding';
+const THEME_KEY = '@quippix/theme';
 
 export const useAppStore = create<AppState>((set, get) => ({
   // Gallery
@@ -154,6 +159,15 @@ export const useAppStore = create<AppState>((set, get) => ({
       const onboarding = await AsyncStorage.getItem(ONBOARDING_KEY);
       if (onboarding === 'true') {
         set({ hasSeenOnboarding: true });
+      }
+    } catch {
+      // Ignore
+    }
+
+    try {
+      const theme = await AsyncStorage.getItem(THEME_KEY);
+      if (theme === 'light' || theme === 'dark' || theme === 'system') {
+        set({ themeMode: theme });
       }
     } catch {
       // Ignore
@@ -270,5 +284,12 @@ export const useAppStore = create<AppState>((set, get) => ({
   setOnboardingComplete: async () => {
     set({ hasSeenOnboarding: true });
     await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
+  },
+
+  // Theme
+  themeMode: 'dark',
+  setThemeMode: async (mode: 'system' | 'light' | 'dark') => {
+    set({ themeMode: mode });
+    await AsyncStorage.setItem(THEME_KEY, mode);
   },
 }));

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Linking,
   ScrollView,
   Platform,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -22,13 +23,19 @@ import {
   requestNotificationPermission,
 } from '../services/pushNotifications';
 import { getAppVersion, getBuildNumber } from '../services/appInfo';
-import { colors, spacing, borderRadius, typography } from '../styles/theme';
+import { api } from '../api/client';
+import { clearAuth } from '../services/auth';
+import { spacing, borderRadius, typography } from '../styles/theme';
+import { useTheme, ThemeMode } from '../contexts/ThemeContext';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export default function SettingsScreen() {
+  const { colors, themeMode } = useTheme();
   const navigation = useNavigation<Nav>();
   const { watermarkEnabled, setWatermarkEnabled, clearGallery } = useAppStore();
+  const setThemeMode = useAppStore((s) => s.setThemeMode);
+  const [isDeleting, setIsDeleting] = useState(false);
   const entitlement = useProStore((s) => s.entitlement);
   const setEntitlement = useProStore((s) => s.setEntitlement);
   const [notificationsOn, setNotificationsOn] = useState(false);
@@ -65,6 +72,156 @@ export default function SettingsScreen() {
       Linking.openURL('https://play.google.com/store/account/subscriptions');
     }
   };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete Account',
+      'This permanently deletes all your data including generated images, subscription info, and account details. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            setIsDeleting(true);
+            try {
+              await api.deleteAccount();
+              clearGallery();
+              useProStore.getState().setEntitlement({ proActive: false, proType: null, expiresAt: null });
+              await clearAuth();
+              navigation.reset({ index: 0, routes: [{ name: 'Onboarding' }] });
+            } catch {
+              Alert.alert('Error', 'Failed to delete account. Please try again.');
+            } finally {
+              setIsDeleting(false);
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    scroll: { padding: spacing.md },
+    title: { ...typography.h2, color: colors.textPrimary, marginBottom: spacing.lg },
+    section: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      marginBottom: spacing.md,
+    },
+    sectionTitle: {
+      ...typography.bodyBold,
+      color: colors.textPrimary,
+      marginBottom: spacing.md,
+    },
+    row: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    rowInfo: { flex: 1, marginRight: spacing.md },
+    rowLabel: { ...typography.body, color: colors.textPrimary },
+    rowDesc: { ...typography.caption, color: colors.textSecondary, marginTop: 2 },
+    proStatusRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    proBadge: {
+      backgroundColor: '#6C5CE7',
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 10,
+      marginRight: spacing.md,
+    },
+    proBadgeText: {
+      color: '#FFFFFF',
+      fontSize: 12,
+      fontWeight: '700',
+    },
+    proInfo: {
+      flex: 1,
+    },
+    proPromoText: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      marginBottom: spacing.md,
+      lineHeight: 20,
+    },
+    upgradeBtn: {
+      backgroundColor: '#6C5CE7',
+      borderRadius: borderRadius.lg,
+      paddingVertical: spacing.sm,
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    upgradeBtnText: {
+      ...typography.bodyBold,
+      color: '#FFFFFF',
+    },
+    privacyNote: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      marginBottom: spacing.md,
+      lineHeight: 20,
+    },
+    dangerBtn: {
+      backgroundColor: colors.error + '20',
+      borderRadius: borderRadius.md,
+      padding: spacing.sm,
+      alignItems: 'center',
+    },
+    dangerText: { ...typography.bodyBold, color: colors.error },
+    linkRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.surfaceLight,
+    },
+    linkLabel: { ...typography.body, color: colors.textPrimary },
+    linkArrow: { ...typography.body, color: colors.primary },
+    versionBlock: {
+      alignItems: 'center',
+      paddingVertical: spacing.xl,
+    },
+    versionText: { ...typography.caption, color: colors.textMuted },
+    versionSub: { ...typography.small, color: colors.textMuted, marginTop: 2 },
+    segmentedRow: {
+      flexDirection: 'row',
+      backgroundColor: colors.surfaceLight,
+      borderRadius: borderRadius.md,
+      padding: 3,
+    },
+    segmentBtn: {
+      flex: 1,
+      paddingVertical: spacing.sm,
+      alignItems: 'center',
+      borderRadius: borderRadius.md - 2,
+    },
+    segmentBtnActive: {
+      backgroundColor: colors.primary,
+    },
+    segmentLabel: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      fontWeight: '600',
+    },
+    segmentLabelActive: {
+      color: '#FFFFFF',
+    },
+    deleteAccountBtn: {
+      backgroundColor: colors.error + '15',
+      borderRadius: borderRadius.md,
+      padding: spacing.sm,
+      alignItems: 'center',
+      marginTop: spacing.md,
+    },
+    deleteAccountText: { ...typography.bodyBold, color: colors.error },
+  }), [colors]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -147,6 +304,26 @@ export default function SettingsScreen() {
           </View>
         </View>
 
+        {/* Appearance */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle} accessibilityRole="header">Appearance</Text>
+          <View style={styles.segmentedRow}>
+            {(['system', 'light', 'dark'] as ThemeMode[]).map((mode) => (
+              <TouchableOpacity
+                key={mode}
+                style={[styles.segmentBtn, themeMode === mode && styles.segmentBtnActive]}
+                onPress={() => setThemeMode(mode)}
+                accessibilityLabel={`${mode} theme`}
+                accessibilityRole="button"
+              >
+                <Text style={[styles.segmentLabel, themeMode === mode && styles.segmentLabelActive]}>
+                  {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
         {/* Notifications */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle} accessibilityRole="header">Notifications</Text>
@@ -198,6 +375,17 @@ export default function SettingsScreen() {
             accessibilityRole="button"
           >
             <Text style={styles.dangerText}>Delete All Local Data</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.deleteAccountBtn}
+            onPress={handleDeleteAccount}
+            disabled={isDeleting}
+            accessibilityLabel="Delete Account"
+            accessibilityRole="button"
+          >
+            <Text style={styles.deleteAccountText}>
+              {isDeleting ? 'Deleting...' : 'Delete Account'}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -255,94 +443,3 @@ export default function SettingsScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scroll: { padding: spacing.md },
-  title: { ...typography.h2, color: colors.textPrimary, marginBottom: spacing.lg },
-  section: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-  },
-  sectionTitle: {
-    ...typography.bodyBold,
-    color: colors.textPrimary,
-    marginBottom: spacing.md,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  rowInfo: { flex: 1, marginRight: spacing.md },
-  rowLabel: { ...typography.body, color: colors.textPrimary },
-  rowDesc: { ...typography.caption, color: colors.textSecondary, marginTop: 2 },
-  proStatusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  proBadge: {
-    backgroundColor: '#6C5CE7',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 10,
-    marginRight: spacing.md,
-  },
-  proBadgeText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  proInfo: {
-    flex: 1,
-  },
-  proPromoText: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginBottom: spacing.md,
-    lineHeight: 20,
-  },
-  upgradeBtn: {
-    backgroundColor: '#6C5CE7',
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing.sm,
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  upgradeBtnText: {
-    ...typography.bodyBold,
-    color: '#FFFFFF',
-  },
-  privacyNote: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginBottom: spacing.md,
-    lineHeight: 20,
-  },
-  dangerBtn: {
-    backgroundColor: colors.error + '20',
-    borderRadius: borderRadius.md,
-    padding: spacing.sm,
-    alignItems: 'center',
-  },
-  dangerText: { ...typography.bodyBold, color: colors.error },
-  linkRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.surfaceLight,
-  },
-  linkLabel: { ...typography.body, color: colors.textPrimary },
-  linkArrow: { ...typography.body, color: colors.primary },
-  versionBlock: {
-    alignItems: 'center',
-    paddingVertical: spacing.xl,
-  },
-  versionText: { ...typography.caption, color: colors.textMuted },
-  versionSub: { ...typography.small, color: colors.textMuted, marginTop: 2 },
-});

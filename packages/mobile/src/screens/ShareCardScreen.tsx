@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState, useEffect } from 'react';
+import React, { useRef, useCallback, useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -23,12 +23,14 @@ import {
   renderTemplate,
 } from '../components/ShareCardTemplates';
 import { trackEvent } from '../services/analytics';
-import { colors, spacing, borderRadius, typography } from '../styles/theme';
+import { spacing, borderRadius, typography } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'ShareCard'>;
 type Route = RouteProp<RootStackParamList, 'ShareCard'>;
 
 export default function ShareCardScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const {
@@ -110,6 +112,126 @@ export default function ShareCardScreen() {
   }, []);
 
   const templateConfig = CARD_TEMPLATES.find((t) => t.id === selectedTemplate)!;
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+    },
+    backText: { ...typography.body, color: colors.primary },
+    title: { ...typography.h3, color: colors.textPrimary },
+    scroll: { flex: 1 },
+    scrollContent: { paddingHorizontal: spacing.md },
+    previewContainer: {
+      alignItems: 'center',
+      paddingVertical: spacing.md,
+    },
+    cardViewShot: {
+      width: '100%',
+      maxWidth: 340,
+      borderRadius: borderRadius.lg,
+      overflow: 'hidden',
+    },
+    section: {
+      marginBottom: spacing.md,
+    },
+    sectionTitle: {
+      ...typography.bodyBold,
+      color: colors.textPrimary,
+      marginBottom: spacing.sm,
+    },
+    templateList: {
+      gap: spacing.sm,
+    },
+    templateChip: {
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderWidth: 2,
+      borderColor: 'transparent',
+      minWidth: 72,
+    },
+    templateChipActive: {
+      borderColor: colors.primary,
+      backgroundColor: colors.primary + '15',
+    },
+    templateIcon: { fontSize: 22, marginBottom: 4 },
+    templateLabel: {
+      ...typography.small,
+      color: colors.textSecondary,
+      fontWeight: '600',
+    },
+    templateLabelActive: { color: colors.primary },
+    themeRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+    themeSwatch: {
+      flex: 1,
+      height: 44,
+      borderRadius: borderRadius.md,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 2,
+      borderColor: 'transparent',
+    },
+    themeSwatchActive: {
+      borderColor: colors.primary,
+    },
+    themeSwatchLabel: {
+      ...typography.small,
+      fontWeight: '600',
+    },
+    captionInput: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      color: colors.textPrimary,
+      ...typography.body,
+      minHeight: 60,
+      textAlignVertical: 'top',
+    },
+    charCount: {
+      ...typography.small,
+      color: colors.textMuted,
+      textAlign: 'right',
+      marginTop: spacing.xs,
+    },
+    actionBar: {
+      flexDirection: 'row',
+      padding: spacing.md,
+      gap: spacing.md,
+      backgroundColor: colors.surface,
+      borderTopWidth: 1,
+      borderTopColor: colors.surfaceLight,
+    },
+    actionBtn: {
+      flex: 1,
+      paddingVertical: spacing.md,
+      borderRadius: borderRadius.lg,
+      alignItems: 'center',
+    },
+    saveBtn: {
+      backgroundColor: colors.surfaceLight,
+    },
+    saveBtnText: {
+      ...typography.bodyBold,
+      color: colors.textPrimary,
+    },
+    shareBtn: {
+      backgroundColor: colors.primary,
+    },
+    shareBtnText: {
+      ...typography.bodyBold,
+      color: colors.textPrimary,
+    },
+  }), [colors]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -240,133 +362,3 @@ export default function ShareCardScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  backText: { ...typography.body, color: colors.primary },
-  title: { ...typography.h3, color: colors.textPrimary },
-  scroll: { flex: 1 },
-  scrollContent: { paddingHorizontal: spacing.md },
-
-  // Card Preview
-  previewContainer: {
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-  },
-  cardViewShot: {
-    width: '100%',
-    maxWidth: 340,
-    borderRadius: borderRadius.lg,
-    overflow: 'hidden',
-  },
-
-  // Template Picker
-  section: {
-    marginBottom: spacing.md,
-  },
-  sectionTitle: {
-    ...typography.bodyBold,
-    color: colors.textPrimary,
-    marginBottom: spacing.sm,
-  },
-  templateList: {
-    gap: spacing.sm,
-  },
-  templateChip: {
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderWidth: 2,
-    borderColor: 'transparent',
-    minWidth: 72,
-  },
-  templateChipActive: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primary + '15',
-  },
-  templateIcon: { fontSize: 22, marginBottom: 4 },
-  templateLabel: {
-    ...typography.small,
-    color: colors.textSecondary,
-    fontWeight: '600',
-  },
-  templateLabelActive: { color: colors.primary },
-
-  // Color Theme
-  themeRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  themeSwatch: {
-    flex: 1,
-    height: 44,
-    borderRadius: borderRadius.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  themeSwatchActive: {
-    borderColor: colors.primary,
-  },
-  themeSwatchLabel: {
-    ...typography.small,
-    fontWeight: '600',
-  },
-
-  // Caption
-  captionInput: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    color: colors.textPrimary,
-    ...typography.body,
-    minHeight: 60,
-    textAlignVertical: 'top',
-  },
-  charCount: {
-    ...typography.small,
-    color: colors.textMuted,
-    textAlign: 'right',
-    marginTop: spacing.xs,
-  },
-
-  // Actions
-  actionBar: {
-    flexDirection: 'row',
-    padding: spacing.md,
-    gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.surfaceLight,
-  },
-  actionBtn: {
-    flex: 1,
-    paddingVertical: spacing.md,
-    borderRadius: borderRadius.lg,
-    alignItems: 'center',
-  },
-  saveBtn: {
-    backgroundColor: colors.surfaceLight,
-  },
-  saveBtnText: {
-    ...typography.bodyBold,
-    color: colors.textPrimary,
-  },
-  shareBtn: {
-    backgroundColor: colors.primary,
-  },
-  shareBtnText: {
-    ...typography.bodyBold,
-    color: colors.textPrimary,
-  },
-});

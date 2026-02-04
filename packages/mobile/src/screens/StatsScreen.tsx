@@ -15,11 +15,13 @@ import { useProStore } from '../store/useProStore';
 import { useChallengeStore } from '../store/useChallengeStore';
 import StreakBadge from '../components/StreakBadge';
 import ProBadge from '../components/ProBadge';
-import { colors, spacing, borderRadius, typography } from '../styles/theme';
+import { spacing, borderRadius, typography } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Stats'>;
 
 export default function StatsScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation<Nav>();
 
   const gallery = useAppStore((s) => s.gallery);
@@ -34,6 +36,56 @@ export default function StatsScreen() {
   const entitlement = useProStore((s) => s.entitlement);
   const successfulGenerations = useProStore((s) => s.successfulGenerations);
   const dailyGenerations = useProStore((s) => s.dailyGenerations);
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    scroll: { padding: spacing.md },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing.lg,
+    },
+    backText: { ...typography.body, color: colors.primary },
+    title: { ...typography.h2, color: colors.textPrimary },
+    proRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      marginBottom: spacing.md,
+    },
+    proLabel: { ...typography.bodyBold, color: colors.primaryLight },
+    section: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      marginBottom: spacing.md,
+    },
+    sectionTitle: {
+      ...typography.bodyBold,
+      color: colors.textPrimary,
+      marginBottom: spacing.md,
+    },
+    statRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.surfaceLight,
+    },
+    statLabel: { ...typography.body, color: colors.textSecondary },
+    statValue: { ...typography.bodyBold, color: colors.textPrimary },
+  }), [colors]);
+
+  function StatRow({ label, value }: { label: string; value: string }) {
+    return (
+      <View style={styles.statRow}>
+        <Text style={styles.statLabel}>{label}</Text>
+        <Text style={styles.statValue}>{value}</Text>
+      </View>
+    );
+  }
 
   const styleBreakdown = useMemo(() => {
     const map: Record<string, number> = {};
@@ -106,53 +158,3 @@ export default function StatsScreen() {
     </SafeAreaView>
   );
 }
-
-function StatRow({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={styles.statRow}>
-      <Text style={styles.statLabel}>{label}</Text>
-      <Text style={styles.statValue}>{value}</Text>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scroll: { padding: spacing.md },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.lg,
-  },
-  backText: { ...typography.body, color: colors.primary },
-  title: { ...typography.h2, color: colors.textPrimary },
-  proRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  proLabel: { ...typography.bodyBold, color: colors.primaryLight },
-  section: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-  },
-  sectionTitle: {
-    ...typography.bodyBold,
-    color: colors.textPrimary,
-    marginBottom: spacing.md,
-  },
-  statRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.surfaceLight,
-  },
-  statLabel: { ...typography.body, color: colors.textSecondary },
-  statValue: { ...typography.bodyBold, color: colors.textPrimary },
-});

@@ -25,7 +25,8 @@ type AnalyticsEvent =
   | 'remix_created'
   | 'remix_opened'
   | 'remix_photo_selected'
-  | 'save_to_photos';
+  | 'save_to_photos'
+  | 'generation_queued_offline';
 
 interface EventPayload {
   event: AnalyticsEvent;

@@ -56,6 +56,11 @@ export async function getUserId(): Promise<string | null> {
   return AsyncStorage.getItem(USER_ID_KEY);
 }
 
+export async function clearAuth(): Promise<void> {
+  await AsyncStorage.removeItem(AUTH_TOKEN_KEY);
+  await AsyncStorage.removeItem(USER_ID_KEY);
+}
+
 export async function refreshToken(): Promise<void> {
   const token = await AsyncStorage.getItem(AUTH_TOKEN_KEY);
   if (!token) return;

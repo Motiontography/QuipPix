@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -23,17 +23,13 @@ import { useChallengeStore } from '../store/useChallengeStore';
 import { trackEvent } from '../services/analytics';
 import StreakBadge from '../components/StreakBadge';
 import ChallengeCountdown from '../components/ChallengeCountdown';
-import { colors, spacing, borderRadius, typography } from '../styles/theme';
+import { spacing, borderRadius, typography } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
-const DIFFICULTY_COLORS = {
-  easy: colors.success,
-  medium: colors.warning,
-  hard: colors.error,
-};
-
 export default function ChallengesScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation<Nav>();
   const {
     completions,
@@ -120,10 +116,214 @@ export default function ChallengesScreen() {
     }
   }, [challenge, navigation]);
 
+  const DIFFICULTY_COLORS = useMemo(() => ({
+    easy: colors.success,
+    medium: colors.warning,
+    hard: colors.error,
+  }), [colors]);
+
   const completedToday = hasCompletedToday();
 
   // Recent completions for history (last 7)
   const recentCompletions = completions.slice(0, 7);
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    center: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    loadingText: {
+      ...typography.body,
+      color: colors.textSecondary,
+    },
+    listContent: {
+      padding: spacing.md,
+      paddingBottom: spacing.xxl,
+    },
+    header: {
+      marginBottom: spacing.md,
+    },
+    title: {
+      ...typography.h2,
+      color: colors.textPrimary,
+      marginBottom: spacing.xs,
+    },
+    section: {
+      marginBottom: spacing.md,
+    },
+    challengeCard: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.lg,
+      marginBottom: spacing.lg,
+      borderWidth: 1,
+      borderColor: colors.primary + '30',
+    },
+    cardHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    cardIcon: {
+      fontSize: 48,
+      marginRight: spacing.md,
+    },
+    cardHeaderText: {
+      flex: 1,
+    },
+    cardTitle: {
+      ...typography.h3,
+      color: colors.textPrimary,
+      marginBottom: 4,
+    },
+    metaRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    difficultyBadge: {
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: borderRadius.full,
+    },
+    difficultyText: {
+      ...typography.small,
+      fontWeight: '600',
+      textTransform: 'capitalize',
+    },
+    submissionCount: {
+      ...typography.small,
+      color: colors.textMuted,
+    },
+    cardDesc: {
+      ...typography.body,
+      color: colors.textSecondary,
+      marginBottom: spacing.md,
+    },
+    promptBox: {
+      backgroundColor: colors.surfaceLight,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      marginBottom: spacing.md,
+    },
+    promptLabel: {
+      ...typography.small,
+      color: colors.textMuted,
+      marginBottom: spacing.xs,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    promptText: {
+      ...typography.body,
+      color: colors.primaryLight,
+      fontStyle: 'italic',
+    },
+    styleHint: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+      gap: spacing.xs,
+    },
+    styleHintLabel: {
+      ...typography.caption,
+      color: colors.textMuted,
+    },
+    styleHintValue: {
+      ...typography.bodyBold,
+      color: colors.textPrimary,
+    },
+    hashtag: {
+      ...typography.bodyBold,
+      color: colors.primary,
+      marginBottom: spacing.md,
+    },
+    actionRow: {
+      flexDirection: 'row',
+      gap: spacing.md,
+    },
+    actionBtn: {
+      flex: 1,
+      paddingVertical: spacing.md,
+      borderRadius: borderRadius.lg,
+      alignItems: 'center',
+    },
+    primaryBtn: {
+      backgroundColor: colors.primary,
+    },
+    primaryBtnText: {
+      ...typography.bodyBold,
+      color: colors.textPrimary,
+    },
+    secondaryBtn: {
+      backgroundColor: colors.surfaceLight,
+      borderWidth: 1,
+      borderColor: colors.primary + '40',
+    },
+    secondaryBtnText: {
+      ...typography.bodyBold,
+      color: colors.primary,
+    },
+    completedBanner: {
+      backgroundColor: colors.success + '20',
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      alignItems: 'center',
+    },
+    completedText: {
+      ...typography.bodyBold,
+      color: colors.success,
+    },
+    historyHeader: {
+      marginBottom: spacing.sm,
+    },
+    historyTitle: {
+      ...typography.bodyBold,
+      color: colors.textPrimary,
+    },
+    historyCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.sm,
+      marginBottom: spacing.sm,
+    },
+    historyThumb: {
+      width: 48,
+      height: 48,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.surfaceLight,
+      marginRight: spacing.md,
+    },
+    historyInfo: {
+      flex: 1,
+    },
+    historyStyle: {
+      ...typography.bodyBold,
+      color: colors.textPrimary,
+      fontSize: 14,
+    },
+    historyDate: {
+      ...typography.small,
+      color: colors.textMuted,
+    },
+    viewBtn: {
+      ...typography.bodyBold,
+      color: colors.primary,
+      paddingHorizontal: spacing.md,
+    },
+    emptyHistory: {
+      paddingVertical: spacing.lg,
+      alignItems: 'center',
+    },
+    emptyText: {
+      ...typography.body,
+      color: colors.textMuted,
+      textAlign: 'center',
+    },
+  }), [colors]);
 
   if (loading) {
     return (
@@ -297,207 +497,3 @@ export default function ChallengesScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    ...typography.body,
-    color: colors.textSecondary,
-  },
-  listContent: {
-    padding: spacing.md,
-    paddingBottom: spacing.xxl,
-  },
-  header: {
-    marginBottom: spacing.md,
-  },
-  title: {
-    ...typography.h2,
-    color: colors.textPrimary,
-    marginBottom: spacing.xs,
-  },
-  section: {
-    marginBottom: spacing.md,
-  },
-
-  // Challenge Card
-  challengeCard: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    marginBottom: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.primary + '30',
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  cardIcon: {
-    fontSize: 48,
-    marginRight: spacing.md,
-  },
-  cardHeaderText: {
-    flex: 1,
-  },
-  cardTitle: {
-    ...typography.h3,
-    color: colors.textPrimary,
-    marginBottom: 4,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  difficultyBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: borderRadius.full,
-  },
-  difficultyText: {
-    ...typography.small,
-    fontWeight: '600',
-    textTransform: 'capitalize',
-  },
-  submissionCount: {
-    ...typography.small,
-    color: colors.textMuted,
-  },
-  cardDesc: {
-    ...typography.body,
-    color: colors.textSecondary,
-    marginBottom: spacing.md,
-  },
-  promptBox: {
-    backgroundColor: colors.surfaceLight,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-  },
-  promptLabel: {
-    ...typography.small,
-    color: colors.textMuted,
-    marginBottom: spacing.xs,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  promptText: {
-    ...typography.body,
-    color: colors.primaryLight,
-    fontStyle: 'italic',
-  },
-  styleHint: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-    gap: spacing.xs,
-  },
-  styleHintLabel: {
-    ...typography.caption,
-    color: colors.textMuted,
-  },
-  styleHintValue: {
-    ...typography.bodyBold,
-    color: colors.textPrimary,
-  },
-  hashtag: {
-    ...typography.bodyBold,
-    color: colors.primary,
-    marginBottom: spacing.md,
-  },
-
-  // Actions
-  actionRow: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  actionBtn: {
-    flex: 1,
-    paddingVertical: spacing.md,
-    borderRadius: borderRadius.lg,
-    alignItems: 'center',
-  },
-  primaryBtn: {
-    backgroundColor: colors.primary,
-  },
-  primaryBtnText: {
-    ...typography.bodyBold,
-    color: colors.textPrimary,
-  },
-  secondaryBtn: {
-    backgroundColor: colors.surfaceLight,
-    borderWidth: 1,
-    borderColor: colors.primary + '40',
-  },
-  secondaryBtnText: {
-    ...typography.bodyBold,
-    color: colors.primary,
-  },
-  completedBanner: {
-    backgroundColor: colors.success + '20',
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    alignItems: 'center',
-  },
-  completedText: {
-    ...typography.bodyBold,
-    color: colors.success,
-  },
-
-  // History
-  historyHeader: {
-    marginBottom: spacing.sm,
-  },
-  historyTitle: {
-    ...typography.bodyBold,
-    color: colors.textPrimary,
-  },
-  historyCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.sm,
-    marginBottom: spacing.sm,
-  },
-  historyThumb: {
-    width: 48,
-    height: 48,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.surfaceLight,
-    marginRight: spacing.md,
-  },
-  historyInfo: {
-    flex: 1,
-  },
-  historyStyle: {
-    ...typography.bodyBold,
-    color: colors.textPrimary,
-    fontSize: 14,
-  },
-  historyDate: {
-    ...typography.small,
-    color: colors.textMuted,
-  },
-  viewBtn: {
-    ...typography.bodyBold,
-    color: colors.primary,
-    paddingHorizontal: spacing.md,
-  },
-  emptyHistory: {
-    paddingVertical: spacing.lg,
-    alignItems: 'center',
-  },
-  emptyText: {
-    ...typography.body,
-    color: colors.textMuted,
-    textAlign: 'center',
-  },
-});

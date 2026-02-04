@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -16,7 +16,8 @@ import { RootStackParamList, StyleId, StylePack } from '../types';
 import { stylePacks, styleCategories, getStylesByCategory, getStylePack } from '../services/stylePacks';
 import { usePaywallGuard } from '../hooks/usePaywallGuard';
 import ProBadge from '../components/ProBadge';
-import { colors, spacing, borderRadius, typography } from '../styles/theme';
+import { spacing, borderRadius, typography } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'StyleSelect'>;
 type Route = RouteProp<RootStackParamList, 'StyleSelect'>;
@@ -26,6 +27,7 @@ export default function StyleSelectScreen() {
   const route = useRoute<Route>();
   const { imageUri, imageUris, challengeId, preselectedStyleId } = route.params;
   const { isPro, guardStyle } = usePaywallGuard();
+  const { colors } = useTheme();
 
   const [selectedCategory, setSelectedCategory] = useState<string>(styleCategories[0]);
   const [previewStyle, setPreviewStyle] = useState<StylePack | null>(null);
@@ -56,6 +58,154 @@ export default function StyleSelectScreen() {
       challengeId,
     });
   };
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+    },
+    backBtn: { paddingRight: spacing.md },
+    backText: { ...typography.body, color: colors.primary },
+    title: { ...typography.h2, color: colors.textPrimary, flex: 1 },
+    previewContainer: {
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+    },
+    previewImage: {
+      width: 120,
+      height: 120,
+      borderRadius: borderRadius.lg,
+      backgroundColor: colors.surface,
+    },
+    categoryBar: {
+      maxHeight: 48,
+      marginVertical: spacing.sm,
+    },
+    categoryContent: {
+      paddingHorizontal: spacing.md,
+      gap: spacing.sm,
+    },
+    categoryTab: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.full,
+      backgroundColor: colors.surface,
+    },
+    categoryTabActive: {
+      backgroundColor: colors.primary,
+    },
+    categoryText: {
+      ...typography.bodyBold,
+      color: colors.textSecondary,
+    },
+    categoryTextActive: {
+      color: colors.textPrimary,
+    },
+    grid: {
+      padding: spacing.md,
+    },
+    gridRow: {
+      gap: spacing.md,
+    },
+    styleCard: {
+      flex: 1,
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      marginBottom: spacing.md,
+    },
+    stylePreview: {
+      height: 80,
+      borderRadius: borderRadius.md,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    styleIcon: { fontSize: 36 },
+    proBadgePosition: {
+      position: 'absolute',
+      top: 6,
+      right: 6,
+    },
+    styleName: {
+      ...typography.bodyBold,
+      color: colors.textPrimary,
+      marginBottom: 2,
+    },
+    styleDesc: {
+      ...typography.caption,
+      color: colors.textSecondary,
+    },
+
+    // Preview modal
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.6)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    previewModal: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.xl,
+      padding: spacing.lg,
+      width: '85%',
+      alignItems: 'center',
+    },
+    previewIconContainer: {
+      width: 80,
+      height: 80,
+      borderRadius: borderRadius.lg,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    previewIconLarge: { fontSize: 40 },
+    previewName: { ...typography.h3, color: colors.textPrimary, marginBottom: 4 },
+    previewCategory: { ...typography.caption, color: colors.primary, marginBottom: spacing.sm },
+    previewDescription: {
+      ...typography.body,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: spacing.md,
+    },
+    beforeAfterRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+      gap: spacing.sm,
+    },
+    beforeAfterBox: { alignItems: 'center' },
+    beforeAfterLabel: { ...typography.small, color: colors.textMuted, marginBottom: 4 },
+    beforeAfterImg: {
+      width: 80,
+      height: 80,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.surfaceLight,
+    },
+    arrowText: { ...typography.h3, color: colors.textMuted },
+    proNotice: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      marginBottom: spacing.md,
+    },
+    proNoticeText: { ...typography.caption, color: colors.textSecondary },
+    useStyleBtn: {
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.lg,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.xl,
+      width: '100%',
+      alignItems: 'center',
+    },
+    useStyleBtnLocked: {
+      backgroundColor: colors.surfaceLight,
+    },
+    useStyleBtnText: { ...typography.bodyBold, color: colors.textPrimary },
+  }), [colors]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -208,151 +358,3 @@ export default function StyleSelectScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  backBtn: { paddingRight: spacing.md },
-  backText: { ...typography.body, color: colors.primary },
-  title: { ...typography.h2, color: colors.textPrimary, flex: 1 },
-  previewContainer: {
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-  },
-  previewImage: {
-    width: 120,
-    height: 120,
-    borderRadius: borderRadius.lg,
-    backgroundColor: colors.surface,
-  },
-  categoryBar: {
-    maxHeight: 48,
-    marginVertical: spacing.sm,
-  },
-  categoryContent: {
-    paddingHorizontal: spacing.md,
-    gap: spacing.sm,
-  },
-  categoryTab: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.full,
-    backgroundColor: colors.surface,
-  },
-  categoryTabActive: {
-    backgroundColor: colors.primary,
-  },
-  categoryText: {
-    ...typography.bodyBold,
-    color: colors.textSecondary,
-  },
-  categoryTextActive: {
-    color: colors.textPrimary,
-  },
-  grid: {
-    padding: spacing.md,
-  },
-  gridRow: {
-    gap: spacing.md,
-  },
-  styleCard: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-  },
-  stylePreview: {
-    height: 80,
-    borderRadius: borderRadius.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  styleIcon: { fontSize: 36 },
-  proBadgePosition: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-  },
-  styleName: {
-    ...typography.bodyBold,
-    color: colors.textPrimary,
-    marginBottom: 2,
-  },
-  styleDesc: {
-    ...typography.caption,
-    color: colors.textSecondary,
-  },
-
-  // Preview modal
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  previewModal: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    padding: spacing.lg,
-    width: '85%',
-    alignItems: 'center',
-  },
-  previewIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: borderRadius.lg,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  previewIconLarge: { fontSize: 40 },
-  previewName: { ...typography.h3, color: colors.textPrimary, marginBottom: 4 },
-  previewCategory: { ...typography.caption, color: colors.primary, marginBottom: spacing.sm },
-  previewDescription: {
-    ...typography.body,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: spacing.md,
-  },
-  beforeAfterRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-    gap: spacing.sm,
-  },
-  beforeAfterBox: { alignItems: 'center' },
-  beforeAfterLabel: { ...typography.small, color: colors.textMuted, marginBottom: 4 },
-  beforeAfterImg: {
-    width: 80,
-    height: 80,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.surfaceLight,
-  },
-  arrowText: { ...typography.h3, color: colors.textMuted },
-  proNotice: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  proNoticeText: { ...typography.caption, color: colors.textSecondary },
-  useStyleBtn: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.xl,
-    width: '100%',
-    alignItems: 'center',
-  },
-  useStyleBtnLocked: {
-    backgroundColor: colors.surfaceLight,
-  },
-  useStyleBtnText: { ...typography.bodyBold, color: colors.textPrimary },
-});

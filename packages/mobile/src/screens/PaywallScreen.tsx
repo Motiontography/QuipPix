@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -16,7 +16,8 @@ import { RootStackParamList } from '../types';
 import { getOfferings, purchasePackage, restorePurchases } from '../services/purchases';
 import { useProStore } from '../store/useProStore';
 import { trackEvent } from '../services/analytics';
-import { colors, spacing, borderRadius, typography } from '../styles/theme';
+import { spacing, borderRadius, typography } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Paywall'>;
 type Route = RouteProp<RootStackParamList, 'Paywall'>;
@@ -30,6 +31,7 @@ const BENEFITS = [
 ];
 
 export default function PaywallScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { trigger } = route.params;
@@ -104,6 +106,134 @@ export default function PaywallScreen() {
   const isBestValue = (pkg: PurchasesPackage): boolean => {
     return pkg.identifier.toLowerCase().includes('annual');
   };
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: '#0D0D1A',
+    },
+    closeBtn: {
+      position: 'absolute',
+      top: 56,
+      right: spacing.md,
+      zIndex: 10,
+      padding: spacing.sm,
+    },
+    closeText: {
+      ...typography.body,
+      color: colors.textMuted,
+    },
+    content: {
+      paddingHorizontal: spacing.lg,
+      paddingTop: 80,
+      paddingBottom: 40,
+      alignItems: 'center',
+    },
+    headline: {
+      ...typography.h1,
+      color: '#FFFFFF',
+      textAlign: 'center',
+      marginBottom: spacing.xs,
+    },
+    subheadline: {
+      ...typography.body,
+      color: '#A29BFE',
+      textAlign: 'center',
+      marginBottom: spacing.xl,
+    },
+    benefitsContainer: {
+      width: '100%',
+      marginBottom: spacing.xl,
+    },
+    benefitRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+    },
+    benefitIcon: {
+      fontSize: 20,
+      marginRight: spacing.md,
+      width: 28,
+    },
+    benefitText: {
+      ...typography.body,
+      color: '#FFFFFF',
+    },
+    loader: {
+      marginVertical: spacing.xl,
+    },
+    pricingContainer: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+      marginBottom: spacing.lg,
+      width: '100%',
+    },
+    pricingCard: {
+      flex: 1,
+      backgroundColor: '#1A1A2E',
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      alignItems: 'center',
+      borderWidth: 2,
+      borderColor: 'transparent',
+    },
+    pricingCardSelected: {
+      borderColor: '#6C5CE7',
+      backgroundColor: '#1A1A3E',
+    },
+    bestValueBadge: {
+      position: 'absolute',
+      top: -10,
+      backgroundColor: '#6C5CE7',
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: 8,
+    },
+    bestValueText: {
+      color: '#FFFFFF',
+      fontSize: 10,
+      fontWeight: '700',
+    },
+    pricingLabel: {
+      ...typography.bodyBold,
+      color: '#FFFFFF',
+      marginBottom: 4,
+      marginTop: 4,
+    },
+    pricingPrice: {
+      fontSize: 20,
+      fontWeight: '800',
+      color: '#FFFFFF',
+    },
+    pricingPeriod: {
+      ...typography.caption,
+      color: colors.textMuted,
+    },
+    ctaBtn: {
+      backgroundColor: '#6C5CE7',
+      borderRadius: borderRadius.lg,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.xxl,
+      width: '100%',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    ctaBtnDisabled: {
+      opacity: 0.6,
+    },
+    ctaText: {
+      ...typography.h3,
+      color: '#FFFFFF',
+    },
+    restoreBtn: {
+      padding: spacing.md,
+    },
+    restoreText: {
+      ...typography.caption,
+      color: colors.textMuted,
+      textDecorationLine: 'underline',
+    },
+  }), [colors]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -189,131 +319,3 @@ export default function PaywallScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0D0D1A',
-  },
-  closeBtn: {
-    position: 'absolute',
-    top: 56,
-    right: spacing.md,
-    zIndex: 10,
-    padding: spacing.sm,
-  },
-  closeText: {
-    ...typography.body,
-    color: colors.textMuted,
-  },
-  content: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: 80,
-    paddingBottom: 40,
-    alignItems: 'center',
-  },
-  headline: {
-    ...typography.h1,
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: spacing.xs,
-  },
-  subheadline: {
-    ...typography.body,
-    color: '#A29BFE',
-    textAlign: 'center',
-    marginBottom: spacing.xl,
-  },
-  benefitsContainer: {
-    width: '100%',
-    marginBottom: spacing.xl,
-  },
-  benefitRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-  },
-  benefitIcon: {
-    fontSize: 20,
-    marginRight: spacing.md,
-    width: 28,
-  },
-  benefitText: {
-    ...typography.body,
-    color: '#FFFFFF',
-  },
-  loader: {
-    marginVertical: spacing.xl,
-  },
-  pricingContainer: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
-    width: '100%',
-  },
-  pricingCard: {
-    flex: 1,
-    backgroundColor: '#1A1A2E',
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  pricingCardSelected: {
-    borderColor: '#6C5CE7',
-    backgroundColor: '#1A1A3E',
-  },
-  bestValueBadge: {
-    position: 'absolute',
-    top: -10,
-    backgroundColor: '#6C5CE7',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
-  },
-  bestValueText: {
-    color: '#FFFFFF',
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  pricingLabel: {
-    ...typography.bodyBold,
-    color: '#FFFFFF',
-    marginBottom: 4,
-    marginTop: 4,
-  },
-  pricingPrice: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
-  pricingPeriod: {
-    ...typography.caption,
-    color: colors.textMuted,
-  },
-  ctaBtn: {
-    backgroundColor: '#6C5CE7',
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xxl,
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  ctaBtnDisabled: {
-    opacity: 0.6,
-  },
-  ctaText: {
-    ...typography.h3,
-    color: '#FFFFFF',
-  },
-  restoreBtn: {
-    padding: spacing.md,
-  },
-  restoreText: {
-    ...typography.caption,
-    color: colors.textMuted,
-    textDecorationLine: 'underline',
-  },
-});

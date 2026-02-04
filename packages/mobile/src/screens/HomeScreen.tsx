@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -15,13 +15,15 @@ import { RootStackParamList } from '../types';
 import { usePaywallGuard } from '../hooks/usePaywallGuard';
 import ProBadge from '../components/ProBadge';
 import OfflineBanner from '../components/OfflineBanner';
-import { colors, spacing, borderRadius, typography } from '../styles/theme';
+import { spacing, borderRadius, typography } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'MainTabs'>;
 
 export default function HomeScreen() {
   const navigation = useNavigation<Nav>();
   const { isPro, guardBatch } = usePaywallGuard();
+  const { colors } = useTheme();
 
   const pickBatchImages = useCallback(async () => {
     if (!guardBatch()) return;
@@ -62,6 +64,79 @@ export default function HomeScreen() {
     },
     [navigation],
   );
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: spacing.xl,
+    },
+    logo: {
+      ...typography.h1,
+      fontSize: 48,
+      color: colors.primary,
+      marginBottom: spacing.sm,
+    },
+    tagline: {
+      ...typography.body,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+    actions: {
+      paddingHorizontal: spacing.lg,
+      paddingBottom: spacing.xl,
+      gap: spacing.md,
+    },
+    button: {
+      borderRadius: borderRadius.lg,
+      padding: spacing.lg,
+      alignItems: 'center',
+    },
+    primaryButton: {
+      backgroundColor: colors.primary,
+    },
+    secondaryButton: {
+      backgroundColor: colors.surfaceLight,
+      borderWidth: 1,
+      borderColor: colors.primary + '40',
+    },
+    batchButton: {
+      backgroundColor: colors.surfaceLight,
+      borderWidth: 1,
+      borderColor: '#6C5CE740',
+    },
+    batchHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    buttonIcon: {
+      fontSize: 32,
+      marginBottom: spacing.xs,
+    },
+    buttonText: {
+      ...typography.h3,
+      color: colors.textPrimary,
+    },
+    buttonSub: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    footer: {
+      alignItems: 'center',
+      paddingBottom: spacing.md,
+    },
+    footerLink: {
+      ...typography.small,
+      color: colors.textMuted,
+    },
+  }), [colors]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -128,76 +203,3 @@ export default function HomeScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: spacing.xl,
-  },
-  logo: {
-    ...typography.h1,
-    fontSize: 48,
-    color: colors.primary,
-    marginBottom: spacing.sm,
-  },
-  tagline: {
-    ...typography.body,
-    color: colors.textSecondary,
-    textAlign: 'center',
-  },
-  actions: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl,
-    gap: spacing.md,
-  },
-  button: {
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    alignItems: 'center',
-  },
-  primaryButton: {
-    backgroundColor: colors.primary,
-  },
-  secondaryButton: {
-    backgroundColor: colors.surfaceLight,
-    borderWidth: 1,
-    borderColor: colors.primary + '40',
-  },
-  batchButton: {
-    backgroundColor: colors.surfaceLight,
-    borderWidth: 1,
-    borderColor: '#6C5CE740',
-  },
-  batchHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  buttonIcon: {
-    fontSize: 32,
-    marginBottom: spacing.xs,
-  },
-  buttonText: {
-    ...typography.h3,
-    color: colors.textPrimary,
-  },
-  buttonSub: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  footer: {
-    alignItems: 'center',
-    paddingBottom: spacing.md,
-  },
-  footerLink: {
-    ...typography.small,
-    color: colors.textMuted,
-  },
-});

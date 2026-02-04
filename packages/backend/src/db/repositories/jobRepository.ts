@@ -8,14 +8,15 @@ interface JobRow {
   result_key: string | null;
   input_key: string;
   error: string | null;
+  user_id: string | null;
   created_at: string;
 }
 
-export function createJob(jobId: string, inputKey: string): void {
+export function createJob(jobId: string, inputKey: string, userId?: string): void {
   const db = getDb();
   db.prepare(
-    'INSERT INTO jobs (id, status, progress, input_key, created_at) VALUES (?, ?, ?, ?, ?)',
-  ).run(jobId, 'queued', 0, inputKey, new Date().toISOString());
+    'INSERT INTO jobs (id, status, progress, input_key, user_id, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+  ).run(jobId, 'queued', 0, inputKey, userId ?? null, new Date().toISOString());
 }
 
 export function getJobEntry(jobId: string): JobRow | undefined {
@@ -66,6 +67,19 @@ export function deleteJobRecord(jobId: string): boolean {
   const db = getDb();
   const result = db.prepare('DELETE FROM jobs WHERE id = ?').run(jobId);
   return result.changes > 0;
+}
+
+// ─── User-scoped operations ──────────────────────────────────────────
+
+export function getJobsByUser(userId: string): JobRow[] {
+  const db = getDb();
+  return db.prepare('SELECT * FROM jobs WHERE user_id = ?').all(userId) as JobRow[];
+}
+
+export function deleteJobsByUser(userId: string): number {
+  const db = getDb();
+  const result = db.prepare('DELETE FROM jobs WHERE user_id = ?').run(userId);
+  return result.changes;
 }
 
 // ─── Batch operations ────────────────────────────────────────────────

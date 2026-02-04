@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,8 @@ import { RootStackParamList, BatchResultItem, BatchStatusResponse } from '../typ
 import { api, ApiError } from '../api/client';
 import { getStylePack } from '../services/stylePacks';
 import { trackEvent } from '../services/analytics';
-import { colors, spacing, typography, borderRadius } from '../styles/theme';
+import { spacing, typography, borderRadius } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'BatchGenerating'>;
 type Route = RouteProp<RootStackParamList, 'BatchGenerating'>;
@@ -31,6 +32,7 @@ const FUN_MESSAGES = [
 ];
 
 export default function BatchGeneratingScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { imageUris, params } = route.params;
@@ -122,6 +124,129 @@ export default function BatchGeneratingScreen() {
     };
   }, [imageUris, params, navigation]);
 
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    center: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: spacing.xl,
+    },
+    header: {
+      alignItems: 'center',
+      paddingVertical: spacing.lg,
+    },
+    title: {
+      ...typography.h2,
+      color: colors.textPrimary,
+      textAlign: 'center',
+    },
+    subtitle: {
+      ...typography.body,
+      color: colors.textSecondary,
+      marginTop: spacing.xs,
+    },
+    grid: {
+      padding: spacing.md,
+    },
+    gridRow: {
+      gap: spacing.md,
+      marginBottom: spacing.md,
+    },
+    thumbContainer: {
+      flex: 1,
+      aspectRatio: 1,
+      borderRadius: borderRadius.lg,
+      overflow: 'hidden',
+      backgroundColor: colors.surface,
+    },
+    thumb: {
+      width: '100%',
+      height: '100%',
+    },
+    progressOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    circleOuter: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      borderWidth: 3,
+      borderColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    circleText: {
+      ...typography.bodyBold,
+      color: '#FFFFFF',
+      fontSize: 14,
+    },
+    doneOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0,0,0,0.3)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    doneCheck: {
+      ...typography.bodyBold,
+      color: '#4CAF50',
+      fontSize: 16,
+    },
+    footer: {
+      padding: spacing.lg,
+      alignItems: 'center',
+    },
+    message: {
+      ...typography.body,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: spacing.md,
+    },
+    progressBar: {
+      width: '100%',
+      height: 8,
+      backgroundColor: colors.surfaceLight,
+      borderRadius: 4,
+      overflow: 'hidden',
+    },
+    progressFill: {
+      height: '100%',
+      backgroundColor: colors.primary,
+      borderRadius: 4,
+    },
+    progressText: {
+      ...typography.caption,
+      color: colors.textMuted,
+      marginTop: spacing.sm,
+    },
+    errorIcon: {
+      fontSize: 48,
+      color: colors.error,
+      marginBottom: spacing.md,
+    },
+    errorTitle: {
+      ...typography.h2,
+      color: colors.error,
+      marginBottom: spacing.sm,
+    },
+    errorMsg: {
+      ...typography.body,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: spacing.lg,
+    },
+    backBtn: {
+      padding: spacing.md,
+    },
+    backBtnText: {
+      ...typography.bodyBold,
+      color: colors.primary,
+    },
+  }), [colors]);
+
   if (error) {
     return (
       <SafeAreaView style={styles.container}>
@@ -195,126 +320,3 @@ export default function BatchGeneratingScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: spacing.xl,
-  },
-  header: {
-    alignItems: 'center',
-    paddingVertical: spacing.lg,
-  },
-  title: {
-    ...typography.h2,
-    color: colors.textPrimary,
-    textAlign: 'center',
-  },
-  subtitle: {
-    ...typography.body,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-  },
-  grid: {
-    padding: spacing.md,
-  },
-  gridRow: {
-    gap: spacing.md,
-    marginBottom: spacing.md,
-  },
-  thumbContainer: {
-    flex: 1,
-    aspectRatio: 1,
-    borderRadius: borderRadius.lg,
-    overflow: 'hidden',
-    backgroundColor: colors.surface,
-  },
-  thumb: {
-    width: '100%',
-    height: '100%',
-  },
-  progressOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  circleOuter: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    borderWidth: 3,
-    borderColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  circleText: {
-    ...typography.bodyBold,
-    color: '#FFFFFF',
-    fontSize: 14,
-  },
-  doneOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  doneCheck: {
-    ...typography.bodyBold,
-    color: '#4CAF50',
-    fontSize: 16,
-  },
-  footer: {
-    padding: spacing.lg,
-    alignItems: 'center',
-  },
-  message: {
-    ...typography.body,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: spacing.md,
-  },
-  progressBar: {
-    width: '100%',
-    height: 8,
-    backgroundColor: colors.surfaceLight,
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: colors.primary,
-    borderRadius: 4,
-  },
-  progressText: {
-    ...typography.caption,
-    color: colors.textMuted,
-    marginTop: spacing.sm,
-  },
-  errorIcon: {
-    fontSize: 48,
-    color: colors.error,
-    marginBottom: spacing.md,
-  },
-  errorTitle: {
-    ...typography.h2,
-    color: colors.error,
-    marginBottom: spacing.sm,
-  },
-  errorMsg: {
-    ...typography.body,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: spacing.lg,
-  },
-  backBtn: {
-    padding: spacing.md,
-  },
-  backBtnText: {
-    ...typography.bodyBold,
-    color: colors.primary,
-  },
-});
