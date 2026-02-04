@@ -39,6 +39,8 @@ import { GalleryStatsFooter } from '../components/GalleryStatsFooter';
 import { useBulkExport } from '../hooks/useBulkExport';
 import { ExportSheet } from '../components/ExportSheet';
 import { useProStore } from '../store/useProStore';
+import { preloadGalleryImages, getPreloadRange } from '../services/imagePreloader';
+import { useMemoryWarning } from '../hooks/useMemoryWarning';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -48,6 +50,7 @@ export default function GalleryScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
   const reduceMotion = useReducedMotion();
+  useMemoryWarning();
   const {
     gallery,
     removeFromGallery,
@@ -157,6 +160,18 @@ export default function GalleryScreen() {
 
     return result;
   }, [gallery, activeFilter, favorites, collections, debouncedQuery, sortOrder, dateRange]);
+
+  const onViewableItemsChanged = useCallback(({ viewableItems }: any) => {
+    if (!viewableItems || viewableItems.length === 0) return;
+    const first = viewableItems[0]?.index ?? 0;
+    const last = viewableItems[viewableItems.length - 1]?.index ?? 0;
+    const { start, end } = getPreloadRange(first, last, filteredGallery.length);
+    if (start <= end) {
+      preloadGalleryImages(filteredGallery.slice(start, end + 1));
+    }
+  }, [filteredGallery]);
+
+  const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 50 }).current;
 
   const shouldShowSpotlight =
     creationCount > 0 && creationCount % SPOTLIGHT_INTERVAL === 0;
@@ -745,6 +760,13 @@ export default function GalleryScreen() {
           numColumns={listMode === 'grid' ? 2 : 1}
           contentContainerStyle={styles.grid}
           columnWrapperStyle={listMode === 'grid' ? styles.gridRow : undefined}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={viewabilityConfig}
+          getItemLayout={listMode === 'grid' ? (_, index) => ({
+            length: 200,
+            offset: 200 * Math.floor(index / 2),
+            index,
+          }) : undefined}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}

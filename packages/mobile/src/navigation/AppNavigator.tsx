@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text } from 'react-native';
+import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { t } from '../i18n';
 import { RootStackParamList, TabParamList } from '../types';
 import { useTheme } from '../contexts/ThemeContext';
 import { ErrorBoundary } from '../components/ErrorBoundary';
@@ -19,13 +20,13 @@ import StyleSelectScreen from '../screens/StyleSelectScreen';
 import CustomizeScreen from '../screens/CustomizeScreen';
 import GeneratingScreen from '../screens/GeneratingScreen';
 import ResultScreen from '../screens/ResultScreen';
-import ShareCardScreen from '../screens/ShareCardScreen';
+const ShareCardScreen = lazy(() => import('../screens/ShareCardScreen'));
 import PaywallScreen from '../screens/PaywallScreen';
 import BatchGeneratingScreen from '../screens/BatchGeneratingScreen';
 import BatchResultsScreen from '../screens/BatchResultsScreen';
-import RemixScreen from '../screens/RemixScreen';
+const RemixScreen = lazy(() => import('../screens/RemixScreen'));
 import OnboardingScreen from '../screens/OnboardingScreen';
-import StatsScreen from '../screens/StatsScreen';
+const StatsScreen = lazy(() => import('../screens/StatsScreen'));
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -82,6 +83,27 @@ function MainTabs() {
   );
 }
 
+function ScreenLoader() {
+  return (
+    <View style={lazyStyles.loader}>
+      <ActivityIndicator size="large" color="#8B5CF6" />
+    </View>
+  );
+}
+
+const lazyStyles = StyleSheet.create({
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#0A0A0F',
+  },
+});
+
+function LazyStats() { return <Suspense fallback={<ScreenLoader />}><StatsScreen /></Suspense>; }
+function LazyShareCard() { return <Suspense fallback={<ScreenLoader />}><ShareCardScreen /></Suspense>; }
+function LazyRemix() { return <Suspense fallback={<ScreenLoader />}><RemixScreen /></Suspense>; }
+
 const linking = {
   prefixes: ['https://quippix.app', 'quippix://'],
   config: {
@@ -122,9 +144,9 @@ export default function AppNavigator() {
           <Stack.Screen name="BatchGenerating" component={withErrorBoundary(BatchGeneratingScreen)} options={respectMotion(fadeTransition, reduceMotion)} />
           <Stack.Screen name="Result" component={withErrorBoundary(ResultScreen)} options={respectMotion(fadeTransition, reduceMotion)} />
           <Stack.Screen name="BatchResults" component={withErrorBoundary(BatchResultsScreen)} options={respectMotion(fadeTransition, reduceMotion)} />
-          <Stack.Screen name="ShareCard" component={withErrorBoundary(ShareCardScreen)} options={respectMotion(slideBottomTransition, reduceMotion)} />
-          <Stack.Screen name="Remix" component={RemixScreen} />
-          <Stack.Screen name="Stats" component={StatsScreen} options={respectMotion(slideBottomTransition, reduceMotion)} />
+          <Stack.Screen name="ShareCard" component={withErrorBoundary(LazyShareCard)} options={respectMotion(slideBottomTransition, reduceMotion)} />
+          <Stack.Screen name="Remix" component={LazyRemix} />
+          <Stack.Screen name="Stats" component={LazyStats} options={respectMotion(slideBottomTransition, reduceMotion)} />
           <Stack.Screen
             name="Paywall"
             component={PaywallScreen}

@@ -349,6 +349,13 @@ export const en = {
   'gallery.statsFooter': '{count} creations',
   'gallery.statsStorage': '{size} used',
 
+  // Performance
+  'performance.slowNetwork': 'Slow connection detected. Images may take longer to load.',
+  'performance.recoveredGeneration': 'Recovered in-progress generation',
+  'performance.recoveryFailed': 'Could not recover previous generation',
+  'performance.memoryWarning': 'Low memory - cleared image cache',
+  'performance.loading': 'Loading...',
+
   // Share
   'share.copyToClipboard': 'Copy Image',
   'share.copiedToClipboard': 'Image copied to clipboard',

@@ -78,7 +78,14 @@ type AnalyticsEvent =
   | 'stories_format_used'
   | 'quick_share_used'
   | 'share_count_viewed'
-  | 'share_tip_shown';
+  | 'share_tip_shown'
+  | 'image_preloaded'
+  | 'memory_warning_received'
+  | 'memory_cache_cleared'
+  | 'generation_recovered'
+  | 'generation_recovery_failed'
+  | 'network_quality_changed'
+  | 'lazy_screen_loaded';
 
 interface EventPayload {
   event: AnalyticsEvent;

@@ -27,6 +27,8 @@ import { FadingMessage } from '../components/FadingMessage';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { RetryBanner } from '../components/RetryBanner';
 import { classifyError, ErrorCategory } from '../utils/errorClassifier';
+import { savePendingGeneration, clearPendingGeneration } from '../services/generationRecovery';
+import { useNetworkQuality } from '../hooks/useNetworkQuality';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Generating'>;
 type Route = RouteProp<RootStackParamList, 'Generating'>;
@@ -48,6 +50,7 @@ export default function GeneratingScreen() {
   const { colors } = useTheme();
   const { isConnected } = useNetworkStatus();
   const reduceMotion = useReducedMotion();
+  const networkQuality = useNetworkQuality();
 
   const entitlement = useProStore((s) => s.entitlement);
   const isDailyLimitReached = useProStore((s) => s.isDailyLimitReached);
@@ -107,6 +110,14 @@ export default function GeneratingScreen() {
     let cancelled = false;
 
     (async () => {
+      savePendingGeneration({
+        jobId: '',
+        imageUri: route.params.imageUri || '',
+        params: route.params.params,
+        challengeId: route.params.challengeId,
+        startedAt: new Date().toISOString(),
+      });
+
       // Check daily limit for free users
       if (!entitlement.proActive && isDailyLimitReached()) {
         setError(t('generating.dailyLimitError'));
@@ -160,6 +171,7 @@ export default function GeneratingScreen() {
             trackEvent('challenge_completed', { challengeId, styleId: params.styleId });
           }
 
+          clearPendingGeneration();
           triggerHaptic('success');
           navigation.replace('Result', {
             jobId,
@@ -282,6 +294,11 @@ export default function GeneratingScreen() {
       color: colors.primary,
       padding: spacing.md,
     },
+    slowNetwork: {
+      ...typography.caption,
+      textAlign: 'center',
+      marginTop: spacing.sm,
+    },
   }), [colors]);
 
   const spinInterp = spinAnim.interpolate({
@@ -297,7 +314,7 @@ export default function GeneratingScreen() {
             error={error}
             category={errorCategory || 'unknown'}
             onRetry={handleRetry}
-            onGoBack={() => navigation.goBack()}
+            onGoBack={() => { clearPendingGeneration(); navigation.goBack(); }}
             onUpgrade={() => navigation.navigate('Paywall', { trigger: 'daily_limit' })}
             retryCount={retryCount}
             maxRetries={3}
@@ -323,6 +340,12 @@ export default function GeneratingScreen() {
         <FadingMessage messages={FUN_MESSAGES} reduceMotion={reduceMotion} textStyle={styles.message} />
 
         <CircularProgress progress={progress} size={140} reduceMotion={reduceMotion} />
+
+        {networkQuality === 'slow' && (
+          <Text style={[styles.slowNetwork, { color: colors.warning }]}>
+            {t('performance.slowNetwork')}
+          </Text>
+        )}
       </View>
     </SafeAreaView>
   );
