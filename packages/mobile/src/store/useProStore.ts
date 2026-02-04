@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Entitlement } from '../services/purchases';
 import { getEntitlement } from '../services/purchases';
+import { api } from '../api/client';
 
 const PRO_STORAGE_KEY = '@quippix/pro';
 
@@ -39,12 +40,14 @@ export const useProStore = create<ProState>((set, get) => ({
 
   setEntitlement: (ent: Entitlement) => {
     set({ entitlement: ent });
+    api.setTier(ent.proActive ? 'pro' : 'free');
     persist(get());
   },
 
   refreshEntitlement: async () => {
     const ent = await getEntitlement();
     set({ entitlement: ent });
+    api.setTier(ent.proActive ? 'pro' : 'free');
     persist(get());
   },
 

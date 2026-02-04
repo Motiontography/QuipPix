@@ -77,4 +77,10 @@ export const config = {
     codeTtlDays: envInt('REMIX_CODE_TTL_DAYS', 90),
     codeLength: envInt('REMIX_CODE_LENGTH', 8),
   },
+
+  revenuecat: {
+    apiKey: env('REVENUECAT_API_KEY', 'sk_placeholder'),
+    webhookSecret: env('REVENUECAT_WEBHOOK_SECRET', 'whsec_placeholder'),
+    entitlementId: env('REVENUECAT_ENTITLEMENT_ID', 'pro'),
+  },
 } as const;

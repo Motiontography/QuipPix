@@ -6,9 +6,24 @@ const API_BASE = __DEV__
 
 class ApiClient {
   private baseUrl: string;
+  private tier: 'free' | 'pro' = 'free';
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
+  }
+
+  /** Update tier based on current entitlement — called from useProStore */
+  setTier(tier: 'free' | 'pro'): void {
+    this.tier = tier;
+  }
+
+  /** Wrapper that auto-injects tier header */
+  private async request(url: string, init?: RequestInit): Promise<Response> {
+    const headers = new Headers(init?.headers);
+    if (!headers.has('X-QuipPix-Tier')) {
+      headers.set('X-QuipPix-Tier', this.tier);
+    }
+    return fetch(url, { ...init, headers });
   }
 
   /**
@@ -18,7 +33,6 @@ class ApiClient {
   async generate(
     imageUri: string,
     params: GenerateParams,
-    tier: 'free' | 'pro' = 'free',
   ): Promise<{ jobId: string }> {
     const formData = new FormData();
 
@@ -32,12 +46,11 @@ class ApiClient {
     // Append params as JSON string
     formData.append('params', JSON.stringify(params));
 
-    const res = await fetch(`${this.baseUrl}/generate`, {
+    const res = await this.request(`${this.baseUrl}/generate`, {
       method: 'POST',
       body: formData,
       headers: {
         'Content-Type': 'multipart/form-data',
-        'X-QuipPix-Tier': tier,
       },
     });
 
@@ -54,7 +67,7 @@ class ApiClient {
    * Polls job status
    */
   async getStatus(jobId: string): Promise<JobStatusResponse> {
-    const res = await fetch(`${this.baseUrl}/status/${jobId}`);
+    const res = await this.request(`${this.baseUrl}/status/${jobId}`);
 
     if (!res.ok) {
       throw new ApiError(res.status, 'Failed to get job status');
@@ -68,7 +81,7 @@ class ApiClient {
    * Optional early deletion
    */
   async deleteJob(jobId: string): Promise<void> {
-    await fetch(`${this.baseUrl}/job/${jobId}`, { method: 'DELETE' });
+    await this.request(`${this.baseUrl}/job/${jobId}`, { method: 'DELETE' });
   }
 
   /**
@@ -91,12 +104,11 @@ class ApiClient {
 
     formData.append('params', JSON.stringify(params));
 
-    const res = await fetch(`${this.baseUrl}/batch-generate`, {
+    const res = await this.request(`${this.baseUrl}/batch-generate`, {
       method: 'POST',
       body: formData,
       headers: {
         'Content-Type': 'multipart/form-data',
-        'X-QuipPix-Tier': 'pro',
       },
     });
 
@@ -113,7 +125,7 @@ class ApiClient {
    * Returns aggregated batch status
    */
   async getBatchStatus(batchId: string): Promise<BatchStatusResponse> {
-    const res = await fetch(`${this.baseUrl}/batch-status/${batchId}`);
+    const res = await this.request(`${this.baseUrl}/batch-status/${batchId}`);
 
     if (!res.ok) {
       throw new ApiError(res.status, 'Failed to get batch status');
@@ -177,7 +189,7 @@ class ApiClient {
    * Returns today's daily challenge
    */
   async getTodayChallenge(): Promise<ChallengeResponse> {
-    const res = await fetch(`${this.baseUrl}/challenge/today`);
+    const res = await this.request(`${this.baseUrl}/challenge/today`);
 
     if (!res.ok) {
       throw new ApiError(res.status, 'Failed to get daily challenge');
@@ -194,7 +206,7 @@ class ApiClient {
     challengeId: string,
     jobId: string,
   ): Promise<{ success: boolean; totalSubmissions: number }> {
-    const res = await fetch(`${this.baseUrl}/challenge/submit`, {
+    const res = await this.request(`${this.baseUrl}/challenge/submit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ challengeId, jobId }),
@@ -212,7 +224,7 @@ class ApiClient {
    * Creates a remix short code from style template
    */
   async createRemix(template: RemixTemplate): Promise<{ code: string; url: string }> {
-    const res = await fetch(`${this.baseUrl}/remix`, {
+    const res = await this.request(`${this.baseUrl}/remix`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(template),
@@ -230,10 +242,30 @@ class ApiClient {
    * Retrieves remix template by short code
    */
   async getRemix(code: string): Promise<RemixResponse> {
-    const res = await fetch(`${this.baseUrl}/remix/${code}`);
+    const res = await this.request(`${this.baseUrl}/remix/${code}`);
 
     if (!res.ok) {
       throw new ApiError(res.status, 'Remix not found or expired');
+    }
+
+    return res.json();
+  }
+
+  /**
+   * POST /validate-receipt
+   * Server-side entitlement verification via RevenueCat
+   */
+  async validateReceipt(
+    appUserId: string,
+  ): Promise<{ proActive: boolean; proType: string | null; expiresAt: string | null }> {
+    const res = await this.request(`${this.baseUrl}/validate-receipt`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ appUserId }),
+    });
+
+    if (!res.ok) {
+      throw new ApiError(res.status, 'Failed to validate receipt');
     }
 
     return res.json();

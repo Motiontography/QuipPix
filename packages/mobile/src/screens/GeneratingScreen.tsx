@@ -104,8 +104,7 @@ export default function GeneratingScreen() {
       }
 
       try {
-        const tier = entitlement.proActive ? 'pro' : 'free';
-        const { jobId } = await api.generate(imageUri, params, tier);
+        const { jobId } = await api.generate(imageUri, params);
 
         const finalStatus = await api.pollUntilDone(
           jobId,
@@ -123,7 +122,7 @@ export default function GeneratingScreen() {
         if (finalStatus.status === 'done' && finalStatus.resultUrl) {
           incrementDailyGenerations();
           incrementSuccessfulGenerations();
-          trackEvent('generation_completed', { styleId: params.styleId, tier });
+          trackEvent('generation_completed', { styleId: params.styleId });
 
           // Record challenge completion if this was a challenge flow
           if (challengeId) {

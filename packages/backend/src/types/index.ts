@@ -222,6 +222,42 @@ export interface RemixRecord {
   views: number;
 }
 
+// ─── Entitlement (server-side) ───────────────────────────────────────
+export type ProType = 'monthly' | 'annual' | 'lifetime';
+
+export interface ServerEntitlement {
+  appUserId: string;
+  proActive: boolean;
+  proType: ProType | null;
+  expiresAt: string | null;
+  verifiedAt: string;
+}
+
+export const ValidateReceiptRequest = z.object({
+  appUserId: z.string().min(1).max(200),
+});
+export type ValidateReceiptRequest = z.infer<typeof ValidateReceiptRequest>;
+
+export type RevenueCatEventType =
+  | 'INITIAL_PURCHASE'
+  | 'RENEWAL'
+  | 'CANCELLATION'
+  | 'EXPIRATION'
+  | 'BILLING_ISSUE'
+  | 'PRODUCT_CHANGE'
+  | 'SUBSCRIBER_ALIAS';
+
+export interface RevenueCatWebhookEvent {
+  event: {
+    type: RevenueCatEventType;
+    app_user_id: string;
+    entitlement_ids?: string[];
+    product_id?: string;
+    expiration_at_ms?: number;
+  };
+  api_version: string;
+}
+
 // ─── Storage metadata ────────────────────────────────────────────────
 export interface StoredFile {
   key: string;

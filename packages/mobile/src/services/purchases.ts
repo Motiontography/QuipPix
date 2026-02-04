@@ -20,6 +20,37 @@ export async function initPurchases(): Promise<void> {
   Purchases.configure({ apiKey });
 }
 
+/**
+ * Listen for real-time entitlement changes (renewal, cancellation, etc).
+ * Returns an unsubscribe function.
+ */
+export function addEntitlementListener(
+  onUpdate: (entitlement: Entitlement) => void,
+): () => void {
+  const listener = (info: CustomerInfo) => {
+    const pro = info.entitlements.active[PRO_ENTITLEMENT_ID];
+    if (!pro) {
+      onUpdate({ proActive: false, proType: null, expiresAt: null });
+      return;
+    }
+
+    let proType: Entitlement['proType'] = null;
+    const productId = pro.productIdentifier;
+    if (productId.includes('lifetime')) proType = 'lifetime';
+    else if (productId.includes('annual')) proType = 'annual';
+    else proType = 'monthly';
+
+    onUpdate({
+      proActive: true,
+      proType,
+      expiresAt: pro.expirationDate ?? null,
+    });
+  };
+
+  Purchases.addCustomerInfoUpdateListener(listener);
+  return () => Purchases.removeCustomerInfoUpdateListener(listener);
+}
+
 export async function getEntitlement(): Promise<Entitlement> {
   try {
     const customerInfo: CustomerInfo = await Purchases.getCustomerInfo();

@@ -10,6 +10,7 @@ import { healthRoutes } from './routes/health';
 import { batchRoutes } from './routes/batch';
 import { challengeRoutes } from './routes/challenge';
 import { remixRoutes } from './routes/remix';
+import { entitlementRoutes } from './routes/entitlement';
 import { startCleanupScheduler, stopCleanupScheduler } from './jobs/queue';
 
 async function start() {
@@ -43,6 +44,7 @@ async function start() {
   await app.register(batchRoutes);
   await app.register(challengeRoutes);
   await app.register(remixRoutes);
+  await app.register(entitlementRoutes);
 
   // Error handler
   app.setErrorHandler((error, request, reply) => {
