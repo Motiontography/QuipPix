@@ -13,7 +13,7 @@ export function initSentry(): void {
     // Dynamic import to avoid requiring @sentry/node when disabled
     sentryModule = require('@sentry/node');
 
-    sentryModule.init({
+    sentryModule!.init({
       dsn: config.sentry.dsn,
       environment: config.server.env,
       tracesSampleRate: config.server.env === 'production' ? 0.1 : 1.0,

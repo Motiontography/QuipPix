@@ -1,0 +1,39 @@
+default_platform(:android)
+
+platform :android do
+  desc "Build and push a new beta to Google Play internal track"
+  lane :beta do
+    ensure_git_status_clean
+
+    gradle(
+      task: "clean bundleRelease",
+      project_dir: ".."
+    )
+
+    upload_to_play_store(
+      track: "internal",
+      aab: "../app/build/outputs/bundle/release/app-release.aab",
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+
+  desc "Push a new release to Google Play production"
+  lane :release do
+    ensure_git_status_clean
+
+    gradle(
+      task: "clean bundleRelease",
+      project_dir: ".."
+    )
+
+    upload_to_play_store(
+      track: "production",
+      aab: "../app/build/outputs/bundle/release/app-release.aab",
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+end

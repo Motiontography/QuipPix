@@ -1,0 +1,2 @@
+json_key_file("path/to/google-play-service-account.json") # Path to service account JSON
+package_name("com.motiontography.quippix")

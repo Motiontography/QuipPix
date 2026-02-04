@@ -1,7 +1,9 @@
+import path from 'path';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import rateLimit from '@fastify/rate-limit';
+import fastifyStatic from '@fastify/static';
 import { config } from './config';
 import { logger } from './utils/logger';
 import { initDb, closeDb } from './db';
@@ -44,6 +46,18 @@ async function start() {
   await app.register(rateLimit, {
     max: config.rateLimit.max,
     timeWindow: config.rateLimit.windowMs,
+  });
+
+  // Static files (.well-known for universal links)
+  await app.register(fastifyStatic, {
+    root: path.join(__dirname, '..', 'public'),
+    prefix: '/',
+    decorateReply: false,
+    setHeaders: (res, filePath) => {
+      if (filePath.includes('.well-known')) {
+        res.setHeader('Content-Type', 'application/json');
+      }
+    },
   });
 
   // Error monitoring

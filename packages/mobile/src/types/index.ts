@@ -1,3 +1,5 @@
+import { ImageSourcePropType } from 'react-native';
+
 // ─── Style IDs (mirrors backend) ─────────────────────────────────────
 export type StyleId =
   | 'caricature-classic'
@@ -21,7 +23,8 @@ export interface StylePack {
   id: StyleId;
   displayName: string;
   category: string;
-  icon: string; // emoji placeholder; swap for asset
+  icon: string;
+  thumbnail: ImageSourcePropType;
   description: string;
   previewColor: string;
   proOnly: boolean;
