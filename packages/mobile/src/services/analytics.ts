@@ -85,7 +85,15 @@ type AnalyticsEvent =
   | 'generation_recovered'
   | 'generation_recovery_failed'
   | 'network_quality_changed'
-  | 'lazy_screen_loaded';
+  | 'lazy_screen_loaded'
+  | 'high_contrast_toggled'
+  | 'biometric_lock_toggled'
+  | 'biometric_auth_success'
+  | 'biometric_auth_failed'
+  | 'data_export_requested'
+  | 'data_export_completed'
+  | 'font_scale_changed'
+  | 'accessibility_labels_active';
 
 interface EventPayload {
   event: AnalyticsEvent;

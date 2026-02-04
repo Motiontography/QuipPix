@@ -91,6 +91,16 @@ interface AppState {
   lastExportOptions: ExportOptions | null;
   setLastExportOptions: (options: ExportOptions) => void;
 
+  // Accessibility
+  highContrastEnabled: boolean;
+  setHighContrastEnabled: (enabled: boolean) => void;
+  fontScalingEnabled: boolean;
+  setFontScalingEnabled: (enabled: boolean) => void;
+
+  // Security
+  biometricLockEnabled: boolean;
+  setBiometricLockEnabled: (enabled: boolean) => void;
+
   // Share History
   shareHistory: Array<{ itemId: string; platform: string; sharedAt: string }>;
   addShareRecord: (itemId: string, platform: string) => void;
@@ -143,6 +153,9 @@ const REDUCE_MOTION_KEY = '@quippix/reduceMotion';
 const EXPORT_PREFS_KEY = '@quippix/exportPrefs';
 const FEEDBACK_KEY = '@quippix/feedback';
 const SHARE_HISTORY_KEY = '@quippix/shareHistory';
+const HIGH_CONTRAST_KEY = '@quippix/highContrast';
+const FONT_SCALING_KEY = '@quippix/fontScaling';
+const BIOMETRIC_LOCK_KEY = '@quippix/biometricLock';
 
 export const useAppStore = create<AppState>((set, get) => ({
   // Gallery
@@ -321,6 +334,21 @@ export const useAppStore = create<AppState>((set, get) => ({
     } catch {
       // Ignore
     }
+
+    try {
+      const hcRaw = await AsyncStorage.getItem(HIGH_CONTRAST_KEY);
+      if (hcRaw !== null) set({ highContrastEnabled: JSON.parse(hcRaw) });
+    } catch { /* Ignore */ }
+
+    try {
+      const fsRaw = await AsyncStorage.getItem(FONT_SCALING_KEY);
+      if (fsRaw !== null) set({ fontScalingEnabled: JSON.parse(fsRaw) });
+    } catch { /* Ignore */ }
+
+    try {
+      const blRaw = await AsyncStorage.getItem(BIOMETRIC_LOCK_KEY);
+      if (blRaw !== null) set({ biometricLockEnabled: JSON.parse(blRaw) });
+    } catch { /* Ignore */ }
   },
 
   // Favorites
@@ -532,6 +560,25 @@ export const useAppStore = create<AppState>((set, get) => ({
   setLastExportOptions: async (options: ExportOptions) => {
     set({ lastExportOptions: options });
     await AsyncStorage.setItem(EXPORT_PREFS_KEY, JSON.stringify(options));
+  },
+
+  // Accessibility
+  highContrastEnabled: false,
+  setHighContrastEnabled: async (enabled: boolean) => {
+    set({ highContrastEnabled: enabled });
+    await AsyncStorage.setItem(HIGH_CONTRAST_KEY, JSON.stringify(enabled));
+  },
+  fontScalingEnabled: true,
+  setFontScalingEnabled: async (enabled: boolean) => {
+    set({ fontScalingEnabled: enabled });
+    await AsyncStorage.setItem(FONT_SCALING_KEY, JSON.stringify(enabled));
+  },
+
+  // Security
+  biometricLockEnabled: false,
+  setBiometricLockEnabled: async (enabled: boolean) => {
+    set({ biometricLockEnabled: enabled });
+    await AsyncStorage.setItem(BIOMETRIC_LOCK_KEY, JSON.stringify(enabled));
   },
 
   // Share History

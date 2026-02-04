@@ -27,8 +27,8 @@ describe('i18n', () => {
     }
   });
 
-  it('has at least 345 translation keys', () => {
-    expect(Object.keys(en).length).toBeGreaterThanOrEqual(345);
+  it('has at least 360 translation keys', () => {
+    expect(Object.keys(en).length).toBeGreaterThanOrEqual(360);
   });
 
   it('supports parameter substitution', () => {

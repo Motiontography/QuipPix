@@ -28,6 +28,8 @@ import { clearAuth } from '../services/auth';
 import { triggerHaptic } from '../services/haptics';
 import { trackEvent } from '../services/analytics';
 import { getCacheInfo, clearCache, CacheInfo } from '../services/cacheManager';
+import { isBiometricAvailable } from '../services/biometric';
+import { exportAndShareData } from '../services/dataExport';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme, ThemeMode } from '../contexts/ThemeContext';
 import { t } from '../i18n';
@@ -42,17 +44,26 @@ export default function SettingsScreen() {
   const setThemeMode = useAppStore((s) => s.setThemeMode);
   const reduceMotionOverride = useAppStore((s) => s.reduceMotionOverride);
   const setReduceMotionOverride = useAppStore((s) => s.setReduceMotionOverride);
+  const highContrastEnabled = useAppStore((s) => s.highContrastEnabled);
+  const setHighContrastEnabled = useAppStore((s) => s.setHighContrastEnabled);
+  const fontScalingEnabled = useAppStore((s) => s.fontScalingEnabled);
+  const setFontScalingEnabled = useAppStore((s) => s.setFontScalingEnabled);
+  const biometricLockEnabled = useAppStore((s) => s.biometricLockEnabled);
+  const setBiometricLockEnabled = useAppStore((s) => s.setBiometricLockEnabled);
   const [isDeleting, setIsDeleting] = useState(false);
   const [cacheInfo, setCacheInfo] = useState<CacheInfo | null>(null);
   const [isClearing, setIsClearing] = useState(false);
   const entitlement = useProStore((s) => s.entitlement);
   const setEntitlement = useProStore((s) => s.setEntitlement);
   const [notificationsOn, setNotificationsOn] = useState(false);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     isNotificationsEnabled().then(setNotificationsOn);
     getCacheInfo().then(setCacheInfo);
     trackEvent('cache_size_viewed');
+    isBiometricAvailable().then(({ available }) => setBiometricAvailable(available));
   }, []);
 
   const handleToggleNotifications = async (value: boolean) => {
@@ -390,6 +401,34 @@ export default function SettingsScreen() {
               trackColor={{ false: colors.surfaceLight, true: colors.primary }}
             />
           </View>
+          <View style={[styles.row, { marginTop: spacing.md }]}>
+            <View style={styles.rowInfo}>
+              <Text style={styles.rowLabel}>{t('accessibility.highContrast')}</Text>
+              <Text style={styles.rowDesc}>{t('accessibility.highContrastDesc')}</Text>
+            </View>
+            <Switch
+              value={highContrastEnabled}
+              onValueChange={(val) => {
+                setHighContrastEnabled(val);
+                trackEvent('high_contrast_toggled', { enabled: val });
+              }}
+              trackColor={{ false: colors.surfaceLight, true: colors.primary }}
+            />
+          </View>
+          <View style={[styles.row, { marginTop: spacing.md }]}>
+            <View style={styles.rowInfo}>
+              <Text style={styles.rowLabel}>{t('accessibility.fontScaling')}</Text>
+              <Text style={styles.rowDesc}>{t('accessibility.fontScalingDesc')}</Text>
+            </View>
+            <Switch
+              value={fontScalingEnabled}
+              onValueChange={(val) => {
+                setFontScalingEnabled(val);
+                trackEvent('font_scale_changed', { enabled: val });
+              }}
+              trackColor={{ false: colors.surfaceLight, true: colors.primary }}
+            />
+          </View>
         </View>
 
         {/* Notifications */}
@@ -433,6 +472,43 @@ export default function SettingsScreen() {
           <Text style={styles.privacyNote}>
             {t('settings.privacyNoteFull')}
           </Text>
+          {biometricAvailable && (
+            <View style={[styles.row, { marginBottom: spacing.md }]}>
+              <View style={styles.rowInfo}>
+                <Text style={styles.rowLabel}>{t('security.biometricLock')}</Text>
+                <Text style={styles.rowDesc}>{t('security.biometricLockDesc')}</Text>
+              </View>
+              <Switch
+                value={biometricLockEnabled}
+                onValueChange={(val) => {
+                  setBiometricLockEnabled(val);
+                  trackEvent('biometric_lock_toggled', { enabled: val });
+                }}
+                trackColor={{ false: colors.surfaceLight, true: colors.primary }}
+              />
+            </View>
+          )}
+          <TouchableOpacity
+            style={[styles.linkRow, { borderBottomWidth: 0 }]}
+            disabled={isExporting}
+            onPress={async () => {
+              setIsExporting(true);
+              try {
+                await exportAndShareData();
+              } catch {
+                Alert.alert(t('common.error'), t('privacy.exportFailed'));
+              } finally {
+                setIsExporting(false);
+              }
+            }}
+            accessibilityLabel="Export My Data"
+            accessibilityRole="button"
+          >
+            <Text style={styles.linkLabel}>
+              {isExporting ? t('privacy.exportingData') : t('privacy.exportData')}
+            </Text>
+            <Text style={styles.linkArrow}>{'\u2192'}</Text>
+          </TouchableOpacity>
           <TouchableOpacity
             style={styles.dangerBtn}
             onPress={() => {

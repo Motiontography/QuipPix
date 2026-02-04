@@ -9,6 +9,8 @@ import { useTheme } from '../contexts/ThemeContext';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { useAppStore } from '../store/useAppStore';
 import { ToastProvider } from '../contexts/ToastContext';
+import { useBiometricLock } from '../hooks/useBiometricLock';
+import { BiometricLockScreen } from '../components/BiometricLockScreen';
 import { fadeTransition, slideBottomTransition, respectMotion } from './transitions';
 
 // Screens
@@ -118,6 +120,11 @@ export default function AppNavigator() {
   const hasSeenOnboarding = useAppStore((s) => s.hasSeenOnboarding);
   const reduceMotionOverride = useAppStore((s) => s.reduceMotionOverride);
   const reduceMotion = reduceMotionOverride === true;
+  const { isLocked, unlock } = useBiometricLock();
+
+  if (isLocked) {
+    return <BiometricLockScreen onUnlock={unlock} />;
+  }
 
   return (
     <ToastProvider>

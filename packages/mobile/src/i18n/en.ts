@@ -349,6 +349,26 @@ export const en = {
   'gallery.statsFooter': '{count} creations',
   'gallery.statsStorage': '{size} used',
 
+  // Accessibility
+  'accessibility.highContrast': 'High Contrast',
+  'accessibility.highContrastDesc': 'Increase contrast for better visibility',
+  'accessibility.fontScaling': 'Font Scaling',
+  'accessibility.fontScalingDesc': 'Respect system font size preferences',
+
+  // Security
+  'security.biometricLock': 'Biometric Lock',
+  'security.biometricLockDesc': 'Require Face ID or fingerprint to open QuipPix',
+  'security.biometricPrompt': 'Authenticate to open QuipPix',
+  'security.biometricFailed': 'Authentication failed',
+  'security.biometricUnavailable': 'Biometric authentication is not available on this device',
+
+  // Data Export
+  'privacy.exportData': 'Export My Data',
+  'privacy.exportDataDesc': 'Download all your data including gallery, settings, and history',
+  'privacy.exportingData': 'Exporting...',
+  'privacy.exportComplete': 'Data exported to {path}',
+  'privacy.exportFailed': 'Failed to export data',
+
   // Performance
   'performance.slowNetwork': 'Slow connection detected. Images may take longer to load.',
   'performance.recoveredGeneration': 'Recovered in-progress generation',
