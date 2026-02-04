@@ -1,5 +1,5 @@
 app_identifier("com.motiontography.quippix")
-apple_id(ENV["APPLE_ID"] || "YOUR_APPLE_ID@example.com")
+apple_id(ENV["APPLE_ID"] || "fstop@motiontography.com")
 team_id("8ZXNTAGJB8")
 
 for_platform :ios do
