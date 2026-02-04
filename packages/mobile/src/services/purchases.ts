@@ -5,8 +5,8 @@ import Purchases, {
 } from 'react-native-purchases';
 import { Platform } from 'react-native';
 
-const REVENUECAT_IOS_KEY = 'appl_YOUR_REVENUECAT_IOS_KEY';
-const REVENUECAT_ANDROID_KEY = 'goog_YOUR_REVENUECAT_ANDROID_KEY';
+const REVENUECAT_IOS_KEY = 'appl_vXYpkGIAqUhXEefmQyrIoguvesO';
+const REVENUECAT_ANDROID_KEY = 'test_qpKbAsBdcXPHjVwZkMGNDXkifEn';
 const PRO_ENTITLEMENT_ID = 'pro';
 
 export interface Entitlement {
