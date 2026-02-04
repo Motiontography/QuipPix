@@ -53,13 +53,31 @@ export default function ResultScreen() {
   const dismissSoftUpsell = useProStore((s) => s.dismissSoftUpsell);
   const currentStreak = useChallengeStore((s) => s.currentStreak);
 
+  // Capture ViewShot with watermark rendered into the image
+  const captureWithWatermark = useCallback(async (): Promise<string> => {
+    if (!viewShotRef.current?.capture) {
+      return resultUrl;
+    }
+    try {
+      const uri = await viewShotRef.current.capture({
+        format: 'png',
+        quality: 1,
+      });
+      return uri;
+    } catch {
+      return resultUrl;
+    }
+  }, [resultUrl]);
+
   // Save to local gallery
   const handleSave = useCallback(async () => {
     try {
       const itemId = nanoid();
       let localUri = resultUrl;
       try {
-        localUri = await cacheImage(resultUrl, itemId);
+        // When watermark is enabled, capture the composited image via ViewShot
+        const sourceUri = watermarkEnabled ? await captureWithWatermark() : resultUrl;
+        localUri = await cacheImage(sourceUri, itemId);
       } catch {
         // Fall back to remote URL if caching fails
       }
@@ -94,31 +112,33 @@ export default function ResultScreen() {
     } catch (err) {
       Alert.alert('Error', 'Failed to save image.');
     }
-  }, [resultUrl, params, stylePack, addToGallery, incrementCreationCount, hasShownInterstitial, setInterstitialShown, shouldShowSoftUpsell, dismissSoftUpsell, navigation]);
+  }, [resultUrl, params, stylePack, addToGallery, incrementCreationCount, hasShownInterstitial, setInterstitialShown, shouldShowSoftUpsell, dismissSoftUpsell, navigation, watermarkEnabled, captureWithWatermark]);
 
   // Save to device photo library
   const handleSaveToPhotos = useCallback(async () => {
     try {
-      await saveToPhotoLibrary(resultUrl);
+      const exportUri = watermarkEnabled ? await captureWithWatermark() : resultUrl;
+      await saveToPhotoLibrary(exportUri);
       trackEvent('save_to_photos', { styleId: params.styleId });
       Alert.alert('Saved!', 'Image saved to your photo library.');
     } catch (err) {
       Alert.alert('Error', 'Failed to save to photos. Please check permissions.');
     }
-  }, [resultUrl, params.styleId]);
+  }, [resultUrl, params.styleId, watermarkEnabled, captureWithWatermark]);
 
   // Share
   const handleShare = useCallback(async () => {
     try {
+      const shareUri = watermarkEnabled ? await captureWithWatermark() : resultUrl;
       await Share.open({
-        url: resultUrl,
+        url: shareUri,
         title: `My ${stylePack.displayName} - Made in QuipPix`,
         message: `Check out my ${stylePack.displayName} made with QuipPix!`,
       });
     } catch {
       // User cancelled
     }
-  }, [resultUrl, stylePack]);
+  }, [resultUrl, stylePack, watermarkEnabled, captureWithWatermark]);
 
   // Post to social
   const handlePost = useCallback(() => {

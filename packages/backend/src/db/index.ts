@@ -111,5 +111,19 @@ function runMigrations(database: Database.Database): void {
 
     CREATE INDEX IF NOT EXISTS idx_device_tokens_app_user_id
       ON device_tokens(app_user_id);
+
+    CREATE TABLE IF NOT EXISTS analytics_events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      event TEXT NOT NULL,
+      properties TEXT,
+      timestamp TEXT NOT NULL,
+      received_at TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_analytics_events_event
+      ON analytics_events(event);
+
+    CREATE INDEX IF NOT EXISTS idx_analytics_events_timestamp
+      ON analytics_events(timestamp);
   `);
 }

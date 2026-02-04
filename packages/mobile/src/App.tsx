@@ -7,6 +7,8 @@ import { useProStore } from './store/useProStore';
 import { initPurchases, addEntitlementListener } from './services/purchases';
 import { registerForPushNotifications, onNotificationOpened } from './services/pushNotifications';
 import { initAuth } from './services/auth';
+import { initAnalytics } from './services/analytics';
+import { initErrorReporting } from './services/errorReporting';
 import { colors } from './styles/theme';
 
 export default function App() {
@@ -31,8 +33,11 @@ export default function App() {
     return unsubscribe;
   }, [loadGallery, loadProState, refreshEntitlement, setEntitlement]);
 
-  // Auth + Push notifications
+  // Analytics + Auth + Push notifications
   useEffect(() => {
+    initErrorReporting();
+    initAnalytics();
+
     initAuth()
       .then((userId) => registerForPushNotifications(userId))
       .catch(() => {});

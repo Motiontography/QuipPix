@@ -1,3 +1,6 @@
+import { AppState, AppStateStatus } from 'react-native';
+import { api } from '../api/client';
+
 type AnalyticsEvent =
   | 'paywall_shown'
   | 'paywall_converted'
@@ -30,7 +33,8 @@ interface EventPayload {
   timestamp: string;
 }
 
-const eventQueue: EventPayload[] = [];
+let eventQueue: EventPayload[] = [];
+let appStateListenerActive = false;
 
 export function trackEvent(
   event: AnalyticsEvent,
@@ -54,7 +58,7 @@ export function trackEvent(
   }
 }
 
-function flushEvents(): void {
+export function flushEvents(): void {
   if (eventQueue.length === 0) return;
 
   const batch = eventQueue.splice(0, eventQueue.length);
@@ -63,10 +67,21 @@ function flushEvents(): void {
     console.log('[Analytics] Flushing', batch.length, 'events');
   }
 
-  // Stub: replace with actual API endpoint later
-  // fetch(`${API_BASE}/analytics`, {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify({ events: batch }),
-  // }).catch(() => {});
+  api.sendEvents(batch).catch(() => {
+    // Re-queue failed events for retry (cap at 100 to prevent unbounded growth)
+    if (eventQueue.length + batch.length <= 100) {
+      eventQueue.unshift(...batch);
+    }
+  });
+}
+
+export function initAnalytics(): void {
+  if (appStateListenerActive) return;
+  appStateListenerActive = true;
+
+  AppState.addEventListener('change', (state: AppStateStatus) => {
+    if (state === 'background' || state === 'inactive') {
+      flushEvents();
+    }
+  });
 }

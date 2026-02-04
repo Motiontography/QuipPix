@@ -98,6 +98,15 @@ export const config = {
     enabled: envBool('FIREBASE_ENABLED', false),
   },
 
+  admin: {
+    apiKey: env('ADMIN_API_KEY', 'admin-dev-key'),
+  },
+
+  sentry: {
+    dsn: process.env.SENTRY_DSN || undefined,
+    enabled: envBool('SENTRY_ENABLED', false),
+  },
+
   revenuecat: {
     apiKey: env('REVENUECAT_API_KEY', 'sk_placeholder'),
     webhookSecret: env('REVENUECAT_WEBHOOK_SECRET', 'whsec_placeholder'),

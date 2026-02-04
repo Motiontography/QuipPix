@@ -14,10 +14,13 @@ import { remixRoutes } from './routes/remix';
 import { entitlementRoutes } from './routes/entitlement';
 import { deviceRoutes } from './routes/device';
 import { authRoutes } from './routes/auth';
+import { analyticsRoutes } from './routes/analytics';
+import { adminRoutes } from './routes/admin';
 import { jwtAuth } from './middleware/jwtAuth';
 import { startCleanupScheduler, stopCleanupScheduler } from './jobs/queue';
 import { startChallengeReminderScheduler, stopChallengeReminderScheduler } from './jobs/challengeReminder';
 import { initFirebase } from './services/firebaseAdmin';
+import { initSentry, captureError } from './services/sentry';
 
 async function start() {
   const app = Fastify({
@@ -43,6 +46,9 @@ async function start() {
     timeWindow: config.rateLimit.windowMs,
   });
 
+  // Error monitoring
+  initSentry();
+
   // Database
   initDb();
 
@@ -64,10 +70,13 @@ async function start() {
   await app.register(remixRoutes);
   await app.register(entitlementRoutes);
   await app.register(deviceRoutes);
+  await app.register(analyticsRoutes);
+  await app.register(adminRoutes);
 
   // Error handler
   app.setErrorHandler((error, request, reply) => {
     logger.error({ error: error.message, url: request.url }, 'Unhandled error');
+    captureError(error, { url: request.url, method: request.method });
 
     if (error.statusCode === 429) {
       return reply.status(429).send({

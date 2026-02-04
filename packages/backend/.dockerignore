@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+data/
+tests/
+*.test.ts
+*.spec.ts
+.git
+.github

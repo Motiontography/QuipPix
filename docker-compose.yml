@@ -1,0 +1,74 @@
+services:
+  api:
+    build:
+      context: ./packages/backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - S3_ENDPOINT=http://minio:9000
+      - S3_REGION=us-east-1
+      - S3_BUCKET=quippix-temp
+      - S3_ACCESS_KEY=minioadmin
+      - S3_SECRET_KEY=minioadmin
+      - S3_FORCE_PATH_STYLE=true
+      - DATABASE_PATH=/app/data/quippix.db
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      - ADMIN_API_KEY=${ADMIN_API_KEY:-admin-dev-key}
+      - IMAGE_ENGINE_API_KEY=${IMAGE_ENGINE_API_KEY:-sk-placeholder}
+      - IMAGE_ENGINE_BASE_URL=${IMAGE_ENGINE_BASE_URL:-https://api.openai.com/v1}
+      - FIREBASE_ENABLED=${FIREBASE_ENABLED:-false}
+      - SENTRY_ENABLED=${SENTRY_ENABLED:-false}
+      - SENTRY_DSN=${SENTRY_DSN:-}
+      - REVENUECAT_API_KEY=${REVENUECAT_API_KEY:-sk_placeholder}
+      - REVENUECAT_WEBHOOK_SECRET=${REVENUECAT_WEBHOOK_SECRET:-whsec_placeholder}
+    volumes:
+      - api-data:/app/data
+    depends_on:
+      - redis
+      - minio
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+
+  # Create the default bucket on first start
+  minio-init:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 3;
+      mc alias set local http://minio:9000 minioadmin minioadmin;
+      mc mb local/quippix-temp --ignore-existing;
+      exit 0;
+      "
+
+volumes:
+  api-data:
+  redis-data:
+  minio-data:

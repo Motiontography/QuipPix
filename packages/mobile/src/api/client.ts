@@ -286,6 +286,24 @@ class ApiClient {
   }
 
   /**
+   * POST /events
+   * Send analytics events batch
+   */
+  async sendEvents(events: { event: string; properties?: Record<string, string | number | boolean>; timestamp: string }[]): Promise<{ received: number }> {
+    const res = await this.request(`${this.baseUrl}/events`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ events }),
+    });
+
+    if (!res.ok) {
+      throw new ApiError(res.status, 'Failed to send analytics events');
+    }
+
+    return res.json();
+  }
+
+  /**
    * POST /devices/register
    * Register device push token
    */
