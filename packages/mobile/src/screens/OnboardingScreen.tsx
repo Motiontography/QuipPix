@@ -11,6 +11,7 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
+import { t } from '../i18n';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
@@ -32,30 +33,26 @@ interface Slide {
 const SLIDES: Slide[] = [
   {
     icon: '\uD83C\uDFA8',
-    title: 'Transform Your Photos',
-    description:
-      'Turn any photo into stunning art with AI-powered style transfer.',
+    title: t('onboarding.slide1Title'),
+    description: t('onboarding.slide1Desc'),
     highlights: ['Caricatures', 'Comics', 'Oil Paintings', 'Watercolors'],
   },
   {
     icon: '\u2728',
-    title: '15 Artistic Styles',
-    description:
-      'From classic caricatures to cyberpunk neon \u2014 find the perfect style for every mood.',
+    title: t('onboarding.slide2Title'),
+    description: t('onboarding.slide2Desc'),
     highlights: ['Pencil Sketches', 'Anime', 'Pop Art', 'Pro Headshots'],
   },
   {
     icon: '\uD83C\uDFC6',
-    title: 'Daily Challenges',
-    description:
-      'Complete daily creative challenges, build streaks, and share your best work.',
+    title: t('onboarding.slide3Title'),
+    description: t('onboarding.slide3Desc'),
     highlights: ['New challenge every day', 'Streak tracking', 'Community hashtags'],
   },
   {
     icon: '\uD83D\uDCE4',
-    title: 'Share Your Creations',
-    description:
-      'Create share cards, remix links, and post directly to your favorite platforms.',
+    title: t('onboarding.slide4Title'),
+    description: t('onboarding.slide4Desc'),
     highlights: ['Share cards', 'Remix deep links', 'Direct social posting'],
   },
 ];
@@ -186,7 +183,7 @@ export default function OnboardingScreen() {
 
       {/* Skip button */}
       <TouchableOpacity style={styles.skipButton} onPress={handleComplete}>
-        <Text style={styles.skipText}>Skip</Text>
+        <Text style={styles.skipText}>{t('onboarding.skip')}</Text>
       </TouchableOpacity>
 
       {/* Slides */}
@@ -219,7 +216,7 @@ export default function OnboardingScreen() {
           activeOpacity={0.8}
         >
           <Text style={styles.ctaText}>
-            {currentIndex === SLIDES.length - 1 ? 'Get Started' : 'Next'}
+            {currentIndex === SLIDES.length - 1 ? t('onboarding.getStarted') : t('onboarding.next')}
           </Text>
         </TouchableOpacity>
       </View>

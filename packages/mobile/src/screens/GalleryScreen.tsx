@@ -5,7 +5,6 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  Image,
   SafeAreaView,
   Alert,
   Linking,
@@ -13,13 +12,17 @@ import {
   ScrollView,
   TextInput,
 } from 'react-native';
+import FastImage from 'react-native-fast-image';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList, GalleryItem } from '../types';
 import { useAppStore } from '../store/useAppStore';
 import OfflineBanner from '../components/OfflineBanner';
+import GallerySkeleton from '../components/GallerySkeleton';
+import { triggerHaptic } from '../services/haptics';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
+import { t } from '../i18n';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -43,6 +46,7 @@ export default function GalleryScreen() {
     removeCollection,
   } = useAppStore();
 
+  const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<'all' | 'favorites' | string>('all');
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuItemId, setMenuItemId] = useState<string | null>(null);
@@ -65,7 +69,7 @@ export default function GalleryScreen() {
   }, [searchQuery]);
 
   useEffect(() => {
-    loadGallery();
+    loadGallery().finally(() => setIsLoading(false));
   }, [loadGallery]);
 
   const filteredGallery = useMemo(() => {
@@ -109,16 +113,16 @@ export default function GalleryScreen() {
     creationCount > 0 && creationCount % SPOTLIGHT_INTERVAL === 0;
 
   const handleDelete = (id: string) => {
-    Alert.alert('Delete', 'Remove this creation?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => removeFromGallery(id) },
+    Alert.alert(t('gallery.deleteTitle'), t('gallery.deleteMessage'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('common.delete'), style: 'destructive', onPress: () => { triggerHaptic('warning'); removeFromGallery(id); } },
     ]);
   };
 
   const handleClearAll = () => {
-    Alert.alert('Clear Gallery', 'Delete all saved creations? This cannot be undone.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete All', style: 'destructive', onPress: () => clearGallery() },
+    Alert.alert(t('gallery.clearAllTitle'), t('gallery.clearAllMessage'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('gallery.deleteAll'), style: 'destructive', onPress: () => clearGallery() },
     ]);
   };
 
@@ -298,10 +302,10 @@ export default function GalleryScreen() {
     <SafeAreaView style={styles.container}>
       <OfflineBanner />
       <View style={styles.header}>
-        <Text style={styles.title}>Gallery</Text>
+        <Text style={styles.title}>{t('gallery.title')}</Text>
         {gallery.length > 0 && (
           <TouchableOpacity onPress={handleClearAll}>
-            <Text style={styles.clearAll}>Clear All</Text>
+            <Text style={styles.clearAll}>{t('gallery.clearAll')}</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -313,7 +317,7 @@ export default function GalleryScreen() {
             <Text style={styles.searchIcon}>{'\uD83D\uDD0D'}</Text>
             <TextInput
               style={styles.searchInput}
-              placeholder="Search by style..."
+              placeholder={t('gallery.searchPlaceholder')}
               placeholderTextColor={colors.textMuted}
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -353,7 +357,7 @@ export default function GalleryScreen() {
             accessibilityLabel="All creations"
           >
             <Text style={[styles.filterText, activeFilter === 'all' && styles.filterTextActive]}>
-              All
+              {t('gallery.all')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -364,7 +368,7 @@ export default function GalleryScreen() {
             accessibilityLabel="Favorites"
           >
             <Text style={[styles.filterText, activeFilter === 'favorites' && styles.filterTextActive]}>
-              Favorites
+              {t('gallery.favorites')}
             </Text>
           </TouchableOpacity>
           {collections.map((col) => (
@@ -373,10 +377,10 @@ export default function GalleryScreen() {
               style={[styles.filterTab, activeFilter === col.id && styles.filterTabActive]}
               onPress={() => setActiveFilter(col.id)}
               onLongPress={() => {
-                Alert.alert('Delete Collection', `Remove "${col.name}"?`, [
-                  { text: 'Cancel', style: 'cancel' },
+                Alert.alert(t('gallery.deleteCollection'), `Remove "${col.name}"?`, [
+                  { text: t('common.cancel'), style: 'cancel' },
                   {
-                    text: 'Delete',
+                    text: t('common.delete'),
                     style: 'destructive',
                     onPress: () => {
                       removeCollection(col.id);
@@ -400,20 +404,22 @@ export default function GalleryScreen() {
         </ScrollView>
       )}
 
-      {filteredGallery.length === 0 ? (
+      {isLoading ? (
+        <GallerySkeleton />
+      ) : filteredGallery.length === 0 ? (
         <View style={styles.empty}>
           <Text style={styles.emptyIcon}>
             {activeFilter === 'favorites' ? 'heart' === 'heart' ? '\u2764\uFE0F' : '' : '\uD83D\uDDBC\uFE0F'}
           </Text>
           <Text style={styles.emptyTitle}>
-            {activeFilter === 'favorites' ? 'No favorites yet' : activeFilter === 'all' ? 'No creations yet' : 'Empty collection'}
+            {activeFilter === 'favorites' ? t('gallery.favoritesEmptyTitle') : activeFilter === 'all' ? t('gallery.emptyTitle') : t('gallery.collectionEmptyTitle')}
           </Text>
           <Text style={styles.emptyBody}>
             {activeFilter === 'favorites'
-              ? 'Tap the heart on any creation to add it here'
+              ? t('gallery.favoritesEmptyBody')
               : activeFilter === 'all'
-                ? 'Your generated images will appear here'
-                : 'Add items from your gallery to this collection'}
+                ? t('gallery.emptyBody')
+                : t('gallery.collectionEmptyBody')}
           </Text>
         </View>
       ) : (
@@ -446,7 +452,7 @@ export default function GalleryScreen() {
               accessibilityHint="Tap to view, long press for options"
             >
               <View>
-                <Image source={{ uri: item.localUri }} style={styles.cardImage} />
+                <FastImage source={{ uri: item.localUri, priority: FastImage.priority.normal }} style={styles.cardImage} resizeMode={FastImage.resizeMode.cover} />
                 <TouchableOpacity
                   style={styles.heartOverlay}
                   onPress={() => toggleFavorite(item.id)}
@@ -476,7 +482,7 @@ export default function GalleryScreen() {
           onPress={() => setMenuVisible(false)}
         >
           <View style={styles.menuCard}>
-            <Text style={styles.menuTitle}>Actions</Text>
+            <Text style={styles.menuTitle}>{t('gallery.actions')}</Text>
             <TouchableOpacity
               style={styles.menuItem}
               onPress={() => {
@@ -484,7 +490,7 @@ export default function GalleryScreen() {
                 if (menuItemId) handleDelete(menuItemId);
               }}
             >
-              <Text style={styles.menuItemTextDestructive}>Delete</Text>
+              <Text style={styles.menuItemTextDestructive}>{t('common.delete')}</Text>
             </TouchableOpacity>
             {collections.map((col) => (
               <TouchableOpacity
@@ -519,11 +525,11 @@ export default function GalleryScreen() {
           onPress={() => setShowSortMenu(false)}
         >
           <View style={styles.menuCard}>
-            <Text style={styles.menuTitle}>Sort By</Text>
+            <Text style={styles.menuTitle}>{t('gallery.sortBy')}</Text>
             {([
-              { key: 'newest' as const, label: 'Newest First' },
-              { key: 'oldest' as const, label: 'Oldest First' },
-              { key: 'style' as const, label: 'By Style Name' },
+              { key: 'newest' as const, label: t('gallery.sortNewest') },
+              { key: 'oldest' as const, label: t('gallery.sortOldest') },
+              { key: 'style' as const, label: t('gallery.sortByStyleName') },
             ]).map((option) => (
               <TouchableOpacity
                 key={option.key}
@@ -555,10 +561,10 @@ export default function GalleryScreen() {
           onPress={() => setNewCollectionVisible(false)}
         >
           <View style={styles.menuCard}>
-            <Text style={styles.menuTitle}>New Collection</Text>
+            <Text style={styles.menuTitle}>{t('gallery.newCollection')}</Text>
             <TextInput
               style={styles.collectionInput}
-              placeholder="Collection name"
+              placeholder={t('gallery.collectionPlaceholder')}
               placeholderTextColor={colors.textMuted}
               value={newCollectionName}
               onChangeText={setNewCollectionName}
@@ -566,7 +572,7 @@ export default function GalleryScreen() {
               maxLength={30}
             />
             <TouchableOpacity style={styles.createButton} onPress={handleCreateCollection}>
-              <Text style={styles.createButtonText}>Create</Text>
+              <Text style={styles.createButtonText}>{t('gallery.create')}</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>

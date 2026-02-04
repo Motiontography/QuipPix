@@ -27,7 +27,12 @@ describe('i18n', () => {
     }
   });
 
-  it('has at least 50 translation keys', () => {
-    expect(Object.keys(en).length).toBeGreaterThanOrEqual(50);
+  it('has at least 130 translation keys', () => {
+    expect(Object.keys(en).length).toBeGreaterThanOrEqual(130);
+  });
+
+  it('supports parameter substitution', () => {
+    expect(t('generating.creatingYour', { styleName: 'Anime' })).toBe('Creating Your Anime');
+    expect(t('batchResults.savedMessage', { count: '5' })).toBe('5 images added to your gallery.');
   });
 });

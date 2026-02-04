@@ -16,6 +16,7 @@ import { getStylePack } from '../services/stylePacks';
 import { trackEvent } from '../services/analytics';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
+import { t } from '../i18n';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Remix'>;
 type Route = RouteProp<RootStackParamList, 'Remix'>;
@@ -37,7 +38,7 @@ export default function RemixScreen() {
         setRemix(data);
         trackEvent('remix_opened', { code, styleId: data.template.styleId });
       } catch {
-        setError('This remix link is no longer available.');
+        setError(t('remix.linkUnavailable'));
       } finally {
         setLoading(false);
       }
@@ -241,7 +242,7 @@ export default function RemixScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Loading remix...</Text>
+          <Text style={styles.loadingText}>{t('remix.loading')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -252,15 +253,15 @@ export default function RemixScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.center}>
           <Text style={styles.errorIcon}>🔗</Text>
-          <Text style={styles.errorTitle}>Link Expired</Text>
+          <Text style={styles.errorTitle}>{t('remix.linkExpired')}</Text>
           <Text style={styles.errorMsg}>
-            {error || 'This remix link is no longer available.'}
+            {error || t('remix.linkUnavailable')}
           </Text>
           <TouchableOpacity
             style={styles.homeBtn}
             onPress={() => navigation.navigate('MainTabs')}
           >
-            <Text style={styles.homeBtnText}>Go to Home</Text>
+            <Text style={styles.homeBtnText}>{t('remix.goHome')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -276,9 +277,9 @@ export default function RemixScreen() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.navigate('MainTabs')}>
-            <Text style={styles.backText}>{'<'} Home</Text>
+            <Text style={styles.backText}>{'<'} {t('remix.home')}</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>Remix</Text>
+          <Text style={styles.title}>{t('remix.title')}</Text>
           <View style={{ width: 48 }} />
         </View>
 
@@ -291,14 +292,14 @@ export default function RemixScreen() {
           <Text style={styles.styleDesc}>{stylePack.description}</Text>
           {remix.template.creatorName && (
             <Text style={styles.creator}>
-              Shared by {remix.template.creatorName}
+              {t('remix.sharedBy', { name: remix.template.creatorName })}
             </Text>
           )}
         </View>
 
         {/* Settings Preview */}
         <View style={styles.settingsCard}>
-          <Text style={styles.settingsTitle}>Pre-loaded Settings</Text>
+          <Text style={styles.settingsTitle}>{t('remix.preloadedSettings')}</Text>
           <View style={styles.settingsGrid}>
             <SettingPill label="Intensity" value={sliders.intensity} />
             <SettingPill label="Face Fidelity" value={sliders.faceFidelity} />
@@ -312,7 +313,7 @@ export default function RemixScreen() {
           </View>
           {remix.views > 1 && (
             <Text style={styles.viewCount}>
-              {remix.views} {remix.views === 1 ? 'person has' : 'people have'} tried this remix
+              {t('remix.triedRemix', { count: String(remix.views) })}
             </Text>
           )}
         </View>
@@ -323,7 +324,7 @@ export default function RemixScreen() {
         {/* Action Buttons */}
         <View style={styles.actionArea}>
           <Text style={styles.ctaText}>
-            Choose a photo to try this style!
+            {t('remix.ctaText')}
           </Text>
           <View style={styles.actionRow}>
             <TouchableOpacity
@@ -331,14 +332,14 @@ export default function RemixScreen() {
               onPress={handleChoosePhoto}
               activeOpacity={0.8}
             >
-              <Text style={styles.primaryBtnText}>Choose Photo</Text>
+              <Text style={styles.primaryBtnText}>{t('remix.choosePhoto')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.actionBtn, styles.secondaryBtn]}
               onPress={handleTakePhoto}
               activeOpacity={0.8}
             >
-              <Text style={styles.secondaryBtnText}>Take Photo</Text>
+              <Text style={styles.secondaryBtnText}>{t('remix.takePhoto')}</Text>
             </TouchableOpacity>
           </View>
         </View>

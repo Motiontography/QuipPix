@@ -6,9 +6,9 @@ import {
   FlatList,
   SafeAreaView,
   TouchableOpacity,
-  Image,
   RefreshControl,
 } from 'react-native';
+import FastImage from 'react-native-fast-image';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -23,8 +23,11 @@ import { useChallengeStore } from '../store/useChallengeStore';
 import { trackEvent } from '../services/analytics';
 import StreakBadge from '../components/StreakBadge';
 import ChallengeCountdown from '../components/ChallengeCountdown';
+import ChallengeSkeleton from '../components/ChallengeSkeleton';
+import { triggerHaptic } from '../services/haptics';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
+import { t } from '../i18n';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -69,6 +72,7 @@ export default function ChallengesScreen() {
 
   const handleAcceptChallenge = useCallback(async () => {
     if (!challenge) return;
+    triggerHaptic('medium');
 
     trackEvent('challenge_accepted', {
       challengeId: challenge.id,
@@ -328,9 +332,7 @@ export default function ChallengesScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.center}>
-          <Text style={styles.loadingText}>Loading today's challenge...</Text>
-        </View>
+        <ChallengeSkeleton />
       </SafeAreaView>
     );
   }
@@ -351,7 +353,7 @@ export default function ChallengesScreen() {
           <>
             {/* Header */}
             <View style={styles.header}>
-              <Text style={styles.title}>Daily Challenge</Text>
+              <Text style={styles.title}>{t('challenges.title')}</Text>
               <ChallengeCountdown />
             </View>
 
@@ -388,7 +390,7 @@ export default function ChallengesScreen() {
                       </View>
                       {totalSubmissions > 0 && (
                         <Text style={styles.submissionCount}>
-                          {totalSubmissions} submission{totalSubmissions !== 1 ? 's' : ''}
+                          {t('challenges.submissions', { count: String(totalSubmissions) })}
                         </Text>
                       )}
                     </View>
@@ -398,12 +400,12 @@ export default function ChallengesScreen() {
                 <Text style={styles.cardDesc}>{challenge.description}</Text>
 
                 <View style={styles.promptBox}>
-                  <Text style={styles.promptLabel}>Creative Prompt</Text>
+                  <Text style={styles.promptLabel}>{t('challenges.creativePrompt')}</Text>
                   <Text style={styles.promptText}>{challenge.creativePrompt}</Text>
                 </View>
 
                 <View style={styles.styleHint}>
-                  <Text style={styles.styleHintLabel}>Suggested Style:</Text>
+                  <Text style={styles.styleHintLabel}>{t('challenges.suggestedStyle')}</Text>
                   <Text style={styles.styleHintValue}>
                     {getStylePack(challenge.suggestedStyleId).displayName}{' '}
                     {getStylePack(challenge.suggestedStyleId).icon}
@@ -416,7 +418,7 @@ export default function ChallengesScreen() {
                 {completedToday ? (
                   <View style={styles.completedBanner}>
                     <Text style={styles.completedText}>
-                      Challenge completed today!
+                      {t('challenges.completedToday')}
                     </Text>
                   </View>
                 ) : (
@@ -426,14 +428,14 @@ export default function ChallengesScreen() {
                       onPress={handleAcceptChallenge}
                       activeOpacity={0.8}
                     >
-                      <Text style={styles.primaryBtnText}>Choose Photo</Text>
+                      <Text style={styles.primaryBtnText}>{t('challenges.choosePhoto')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[styles.actionBtn, styles.secondaryBtn]}
                       onPress={handleTakePhoto}
                       activeOpacity={0.8}
                     >
-                      <Text style={styles.secondaryBtnText}>Take Photo</Text>
+                      <Text style={styles.secondaryBtnText}>{t('challenges.takePhoto')}</Text>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -443,16 +445,17 @@ export default function ChallengesScreen() {
             {/* History Header */}
             {recentCompletions.length > 0 && (
               <View style={styles.historyHeader}>
-                <Text style={styles.historyTitle}>Recent Completions</Text>
+                <Text style={styles.historyTitle}>{t('challenges.recentCompletions')}</Text>
               </View>
             )}
           </>
         }
         renderItem={({ item }: { item: ChallengeCompletion }) => (
           <View style={styles.historyCard}>
-            <Image
-              source={{ uri: item.resultUrl }}
+            <FastImage
+              source={{ uri: item.resultUrl, priority: FastImage.priority.low }}
               style={styles.historyThumb}
+              resizeMode={FastImage.resizeMode.cover}
             />
             <View style={styles.historyInfo}>
               <Text style={styles.historyStyle}>
@@ -479,7 +482,7 @@ export default function ChallengesScreen() {
                 })
               }
             >
-              <Text style={styles.viewBtn}>View</Text>
+              <Text style={styles.viewBtn}>{t('challenges.view')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -487,7 +490,7 @@ export default function ChallengesScreen() {
           recentCompletions.length === 0 && !loading ? (
             <View style={styles.emptyHistory}>
               <Text style={styles.emptyText}>
-                Complete your first challenge to start building your streak!
+                {t('challenges.emptyText')}
               </Text>
             </View>
           ) : null

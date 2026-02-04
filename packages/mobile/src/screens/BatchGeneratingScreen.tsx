@@ -16,6 +16,7 @@ import { getStylePack } from '../services/stylePacks';
 import { trackEvent } from '../services/analytics';
 import { spacing, typography, borderRadius } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
+import { t } from '../i18n';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'BatchGenerating'>;
 type Route = RouteProp<RootStackParamList, 'BatchGenerating'>;
@@ -106,14 +107,14 @@ export default function BatchGeneratingScreen() {
         if (results.length > 0) {
           navigation.replace('BatchResults', { results, params });
         } else {
-          setError('All images in the batch failed to process. Please try again.');
+          setError(t('batchGenerating.allFailed'));
         }
       } catch (err: any) {
         if (!cancelled) {
           if (err instanceof ApiError && err.body?.message) {
             setError(err.body.message);
           } else {
-            setError(err.message || 'Something went wrong. Please try again.');
+            setError(err.message || t('generating.somethingWrong'));
           }
         }
       }
@@ -252,13 +253,13 @@ export default function BatchGeneratingScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.center}>
           <Text style={styles.errorIcon}>!</Text>
-          <Text style={styles.errorTitle}>Batch Failed</Text>
+          <Text style={styles.errorTitle}>{t('batchGenerating.batchFailed')}</Text>
           <Text style={styles.errorMsg}>{error}</Text>
           <TouchableOpacity
             style={styles.backBtn}
             onPress={() => navigation.goBack()}
           >
-            <Text style={styles.backBtnText}>Go Back</Text>
+            <Text style={styles.backBtnText}>{t('batchGenerating.goBack')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -269,7 +270,7 @@ export default function BatchGeneratingScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>
-          Processing {imageUris.length} Photos
+          {t('batchGenerating.processing', { count: String(imageUris.length) })}
         </Text>
         <Text style={styles.subtitle}>{stylePack.displayName}</Text>
       </View>
@@ -296,7 +297,7 @@ export default function BatchGeneratingScreen() {
               )}
               {isDone && (
                 <View style={styles.doneOverlay}>
-                  <Text style={styles.doneCheck}>Done</Text>
+                  <Text style={styles.doneCheck}>{t('batchResults.done')}</Text>
                 </View>
               )}
             </View>

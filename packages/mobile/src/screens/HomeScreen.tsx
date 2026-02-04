@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   Linking,
 } from 'react-native';
+import { t } from '../i18n';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -144,8 +145,8 @@ export default function HomeScreen() {
       <OfflineBanner />
 
       <View style={styles.header}>
-        <Text style={styles.logo} accessibilityRole="header">QuipPix</Text>
-        <Text style={styles.tagline}>Transform your photos into art</Text>
+        <Text style={styles.logo} accessibilityRole="header">{t('home.title')}</Text>
+        <Text style={styles.tagline}>{t('home.tagline')}</Text>
       </View>
 
       <View style={styles.actions}>
@@ -158,8 +159,8 @@ export default function HomeScreen() {
           accessibilityRole="button"
         >
           <Text style={styles.buttonIcon}>🖼️</Text>
-          <Text style={styles.buttonText}>Choose Photo</Text>
-          <Text style={styles.buttonSub}>From your gallery</Text>
+          <Text style={styles.buttonText}>{t('home.choosePhoto')}</Text>
+          <Text style={styles.buttonSub}>{t('home.choosePhotoDesc')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -171,8 +172,8 @@ export default function HomeScreen() {
           accessibilityRole="button"
         >
           <Text style={styles.buttonIcon}>📷</Text>
-          <Text style={styles.buttonText}>Take Photo</Text>
-          <Text style={styles.buttonSub}>Use your camera</Text>
+          <Text style={styles.buttonText}>{t('home.takePhoto')}</Text>
+          <Text style={styles.buttonSub}>{t('home.takePhotoDesc')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -187,8 +188,8 @@ export default function HomeScreen() {
             <Text style={styles.buttonIcon}>🖼️</Text>
             {!isPro && <ProBadge size="small" />}
           </View>
-          <Text style={styles.buttonText}>Batch Process</Text>
-          <Text style={styles.buttonSub}>Select up to 10 photos</Text>
+          <Text style={styles.buttonText}>{t('home.batchProcess')}</Text>
+          <Text style={styles.buttonSub}>{t('home.batchProcessDesc')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -197,7 +198,7 @@ export default function HomeScreen() {
           onPress={() => Linking.openURL('https://motiontography.com')}
           activeOpacity={0.7}
         >
-          <Text style={styles.footerLink}>by Motiontography</Text>
+          <Text style={styles.footerLink}>{t('home.byMotiontography')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

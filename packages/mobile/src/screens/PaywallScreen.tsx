@@ -18,6 +18,7 @@ import { useProStore } from '../store/useProStore';
 import { trackEvent } from '../services/analytics';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
+import { t } from '../i18n';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Paywall'>;
 type Route = RouteProp<RootStackParamList, 'Paywall'>;
@@ -62,11 +63,11 @@ export default function PaywallScreen() {
       const ent = await purchasePackage(pkg);
       setEntitlement(ent);
       trackEvent('paywall_converted', { trigger, package: pkg.identifier });
-      Alert.alert('Welcome to Pro!', 'All features are now unlocked.');
+      Alert.alert(t('paywall.welcomePro'), t('paywall.welcomeProMessage'));
       navigation.goBack();
     } catch (err: any) {
       if (!err.userCancelled) {
-        Alert.alert('Purchase Failed', err.message || 'Please try again.');
+        Alert.alert(t('paywall.purchaseFailed'), err.message || 'Please try again.');
       }
     } finally {
       setPurchasing(false);
@@ -79,13 +80,13 @@ export default function PaywallScreen() {
       const ent = await restorePurchases();
       setEntitlement(ent);
       if (ent.proActive) {
-        Alert.alert('Restored!', 'Your Pro subscription has been restored.');
+        Alert.alert(t('paywall.restored'), t('paywall.restoredMessage'));
         navigation.goBack();
       } else {
-        Alert.alert('No Purchases Found', 'No active subscriptions were found for this account.');
+        Alert.alert(t('paywall.noPurchases'), t('paywall.noPurchasesMessage'));
       }
     } catch (err: any) {
-      Alert.alert('Restore Failed', err.message || 'Please try again.');
+      Alert.alert(t('paywall.restoreFailed'), err.message || 'Please try again.');
     } finally {
       setPurchasing(false);
     }
@@ -98,9 +99,9 @@ export default function PaywallScreen() {
 
   const getPackageLabel = (pkg: PurchasesPackage): string => {
     const id = pkg.identifier.toLowerCase();
-    if (id.includes('lifetime')) return 'Lifetime';
-    if (id.includes('annual')) return 'Annual';
-    return 'Monthly';
+    if (id.includes('lifetime')) return t('paywall.lifetime');
+    if (id.includes('annual')) return t('paywall.annual');
+    return t('paywall.monthly');
   };
 
   const isBestValue = (pkg: PurchasesPackage): boolean => {
@@ -239,13 +240,13 @@ export default function PaywallScreen() {
     <SafeAreaView style={styles.container}>
       {/* Close button */}
       <TouchableOpacity style={styles.closeBtn} onPress={handleDismiss}>
-        <Text style={styles.closeText}>Not now</Text>
+        <Text style={styles.closeText}>{t('paywall.notNow')}</Text>
       </TouchableOpacity>
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* Headline */}
-        <Text style={styles.headline}>Unlock QuipPix Pro</Text>
-        <Text style={styles.subheadline}>Go Pro. Create More.</Text>
+        <Text style={styles.headline}>{t('paywall.title')}</Text>
+        <Text style={styles.subheadline}>{t('paywall.subtitle')}</Text>
 
         {/* Benefits */}
         <View style={styles.benefitsContainer}>
@@ -274,7 +275,7 @@ export default function PaywallScreen() {
               >
                 {isBestValue(pkg) && (
                   <View style={styles.bestValueBadge}>
-                    <Text style={styles.bestValueText}>Best Value</Text>
+                    <Text style={styles.bestValueText}>{t('paywall.bestValue')}</Text>
                   </View>
                 )}
                 <Text style={styles.pricingLabel}>{getPackageLabel(pkg)}</Text>
@@ -282,9 +283,9 @@ export default function PaywallScreen() {
                   {pkg.product.priceString}
                 </Text>
                 <Text style={styles.pricingPeriod}>
-                  {getPackageLabel(pkg) === 'Lifetime'
-                    ? 'one-time'
-                    : `/${getPackageLabel(pkg) === 'Annual' ? 'year' : 'month'}`}
+                  {pkg.identifier.toLowerCase().includes('lifetime')
+                    ? t('paywall.oneTime')
+                    : `/${pkg.identifier.toLowerCase().includes('annual') ? 'year' : 'month'}`}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -302,7 +303,7 @@ export default function PaywallScreen() {
             <ActivityIndicator color="#FFFFFF" />
           ) : (
             <Text style={styles.ctaText}>
-              {packages.length > 0 ? 'Subscribe' : 'Loading...'}
+              {packages.length > 0 ? t('paywall.subscribe') : t('paywall.loading')}
             </Text>
           )}
         </TouchableOpacity>
@@ -313,7 +314,7 @@ export default function PaywallScreen() {
           onPress={handleRestore}
           disabled={purchasing}
         >
-          <Text style={styles.restoreText}>Restore Purchases</Text>
+          <Text style={styles.restoreText}>{t('paywall.restorePurchases')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

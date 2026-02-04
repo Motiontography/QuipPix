@@ -28,6 +28,8 @@ import BeforeAfterSlider from '../components/BeforeAfterSlider';
 import { saveToPhotoLibrary } from '../services/cameraRoll';
 import { cacheImage } from '../services/imageCache';
 import { maybePromptReview } from '../services/reviewPrompt';
+import { triggerHaptic } from '../services/haptics';
+import { t } from '../i18n';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Result'>;
 type Route = RouteProp<RootStackParamList, 'Result'>;
@@ -73,6 +75,7 @@ export default function ResultScreen() {
 
   // Save to local gallery
   const handleSave = useCallback(async () => {
+    triggerHaptic('light');
     try {
       const itemId = nanoid();
       let localUri = resultUrl;
@@ -110,9 +113,9 @@ export default function ResultScreen() {
         setInterstitialShown();
       }
 
-      Alert.alert('Saved!', 'Added to your QuipPix gallery.');
+      Alert.alert(t('result.saved'), t('result.savedMessage'));
     } catch (err) {
-      Alert.alert('Error', 'Failed to save image.');
+      Alert.alert(t('common.error'), t('result.saveFailed'));
     }
   }, [resultUrl, params, stylePack, addToGallery, incrementCreationCount, hasShownInterstitial, setInterstitialShown, shouldShowSoftUpsell, dismissSoftUpsell, navigation, watermarkEnabled, captureWithWatermark]);
 
@@ -122,9 +125,9 @@ export default function ResultScreen() {
       const exportUri = watermarkEnabled ? await captureWithWatermark() : resultUrl;
       await saveToPhotoLibrary(exportUri);
       trackEvent('save_to_photos', { styleId: params.styleId });
-      Alert.alert('Saved!', 'Image saved to your photo library.');
+      Alert.alert(t('result.saved'), t('result.savedToPhotos'));
     } catch (err) {
-      Alert.alert('Error', 'Failed to save to photos. Please check permissions.');
+      Alert.alert(t('common.error'), t('result.saveToPhotosFailed'));
     }
   }, [resultUrl, params.styleId, watermarkEnabled, captureWithWatermark]);
 
@@ -273,22 +276,21 @@ export default function ResultScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.interstitial}>
-          <Text style={styles.interstitialTitle}>Love your creation?</Text>
+          <Text style={styles.interstitialTitle}>{t('result.loveCreation')}</Text>
           <Text style={styles.interstitialBody}>
-            QuipPix is brought to you by Motiontography.
-            Check out our professional photography and video work!
+            {t('result.motiontographyPromo')}
           </Text>
           <TouchableOpacity
             style={styles.interstitialCta}
             onPress={() => Linking.openURL('https://motiontography.com')}
           >
-            <Text style={styles.interstitialCtaText}>Visit Motiontography</Text>
+            <Text style={styles.interstitialCtaText}>{t('result.visitMotiontography')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.skipBtn}
             onPress={() => setShowInterstitial(false)}
           >
-            <Text style={styles.skipText}>Skip</Text>
+            <Text style={styles.skipText}>{t('result.skip')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -326,7 +328,7 @@ export default function ResultScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.popToTop()}>
-          <Text style={styles.backText}>Done</Text>
+          <Text style={styles.backText}>{t('result.done')}</Text>
         </TouchableOpacity>
         <Text style={styles.title}>{stylePack.displayName}</Text>
         <View style={{ width: 48 }} />
@@ -353,19 +355,19 @@ export default function ResultScreen() {
 
       {/* Actions */}
       <View style={styles.actions}>
-        <ActionButton icon="💾" label="Save" onPress={handleSave} primary />
-        <ActionButton icon="📷" label="Photos" onPress={handleSaveToPhotos} />
+        <ActionButton icon="💾" label={t('result.save')} onPress={handleSave} primary />
+        <ActionButton icon="📷" label={t('result.photos')} onPress={handleSaveToPhotos} />
         {sourceImageUri && (
           <ActionButton
             icon={showComparison ? '🖼️' : '🔄'}
-            label={showComparison ? 'Result' : 'Compare'}
+            label={showComparison ? t('result.resultView') : t('result.compare')}
             onPress={() => setShowComparison(!showComparison)}
           />
         )}
-        <ActionButton icon="🎴" label="Card" onPress={handleShareCard} />
-        <ActionButton icon="📤" label="Share" onPress={handleShare} />
-        <ActionButton icon="📱" label="Post" onPress={handlePost} />
-        <ActionButton icon="🔗" label="Remix" onPress={handleShareTemplate} />
+        <ActionButton icon="🎴" label={t('result.card')} onPress={handleShareCard} />
+        <ActionButton icon="📤" label={t('result.share')} onPress={handleShare} />
+        <ActionButton icon="📱" label={t('result.post')} onPress={handlePost} />
+        <ActionButton icon="🔗" label={t('result.remix')} onPress={handleShareTemplate} />
       </View>
 
       {/* Platform Picker */}

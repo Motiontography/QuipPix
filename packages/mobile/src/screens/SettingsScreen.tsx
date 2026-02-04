@@ -25,8 +25,10 @@ import {
 import { getAppVersion, getBuildNumber } from '../services/appInfo';
 import { api } from '../api/client';
 import { clearAuth } from '../services/auth';
+import { triggerHaptic } from '../services/haptics';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme, ThemeMode } from '../contexts/ThemeContext';
+import { t } from '../i18n';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -75,12 +77,12 @@ export default function SettingsScreen() {
 
   const handleDeleteAccount = () => {
     Alert.alert(
-      'Delete Account',
-      'This permanently deletes all your data including generated images, subscription info, and account details. This cannot be undone.',
+      t('settings.deleteAccount'),
+      t('settings.deleteAccountMessage'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
             setIsDeleting(true);
@@ -91,7 +93,7 @@ export default function SettingsScreen() {
               await clearAuth();
               navigation.reset({ index: 0, routes: [{ name: 'Onboarding' }] });
             } catch {
-              Alert.alert('Error', 'Failed to delete account. Please try again.');
+              Alert.alert(t('common.error'), t('settings.deleteAccountFailed'));
             } finally {
               setIsDeleting(false);
             }
@@ -226,11 +228,11 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <Text style={styles.title} accessibilityRole="header">Settings</Text>
+        <Text style={styles.title} accessibilityRole="header">{t('settings.title')}</Text>
 
         {/* QuipPix Pro section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle} accessibilityRole="header">QuipPix Pro</Text>
+          <Text style={styles.sectionTitle} accessibilityRole="header">{t('settings.pro')}</Text>
           {entitlement.proActive ? (
             <>
               <View style={styles.proStatusRow}>
@@ -254,18 +256,18 @@ export default function SettingsScreen() {
                 </View>
               </View>
               <TouchableOpacity style={styles.linkRow} onPress={handleManageSubscription} accessibilityLabel="Manage Subscription" accessibilityRole="button">
-                <Text style={styles.linkLabel}>Manage Subscription</Text>
+                <Text style={styles.linkLabel}>{t('settings.manageSubscription')}</Text>
                 <Text style={styles.linkArrow}>→</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.linkRow} onPress={handleRestore} accessibilityLabel="Restore Purchases" accessibilityRole="button">
-                <Text style={styles.linkLabel}>Restore Purchases</Text>
+                <Text style={styles.linkLabel}>{t('settings.restorePurchases')}</Text>
                 <Text style={styles.linkArrow}>→</Text>
               </TouchableOpacity>
             </>
           ) : (
             <>
               <Text style={styles.proPromoText}>
-                Unlock all 15 styles, high-res exports, priority processing, and advanced controls.
+                {t('settings.proPromo')}
               </Text>
               <TouchableOpacity
                 style={styles.upgradeBtn}
@@ -273,10 +275,10 @@ export default function SettingsScreen() {
                 accessibilityLabel="Upgrade to Pro"
                 accessibilityRole="button"
               >
-                <Text style={styles.upgradeBtnText}>Upgrade to Pro</Text>
+                <Text style={styles.upgradeBtnText}>{t('settings.upgradeBtn')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.linkRow} onPress={handleRestore} accessibilityLabel="Restore Purchases" accessibilityRole="button">
-                <Text style={styles.linkLabel}>Restore Purchases</Text>
+                <Text style={styles.linkLabel}>{t('settings.restorePurchases')}</Text>
                 <Text style={styles.linkArrow}>→</Text>
               </TouchableOpacity>
             </>
@@ -285,12 +287,12 @@ export default function SettingsScreen() {
 
         {/* Export options */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle} accessibilityRole="header">Export</Text>
+          <Text style={styles.sectionTitle} accessibilityRole="header">{t('settings.export')}</Text>
           <View style={styles.row}>
             <View style={styles.rowInfo}>
-              <Text style={styles.rowLabel}>Watermark</Text>
+              <Text style={styles.rowLabel}>{t('settings.watermark')}</Text>
               <Text style={styles.rowDesc}>
-                Add a small "Made in QuipPix" watermark to exports
+                {t('settings.watermarkDesc')}
               </Text>
             </View>
             <Switch
@@ -306,13 +308,13 @@ export default function SettingsScreen() {
 
         {/* Appearance */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle} accessibilityRole="header">Appearance</Text>
+          <Text style={styles.sectionTitle} accessibilityRole="header">{t('settings.appearance')}</Text>
           <View style={styles.segmentedRow}>
             {(['system', 'light', 'dark'] as ThemeMode[]).map((mode) => (
               <TouchableOpacity
                 key={mode}
                 style={[styles.segmentBtn, themeMode === mode && styles.segmentBtnActive]}
-                onPress={() => setThemeMode(mode)}
+                onPress={() => { triggerHaptic('selection'); setThemeMode(mode); }}
                 accessibilityLabel={`${mode} theme`}
                 accessibilityRole="button"
               >
@@ -326,12 +328,12 @@ export default function SettingsScreen() {
 
         {/* Notifications */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle} accessibilityRole="header">Notifications</Text>
+          <Text style={styles.sectionTitle} accessibilityRole="header">{t('settings.notifications')}</Text>
           <View style={styles.row}>
             <View style={styles.rowInfo}>
-              <Text style={styles.rowLabel}>Daily Challenge Reminder</Text>
+              <Text style={styles.rowLabel}>{t('settings.dailyReminder')}</Text>
               <Text style={styles.rowDesc}>
-                Get notified about the daily challenge each morning
+                {t('settings.dailyReminderDesc')}
               </Text>
             </View>
             <Switch
@@ -347,24 +349,23 @@ export default function SettingsScreen() {
 
         {/* Activity */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle} accessibilityRole="header">Activity</Text>
+          <Text style={styles.sectionTitle} accessibilityRole="header">{t('settings.activity')}</Text>
           <TouchableOpacity
             style={styles.linkRow}
             onPress={() => navigation.navigate('Stats')}
             accessibilityLabel="Your Stats"
             accessibilityRole="button"
           >
-            <Text style={styles.linkLabel}>Your Stats</Text>
+            <Text style={styles.linkLabel}>{t('settings.yourStats')}</Text>
             <Text style={styles.linkArrow}>{'\u2192'}</Text>
           </TouchableOpacity>
         </View>
 
         {/* Privacy */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle} accessibilityRole="header">Privacy</Text>
+          <Text style={styles.sectionTitle} accessibilityRole="header">{t('settings.privacy')}</Text>
           <Text style={styles.privacyNote}>
-            Your photos are processed securely and automatically deleted from our servers
-            within 1 hour. We strip all EXIF metadata before upload. No account required.
+            {t('settings.privacyNoteFull')}
           </Text>
           <TouchableOpacity
             style={styles.dangerBtn}
@@ -374,7 +375,7 @@ export default function SettingsScreen() {
             accessibilityLabel="Delete All Local Data"
             accessibilityRole="button"
           >
-            <Text style={styles.dangerText}>Delete All Local Data</Text>
+            <Text style={styles.dangerText}>{t('settings.deleteAll')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.deleteAccountBtn}
@@ -384,14 +385,14 @@ export default function SettingsScreen() {
             accessibilityRole="button"
           >
             <Text style={styles.deleteAccountText}>
-              {isDeleting ? 'Deleting...' : 'Delete Account'}
+              {isDeleting ? t('settings.deleting') : t('settings.deleteAccount')}
             </Text>
           </TouchableOpacity>
         </View>
 
         {/* About */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle} accessibilityRole="header">About</Text>
+          <Text style={styles.sectionTitle} accessibilityRole="header">{t('settings.about')}</Text>
 
           <TouchableOpacity
             style={styles.linkRow}
@@ -399,7 +400,7 @@ export default function SettingsScreen() {
             accessibilityLabel="View Portfolio"
             accessibilityRole="link"
           >
-            <Text style={styles.linkLabel}>View Portfolio</Text>
+            <Text style={styles.linkLabel}>{t('settings.viewPortfolio')}</Text>
             <Text style={styles.linkArrow}>→</Text>
           </TouchableOpacity>
 
@@ -409,7 +410,7 @@ export default function SettingsScreen() {
             accessibilityLabel="Book a Real Shoot"
             accessibilityRole="link"
           >
-            <Text style={styles.linkLabel}>Book a Real Shoot</Text>
+            <Text style={styles.linkLabel}>{t('settings.bookShoot')}</Text>
             <Text style={styles.linkArrow}>→</Text>
           </TouchableOpacity>
 
@@ -419,7 +420,7 @@ export default function SettingsScreen() {
             accessibilityLabel="Privacy Policy"
             accessibilityRole="link"
           >
-            <Text style={styles.linkLabel}>Privacy Policy</Text>
+            <Text style={styles.linkLabel}>{t('settings.privacyPolicy')}</Text>
             <Text style={styles.linkArrow}>→</Text>
           </TouchableOpacity>
 
@@ -429,7 +430,7 @@ export default function SettingsScreen() {
             accessibilityLabel="Terms of Service"
             accessibilityRole="link"
           >
-            <Text style={styles.linkLabel}>Terms of Service</Text>
+            <Text style={styles.linkLabel}>{t('settings.terms')}</Text>
             <Text style={styles.linkArrow}>→</Text>
           </TouchableOpacity>
         </View>
@@ -437,7 +438,7 @@ export default function SettingsScreen() {
         {/* Version */}
         <View style={styles.versionBlock}>
           <Text style={styles.versionText}>QuipPix v{getAppVersion()} ({getBuildNumber()})</Text>
-          <Text style={styles.versionSub}>by Motiontography</Text>
+          <Text style={styles.versionSub}>{t('settings.byMotiontography')}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

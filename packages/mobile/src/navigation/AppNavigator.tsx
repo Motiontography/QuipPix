@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text } from 'react-native';
 import { RootStackParamList, TabParamList } from '../types';
 import { useTheme } from '../contexts/ThemeContext';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 import { useAppStore } from '../store/useAppStore';
 
 // Screens
@@ -26,6 +27,16 @@ import StatsScreen from '../screens/StatsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
+
+function withErrorBoundary(ScreenComponent: React.ComponentType<any>) {
+  return function WrappedScreen(props: any) {
+    return (
+      <ErrorBoundary>
+        <ScreenComponent {...props} />
+      </ErrorBoundary>
+    );
+  };
+}
 
 function TabIcon({ label, focused }: { label: string; focused: boolean }) {
   const icons: Record<string, string> = {
@@ -102,11 +113,11 @@ export default function AppNavigator() {
         <Stack.Screen name="MainTabs" component={MainTabs} />
         <Stack.Screen name="StyleSelect" component={StyleSelectScreen} />
         <Stack.Screen name="Customize" component={CustomizeScreen} />
-        <Stack.Screen name="Generating" component={GeneratingScreen} />
-        <Stack.Screen name="BatchGenerating" component={BatchGeneratingScreen} />
-        <Stack.Screen name="Result" component={ResultScreen} />
-        <Stack.Screen name="BatchResults" component={BatchResultsScreen} />
-        <Stack.Screen name="ShareCard" component={ShareCardScreen} />
+        <Stack.Screen name="Generating" component={withErrorBoundary(GeneratingScreen)} />
+        <Stack.Screen name="BatchGenerating" component={withErrorBoundary(BatchGeneratingScreen)} />
+        <Stack.Screen name="Result" component={withErrorBoundary(ResultScreen)} />
+        <Stack.Screen name="BatchResults" component={withErrorBoundary(BatchResultsScreen)} />
+        <Stack.Screen name="ShareCard" component={withErrorBoundary(ShareCardScreen)} />
         <Stack.Screen name="Remix" component={RemixScreen} />
         <Stack.Screen name="Stats" component={StatsScreen} />
         <Stack.Screen

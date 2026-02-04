@@ -5,11 +5,11 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  Image,
   SafeAreaView,
   ScrollView,
   Modal,
 } from 'react-native';
+import FastImage from 'react-native-fast-image';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList, StyleId, StylePack } from '../types';
@@ -18,6 +18,7 @@ import { usePaywallGuard } from '../hooks/usePaywallGuard';
 import ProBadge from '../components/ProBadge';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
+import { t } from '../i18n';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'StyleSelect'>;
 type Route = RouteProp<RootStackParamList, 'StyleSelect'>;
@@ -212,14 +213,14 @@ export default function StyleSelectScreen() {
       {/* Header with preview */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} accessibilityLabel="Go back" accessibilityRole="button">
-          <Text style={styles.backText}>{'<'} Back</Text>
+          <Text style={styles.backText}>{t('common.back')}</Text>
         </TouchableOpacity>
-        <Text style={styles.title} accessibilityRole="header">Choose a Style</Text>
+        <Text style={styles.title} accessibilityRole="header">{t('styleSelect.title')}</Text>
       </View>
 
       {/* Preview thumbnail */}
       <View style={styles.previewContainer}>
-        <Image source={{ uri: imageUri }} style={styles.previewImage} />
+        <FastImage source={{ uri: imageUri, priority: FastImage.priority.normal }} style={styles.previewImage} resizeMode={FastImage.resizeMode.cover} />
       </View>
 
       {/* Category tabs */}
@@ -310,12 +311,12 @@ export default function StyleSelectScreen() {
                 {/* Before -> After */}
                 <View style={styles.beforeAfterRow}>
                   <View style={styles.beforeAfterBox}>
-                    <Text style={styles.beforeAfterLabel}>Before</Text>
-                    <Image source={{ uri: imageUri }} style={styles.beforeAfterImg} />
+                    <Text style={styles.beforeAfterLabel}>{t('styleSelect.before')}</Text>
+                    <FastImage source={{ uri: imageUri, priority: FastImage.priority.normal }} style={styles.beforeAfterImg} resizeMode={FastImage.resizeMode.cover} />
                   </View>
                   <Text style={styles.arrowText}>{'\u2192'}</Text>
                   <View style={styles.beforeAfterBox}>
-                    <Text style={styles.beforeAfterLabel}>After</Text>
+                    <Text style={styles.beforeAfterLabel}>{t('styleSelect.after')}</Text>
                     <View
                       style={[
                         styles.beforeAfterImg,
@@ -334,7 +335,7 @@ export default function StyleSelectScreen() {
                 {previewStyle.proOnly && !isPro && (
                   <View style={styles.proNotice}>
                     <ProBadge size="small" />
-                    <Text style={styles.proNoticeText}>Requires QuipPix Pro</Text>
+                    <Text style={styles.proNoticeText}>{t('styleSelect.requiresPro')}</Text>
                   </View>
                 )}
 
@@ -347,7 +348,7 @@ export default function StyleSelectScreen() {
                   activeOpacity={0.8}
                 >
                   <Text style={styles.useStyleBtnText}>
-                    {previewStyle.proOnly && !isPro ? 'Unlock with Pro' : 'Use This Style'}
+                    {previewStyle.proOnly && !isPro ? t('styleSelect.unlockWithPro') : t('styleSelect.useStyle')}
                   </Text>
                 </TouchableOpacity>
               </>

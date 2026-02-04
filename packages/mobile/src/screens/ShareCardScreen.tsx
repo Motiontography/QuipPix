@@ -23,8 +23,10 @@ import {
   renderTemplate,
 } from '../components/ShareCardTemplates';
 import { trackEvent } from '../services/analytics';
+import { triggerHaptic } from '../services/haptics';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
+import { t } from '../i18n';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'ShareCard'>;
 type Route = RouteProp<RootStackParamList, 'ShareCard'>;
@@ -65,9 +67,10 @@ export default function ShareCardScreen() {
   }, []);
 
   const handleShare = useCallback(async () => {
+    triggerHaptic('light');
     const uri = await captureCard();
     if (!uri) {
-      Alert.alert('Error', 'Failed to capture card.');
+      Alert.alert(t('common.error'), t('shareCard.captureFailed'));
       return;
     }
     trackEvent('share_card_shared', { templateId: selectedTemplate, themeId: selectedTheme });
@@ -85,9 +88,10 @@ export default function ShareCardScreen() {
   }, [captureCard, selectedTemplate, selectedTheme, styleName, caption, challengeHashtag]);
 
   const handleSave = useCallback(async () => {
+    triggerHaptic('light');
     const uri = await captureCard();
     if (!uri) {
-      Alert.alert('Error', 'Failed to capture card.');
+      Alert.alert(t('common.error'), t('shareCard.captureFailed'));
       return;
     }
     trackEvent('share_card_saved', { templateId: selectedTemplate, themeId: selectedTheme });
@@ -95,7 +99,7 @@ export default function ShareCardScreen() {
     try {
       const { CameraRoll } = require('@react-native-camera-roll/camera-roll');
       await CameraRoll.save(uri, { type: 'photo' });
-      Alert.alert('Saved!', 'Share card saved to your photo library.');
+      Alert.alert(t('shareCard.savedTitle'), t('shareCard.savedMessage'));
     } catch {
       // Fallback: share sheet
       try {
@@ -238,9 +242,9 @@ export default function ShareCardScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backText}>{'<'} Back</Text>
+          <Text style={styles.backText}>{t('shareCard.back')}</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Share Card</Text>
+        <Text style={styles.title}>{t('shareCard.title')}</Text>
         <View style={{ width: 48 }} />
       </View>
 
@@ -272,7 +276,7 @@ export default function ShareCardScreen() {
 
         {/* Template Picker */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Template</Text>
+          <Text style={styles.sectionTitle}>{t('shareCard.template')}</Text>
           <FlatList
             horizontal
             data={CARD_TEMPLATES}
@@ -304,7 +308,7 @@ export default function ShareCardScreen() {
 
         {/* Color Theme */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Color Theme</Text>
+          <Text style={styles.sectionTitle}>{t('shareCard.colorTheme')}</Text>
           <View style={styles.themeRow}>
             {CARD_COLOR_THEMES.map((t) => (
               <TouchableOpacity
@@ -326,10 +330,10 @@ export default function ShareCardScreen() {
 
         {/* Caption */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Caption</Text>
+          <Text style={styles.sectionTitle}>{t('shareCard.caption')}</Text>
           <TextInput
             style={styles.captionInput}
-            placeholder="Add a caption..."
+            placeholder={t('shareCard.captionPlaceholder')}
             placeholderTextColor={colors.textMuted}
             value={caption}
             onChangeText={setCaption}
@@ -349,14 +353,14 @@ export default function ShareCardScreen() {
           onPress={handleSave}
           activeOpacity={0.8}
         >
-          <Text style={styles.saveBtnText}>Save</Text>
+          <Text style={styles.saveBtnText}>{t('shareCard.save')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.actionBtn, styles.shareBtn]}
           onPress={handleShare}
           activeOpacity={0.8}
         >
-          <Text style={styles.shareBtnText}>Share</Text>
+          <Text style={styles.shareBtnText}>{t('shareCard.share')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

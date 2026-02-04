@@ -11,6 +11,7 @@ import { initAuth } from './services/auth';
 import { initAnalytics } from './services/analytics';
 import { initErrorReporting } from './services/errorReporting';
 import { initOfflineQueue } from './services/offlineQueue';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { darkColors } from './styles/theme';
 
 function AppContent() {
@@ -74,10 +75,14 @@ function AppContent() {
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <ThemeProvider>
-        <AppContent />
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <ErrorBoundary>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <ErrorBoundary>
+            <AppContent />
+          </ErrorBoundary>
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </ErrorBoundary>
   );
 }

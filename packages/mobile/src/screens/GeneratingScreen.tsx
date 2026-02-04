@@ -8,6 +8,7 @@ import {
   Easing,
   TouchableOpacity,
 } from 'react-native';
+import { t } from '../i18n';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
@@ -18,6 +19,7 @@ import { useChallengeStore } from '../store/useChallengeStore';
 import { trackEvent } from '../services/analytics';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { queueGeneration } from '../services/offlineQueue';
+import { triggerHaptic } from '../services/haptics';
 import { spacing, typography, borderRadius } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -103,7 +105,7 @@ export default function GeneratingScreen() {
     (async () => {
       // Check daily limit for free users
       if (!entitlement.proActive && isDailyLimitReached()) {
-        setError('Daily generation limit reached. Upgrade to Pro for unlimited generations.');
+        setError(t('generating.dailyLimitError'));
         trackEvent('daily_limit_reached');
         return;
       }
@@ -113,7 +115,7 @@ export default function GeneratingScreen() {
         await queueGeneration(imageUri, params);
         trackEvent('generation_queued_offline', { styleId: params.styleId });
         if (!cancelled) {
-          setError('You\'re offline. Your generation has been queued and will be submitted when you\'re back online.');
+          setError(t('generating.offlineQueued'));
         }
         return;
       }
@@ -154,6 +156,7 @@ export default function GeneratingScreen() {
             trackEvent('challenge_completed', { challengeId, styleId: params.styleId });
           }
 
+          triggerHaptic('success');
           navigation.replace('Result', {
             jobId,
             resultUrl: finalStatus.resultUrl,
@@ -161,14 +164,16 @@ export default function GeneratingScreen() {
             sourceImageUri: imageUri,
           });
         } else {
-          setError(finalStatus.error || 'Generation failed. Please try again.');
+          triggerHaptic('error');
+          setError(finalStatus.error || t('generating.generationFailed'));
         }
       } catch (err: any) {
         if (!cancelled) {
+          triggerHaptic('error');
           if (err instanceof ApiError && err.body?.message) {
             setError(err.body.message);
           } else {
-            setError(err.message || 'Something went wrong. Please try again.');
+            setError(err.message || t('generating.somethingWrong'));
           }
         }
       }
@@ -271,21 +276,21 @@ export default function GeneratingScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.center}>
           <Text style={styles.errorIcon}>{isLimitError ? '⏳' : '!'}</Text>
-          <Text style={styles.errorTitle}>{isLimitError ? 'Limit Reached' : 'Oops'}</Text>
+          <Text style={styles.errorTitle}>{isLimitError ? t('generating.limitReached') : t('generating.oops')}</Text>
           <Text style={styles.errorMsg}>{error}</Text>
           {isLimitError && (
             <TouchableOpacity
               style={styles.upgradeBtn}
               onPress={() => navigation.navigate('Paywall', { trigger: 'daily_limit' })}
             >
-              <Text style={styles.upgradeBtnText}>Upgrade to Pro</Text>
+              <Text style={styles.upgradeBtnText}>{t('generating.upgradeToPro')}</Text>
             </TouchableOpacity>
           )}
           <Text
             style={styles.retryBtn}
             onPress={() => navigation.goBack()}
           >
-            Go Back
+            {t('generating.goBack')}
           </Text>
         </View>
       </SafeAreaView>
@@ -304,7 +309,7 @@ export default function GeneratingScreen() {
           <Text style={styles.icon}>{stylePack.icon}</Text>
         </Animated.View>
 
-        <Text style={styles.title}>Creating Your {stylePack.displayName}</Text>
+        <Text style={styles.title}>{t('generating.creatingYour', { styleName: stylePack.displayName })}</Text>
         <Text style={styles.message}>{message}</Text>
 
         {/* Progress bar */}

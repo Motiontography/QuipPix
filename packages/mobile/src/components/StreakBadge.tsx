@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { triggerHaptic } from '../services/haptics';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -8,8 +9,18 @@ interface StreakBadgeProps {
   longestStreak: number;
 }
 
+const MILESTONES = [3, 7, 14, 30, 50, 100];
+
 export default function StreakBadge({ currentStreak, longestStreak }: StreakBadgeProps) {
   const { colors } = useTheme();
+  const prevStreak = useRef(currentStreak);
+
+  useEffect(() => {
+    if (currentStreak !== prevStreak.current && MILESTONES.includes(currentStreak)) {
+      triggerHaptic('medium');
+    }
+    prevStreak.current = currentStreak;
+  }, [currentStreak]);
 
   const styles = useMemo(() => StyleSheet.create({
     container: {

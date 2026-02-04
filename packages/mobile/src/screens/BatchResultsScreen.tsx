@@ -5,10 +5,10 @@ import {
   StyleSheet,
   SafeAreaView,
   FlatList,
-  Image,
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import FastImage from 'react-native-fast-image';
 import Share from 'react-native-share';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -19,6 +19,7 @@ import { trackEvent } from '../services/analytics';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
 import { nanoid } from '../utils/id';
+import { t } from '../i18n';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'BatchResults'>;
 type Route = RouteProp<RootStackParamList, 'BatchResults'>;
@@ -48,9 +49,9 @@ export default function BatchResultsScreen() {
         });
       }
       trackEvent('batch_save_all', { count: successfulResults.length });
-      Alert.alert('Saved!', `${successfulResults.length} images added to your gallery.`);
+      Alert.alert(t('batchResults.saved'), t('batchResults.savedMessage', { count: String(successfulResults.length) }));
     } catch {
-      Alert.alert('Error', 'Failed to save some images.');
+      Alert.alert(t('common.error'), t('batchResults.saveFailed'));
     }
   }, [successfulResults, params, stylePack, addToGallery]);
 
@@ -170,10 +171,10 @@ export default function BatchResultsScreen() {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Text style={styles.title}>{stylePack.displayName}</Text>
-          <Text style={styles.subtitle}>{successfulResults.length} results</Text>
+          <Text style={styles.subtitle}>{t('batchResults.results', { count: String(successfulResults.length) })}</Text>
         </View>
         <TouchableOpacity onPress={() => navigation.popToTop()}>
-          <Text style={styles.doneText}>Done</Text>
+          <Text style={styles.doneText}>{t('batchResults.done')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -181,7 +182,7 @@ export default function BatchResultsScreen() {
       {hasPartialFailure && (
         <View style={styles.failureBanner}>
           <Text style={styles.failureText}>
-            Some images failed to process. Successful results are shown below.
+            {t('batchResults.partialFailure')}
           </Text>
         </View>
       )}
@@ -199,7 +200,7 @@ export default function BatchResultsScreen() {
             onPress={() => handleTapResult(item)}
             activeOpacity={0.8}
           >
-            <Image source={{ uri: item.resultUrl }} style={styles.resultImage} />
+            <FastImage source={{ uri: item.resultUrl, priority: FastImage.priority.normal }} style={styles.resultImage} resizeMode={FastImage.resizeMode.cover} />
           </TouchableOpacity>
         )}
       />
@@ -211,14 +212,14 @@ export default function BatchResultsScreen() {
           onPress={handleSaveAll}
           activeOpacity={0.8}
         >
-          <Text style={styles.actionBtnText}>Save All</Text>
+          <Text style={styles.actionBtnText}>{t('batchResults.saveAll')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.actionBtn, styles.secondaryAction]}
           onPress={handleShareAll}
           activeOpacity={0.8}
         >
-          <Text style={styles.secondaryActionText}>Share All</Text>
+          <Text style={styles.secondaryActionText}>{t('batchResults.shareAll')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
