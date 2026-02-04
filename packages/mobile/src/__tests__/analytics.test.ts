@@ -1,3 +1,4 @@
+jest.unmock('../services/analytics');
 import { trackEvent, flushEvents } from '../services/analytics';
 import { api } from '../api/client';
 

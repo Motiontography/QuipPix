@@ -36,3 +36,50 @@ jest.mock('../services/imageCache', () => ({
   deleteCachedImage: jest.fn(() => Promise.resolve()),
   clearImageCache: jest.fn(() => Promise.resolve()),
 }));
+
+// Mock react-native-haptic-feedback
+jest.mock('react-native-haptic-feedback', () => ({
+  default: { trigger: jest.fn() },
+  trigger: jest.fn(),
+}));
+
+// Mock react-native-fast-image
+jest.mock('react-native-fast-image', () => ({
+  preload: jest.fn(),
+  priority: { low: 'low', normal: 'normal', high: 'high' },
+}));
+
+// Mock react-native-compressor
+jest.mock('react-native-compressor', () => ({
+  Image: {
+    compress: jest.fn(() => Promise.resolve('/mock/compressed.png')),
+  },
+}));
+
+// Mock react-native-share
+jest.mock('react-native-share', () => ({
+  default: { open: jest.fn(() => Promise.resolve()) },
+}));
+
+// Mock analytics
+jest.mock('../services/analytics', () => ({
+  trackEvent: jest.fn(),
+}));
+
+// Mock haptics
+jest.mock('../services/haptics', () => ({
+  triggerHaptic: jest.fn(),
+}));
+
+// Mock cameraRoll
+jest.mock('../services/cameraRoll', () => ({
+  saveToPhotoLibrary: jest.fn(() => Promise.resolve()),
+  requestPhotoPermission: jest.fn(() => Promise.resolve(true)),
+}));
+
+// Mock appInfo
+jest.mock('../services/appInfo', () => ({
+  getAppVersion: jest.fn(() => '1.0.0'),
+  getBuildNumber: jest.fn(() => '1'),
+  getDeviceInfo: jest.fn(() => ({ model: 'iPhone', os: 'ios', version: '17.0' })),
+}));

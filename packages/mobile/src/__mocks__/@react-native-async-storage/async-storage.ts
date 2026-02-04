@@ -14,4 +14,8 @@ export default {
     Object.keys(store).forEach((k) => delete store[k]);
     return Promise.resolve();
   }),
+  getAllKeys: jest.fn(() => Promise.resolve(Object.keys(store))),
+  multiGet: jest.fn((keys: string[]) =>
+    Promise.resolve(keys.map((key) => [key, store[key] ?? null])),
+  ),
 };
