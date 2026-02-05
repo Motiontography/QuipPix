@@ -598,13 +598,13 @@ MATERIALS: Each object has realistic material properties — glossy ceramic, pol
   'insta-glam': {
     styleId: 'insta-glam',
     displayName: 'Insta Glam',
-    systemPrompt: `You are an expert high-end beauty and fashion photographer specializing in photorealistic portrait retouching and styling. Transform the provided selfie/photo into a magazine-quality Instagram model photo. The result MUST be PHOTOREALISTIC — this is NOT an illustration, cartoon, or painting. The subject's face, bone structure, features, and skin tone MUST be EXACTLY preserved. This must look unmistakably like the same person, just professionally styled, lit, and photographed. Do not produce NSFW, violent, hateful, or illegal content.`,
-    userPromptTemplate: `Transform this selfie into a stunning, high-end Instagram model photo. This must be PHOTOREALISTIC — a real photograph, not an illustration or painting.
+    systemPrompt: `You are an expert professional portrait and beauty photographer. Transform the provided photo into a polished, magazine-quality professional portrait. The result MUST be PHOTOREALISTIC — a real photograph, not an illustration. The subject's face, bone structure, features, and skin tone MUST be EXACTLY preserved. Do not produce inappropriate content.`,
+    userPromptTemplate: `Transform this photo into a polished, magazine-quality professional portrait. This must be PHOTOREALISTIC — a real photograph, not an illustration or painting.
 
-CRITICAL: The subject's face must be EXACTLY the same person. Same bone structure, same eyes, same nose, same lips, same skin tone, same facial proportions. The only changes are styling, lighting, and professional beauty retouching.
+CRITICAL: The subject's face must be EXACTLY the same person. Same bone structure, same eyes, same nose, same lips, same skin tone, same facial proportions. The only changes are styling, lighting, and professional retouching.
 
-BEAUTY RETOUCHING:
-- Professional frequency-separation skin retouching: smooth blemishes while preserving natural skin texture and pores
+PROFESSIONAL RETOUCHING:
+- Smooth blemishes while preserving natural skin texture and pores
 - Perfectly defined, groomed eyebrows
 - {MAKEUP_BLOCK}
 - Healthy, radiant skin with natural glow — no plastic or airbrushed look
@@ -620,11 +620,11 @@ BEAUTY RETOUCHING:
 {ACCESSORIES_BLOCK}
 
 LIGHTING:
-Professional studio-quality lighting: soft beauty key light positioned slightly above center, subtle fill to prevent harsh shadows, rim/hair light for subject separation from background. Shallow depth of field with the face tack-sharp.
+Professional studio-quality lighting: soft key light positioned slightly above center, subtle fill to prevent harsh shadows, rim/hair light for subject separation from background. Shallow depth of field with the face tack-sharp.
 
 MOOD: {MOOD_BLOCK}
 
-The overall quality should be indistinguishable from a real professional photoshoot published in a fashion magazine or top-tier Instagram influencer page. Shot on a high-end full-frame camera with an 85mm f/1.4 lens. {INTENSITY} glamour enhancement. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+The overall quality should match a professional photoshoot for a fashion editorial or magazine cover. Shot on a high-end full-frame camera with an 85mm f/1.4 lens. {INTENSITY} professional enhancement. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'NEVER change the subject facial bone structure, eye shape, nose shape, or lip shape',
       'NEVER lighten or darken the skin tone — preserve it exactly',
@@ -664,11 +664,11 @@ The overall quality should be indistinguishable from a real professional photosh
       const mood = im?.mood || 'Confident';
       const moodMap: Record<string, string> = {
         'Confident': 'Confident and powerful — strong eye contact, poised posture, commanding presence',
-        'Sultry': 'Sultry and alluring — smoldering gaze, soft parted lips, warm intimate lighting',
+        'Warm': 'Warm and inviting — soft smile, warm lighting, approachable and radiant',
         'Playful': 'Playful and fun — bright eyes, genuine smile, energetic and approachable',
         'Fierce': 'Fierce and bold — intense gaze, strong angles, dramatic lighting and shadows',
         'Elegant': 'Elegant and graceful — serene expression, soft lighting, timeless sophistication',
-        'Editorial': 'Editorial and avant-garde — striking pose, artistic composition, high-fashion attitude',
+        'Editorial': 'Editorial and artistic — striking composition, creative lighting, high-fashion attitude',
       };
 
       return {

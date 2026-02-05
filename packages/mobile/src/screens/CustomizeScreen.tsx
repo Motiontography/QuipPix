@@ -77,7 +77,7 @@ const VIBE_PRESETS = [
 
 const MAKEUP_PRESETS = ['Natural Glam', 'Soft Glam', 'Full Glam', 'Editorial', 'No Makeup'];
 const HAIR_PRESETS = ['As-Is', 'Styled Waves', 'Sleek Straight', 'Updo', 'Natural Curls'];
-const MOOD_PRESETS = ['Confident', 'Sultry', 'Playful', 'Fierce', 'Elegant', 'Editorial'];
+const MOOD_PRESETS = ['Confident', 'Warm', 'Playful', 'Fierce', 'Elegant', 'Editorial'];
 const SETTING_PRESETS = [
   'Studio with soft backdrop',
   'Luxury penthouse',
