@@ -162,6 +162,8 @@ export interface StyleRecipe {
     format: 'png';
     identityPriority: 'high' | 'medium' | 'low';
     textLegibility: boolean;
+    /** Style creates new visual elements (objects, scenery, outfits) rather than only transforming the photo */
+    generative?: boolean;
   };
   parameterMapping: (sliders: CommonSliders, toggles: Toggles, options?: StyleSpecificOptions) => Record<string, string>;
 }

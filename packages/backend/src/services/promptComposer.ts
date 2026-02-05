@@ -60,11 +60,20 @@ export function composePrompt(
     .map((c) => `- ${c}`)
     .join('\n');
 
-  const userPrompt = parts.join('\n') +
-    `\n\nCRITICAL CONSTRAINTS — you MUST follow these:\n${negBlock}` +
-    `\n- Do not add any text, watermarks, or logos` +
-    `\n- Do not introduce new objects or people not in the original photo` +
-    `\n- Preserve the original composition and framing`;
+  const isGenerative = recipe.outputRequirements.generative === true;
+
+  let userPrompt = parts.join('\n') +
+    `\n\nCRITICAL CONSTRAINTS — you MUST follow these:\n${negBlock}`;
+
+  if (isGenerative) {
+    // Generative styles add new elements — only restrict watermarks/logos
+    userPrompt += `\n- Do not add watermarks or logos`;
+  } else {
+    // Transformation styles — keep composition and don't add new elements
+    userPrompt += `\n- Do not add any text, watermarks, or logos`;
+    userPrompt += `\n- Do not introduce new objects or people not in the original photo`;
+    userPrompt += `\n- Preserve the original composition and framing`;
+  }
 
   return {
     systemPrompt: recipe.systemPrompt,

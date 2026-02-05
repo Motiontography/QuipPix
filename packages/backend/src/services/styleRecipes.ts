@@ -405,9 +405,10 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'story-portrait',
     displayName: 'Story Portrait',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Create a premium 3D-rendered personalized caricature portrait illustration of this person. The style should look like a high-end digital painting with STRONG THREE-DIMENSIONAL DEPTH — objects and the subject should appear to POP OUT of the image with realistic volume, glossy highlights, deep shadows, and dimensional shading. NOT flat illustration — this must have the depth and dimension of a 3D render.
+    userPromptTemplate: `Create a personalized caricature portrait of this person rendered in a Pixar-quality digital illustration style with cinematic 3D lighting.
 
-The subject's face must be IMMEDIATELY recognizable — preserve exact facial features, skin tone, hair texture, glasses, and expression from the photo. Render the face with realistic skin shading, specular highlights on the forehead and cheeks, and deep warm shadows. Slightly enlarge the head for a friendly caricature proportion.
+SUBJECT RENDERING:
+Preserve the subject's exact facial features, bone structure, skin tone, hair texture, glasses, and expression from the photo. Render the face with subsurface scattering on the skin, soft specular highlights on the forehead and cheekbones, and warm ambient occlusion in the creases. Slightly enlarge the head for a friendly caricature proportion. The face should have the polished dimensional quality of a high-end animated film character.
 
 {OCCUPATION_BLOCK}
 
@@ -419,15 +420,16 @@ The subject's face must be IMMEDIATELY recognizable — preserve exact facial fe
 
 {EXTRAS_BLOCK}
 
-VISUAL STYLE REQUIREMENTS:
-- Every object must have 3D volume with highlights, midtones, and deep shadows — NO flat colors
-- Rich, saturated, vibrant color palette with warm golden lighting
-- Glossy, polished surfaces on objects like mugs, badges, and tools
-- Dense composition: fill the entire background with detailed illustrated objects, icons, and symbols representing the subject's life
-- Include text labels on clipboards, mugs, signs, and badges where appropriate
-- Strong directional warm light source creating dramatic but friendly shadows
-- Background objects should have depth-of-field blur at the edges
-- The overall look should be premium, celebratory, and deeply personal — like a professional custom portrait commission
+LIGHTING: Warm directional key light from upper-left at 45 degrees. Soft golden fill light from the right. Subtle rim light separating the subject from the background. Each object should cast soft contact shadows.
+
+MATERIAL & TEXTURE:
+- Glossy ceramic surfaces on mugs and bowls with sharp specular reflections
+- Polished brass and gold on badges, pins, and buckles
+- Soft matte fabric textures on clothing
+- Smooth translucent materials for any glass or liquid elements
+- Crisp printed text on labels, clipboards, signs, and badges
+
+COMPOSITION: Dense, celebratory arrangement filling the entire frame with illustrated objects, icons, and symbols representing the subject's life. Slight depth-of-field blur on background edges. The subject is the clear focal point with personal elements radiating outward.
 
 {INTENSITY} illustration effect. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
@@ -442,6 +444,7 @@ VISUAL STYLE REQUIREMENTS:
       format: 'png',
       identityPriority: 'high',
       textLegibility: true,
+      generative: true,
     },
     parameterMapping: (s, t, opts) => {
       const sp = opts?.storyPortrait;
@@ -470,9 +473,10 @@ VISUAL STYLE REQUIREMENTS:
     styleId: 'story-portrait-collage',
     displayName: 'Story Portrait — Collage',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Create a premium 3D-rendered maximalist collage-style personalized caricature portrait of this person. The style must have STRONG THREE-DIMENSIONAL DEPTH — every object should POP with realistic volume, glossy highlights, deep shadows, and dimensional shading like a high-end 3D digital painting.
+    userPromptTemplate: `Create a maximalist collage-style personalized caricature portrait of this person rendered in a Pixar-quality digital illustration style with cinematic 3D lighting.
 
-The subject's face must be IMMEDIATELY recognizable — preserve exact facial features, skin tone, hair, glasses, and expression. Render with realistic skin shading, specular highlights, and warm shadows. Slightly enlarged head for caricature charm.
+SUBJECT RENDERING:
+Preserve the subject's exact facial features, bone structure, skin tone, hair, glasses, and expression. Render the face with subsurface scattering, soft specular highlights on cheekbones, and warm ambient occlusion. Slightly enlarged head for caricature charm. The face should have the polished quality of a high-end animated film character.
 
 {OCCUPATION_BLOCK}
 
@@ -484,7 +488,15 @@ The subject's face must be IMMEDIATELY recognizable — preserve exact facial fe
 
 {EXTRAS_BLOCK}
 
-Create an EXTREMELY dense collage composition packed edge-to-edge with 3D illustrated objects, symbols, bold text banners, personality badges, mini vignette scenes, and decorative elements. Every object must have 3D volume — glossy mugs, shiny badges, textured tools — NOT flat. Include bold text banners with personality catchphrases. Multiple illustrated scenes showing the subject in different activities. Rich saturated pop-art color palette with warm golden lighting. Comic-panel energy. {INTENSITY} collage density. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+COMPOSITION: Extremely dense collage packed edge-to-edge with illustrated objects, bold text banners, personality badges, mini vignette scenes, and decorative elements. The subject is the clear focal point in the center.
+
+LIGHTING: Warm directional key light from above-left. Each object casts soft contact shadows. Strong rim light on the subject for separation from the busy background.
+
+MATERIALS: Glossy ceramic mugs, polished brass badges, chrome tools, soft fabric textures, crisp printed text on banners and labels. Every surface has realistic material properties — no flat colors.
+
+COLOR: Rich saturated pop-art palette with warm golden tones. Comic-panel energy with vibrant accents.
+
+{INTENSITY} collage density. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'Do not change the subject facial features or skin tone',
       'No offensive content or stereotypes',
@@ -496,6 +508,7 @@ Create an EXTREMELY dense collage composition packed edge-to-edge with 3D illust
       format: 'png',
       identityPriority: 'high',
       textLegibility: true,
+      generative: true,
     },
     parameterMapping: (s, t, opts) => {
       const sp = opts?.storyPortrait;
@@ -524,9 +537,10 @@ Create an EXTREMELY dense collage composition packed edge-to-edge with 3D illust
     styleId: 'story-portrait-minimal',
     displayName: 'Story Portrait — Clean',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Create a premium 3D-rendered clean, elegant personalized portrait of this person with subtle personal touches. The style must have THREE-DIMENSIONAL DEPTH with realistic volume, soft specular highlights, and dimensional shading — like a high-end digital painting, NOT flat illustration.
+    userPromptTemplate: `Create a clean, elegant personalized portrait of this person rendered in a refined digital illustration style with soft cinematic 3D lighting and natural proportions.
 
-The subject's face must be IMMEDIATELY recognizable — preserve exact facial features, skin tone, hair, glasses, and expression. Render with realistic skin shading with soft specular highlights and warm shadows. Natural proportions (no caricature exaggeration).
+SUBJECT RENDERING:
+Preserve the subject's exact facial features, bone structure, skin tone, hair, glasses, and expression. Render with subsurface scattering on skin, soft specular highlights, and warm ambient occlusion. Natural proportions (no caricature exaggeration). The face should have the polished quality of a premium portrait commission.
 
 {OCCUPATION_BLOCK}
 
@@ -538,7 +552,13 @@ The subject's face must be IMMEDIATELY recognizable — preserve exact facial fe
 
 {EXTRAS_BLOCK}
 
-Keep the composition clean and focused on the subject. Soft bokeh background with only a few carefully chosen 3D-rendered personal symbols arranged tastefully around the edges. Each object must have volume and dimension — glossy surfaces, soft shadows, realistic textures. Elegant typography for text. Warm, harmonious color palette with soft studio lighting and gentle rim light. The result should feel like a premium custom portrait — refined, personal, and professional. {INTENSITY} illustration effect. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+COMPOSITION: Clean and focused on the subject. Soft bokeh background with only a few carefully chosen personal symbols arranged tastefully around the edges. Minimal and elegant.
+
+LIGHTING: Soft studio key light from above at 30 degrees. Gentle fill light eliminating harsh shadows. Subtle rim light for separation. Warm, harmonious color temperature.
+
+MATERIALS: Each object has realistic material properties — glossy ceramic, polished metal, soft fabric, crisp paper. Elegant typography for any text elements.
+
+{INTENSITY} illustration effect. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'Do not change the subject facial features or skin tone',
       'Do not overcrowd the composition — keep it minimal and elegant',
@@ -550,6 +570,7 @@ Keep the composition clean and focused on the subject. Soft bokeh background wit
       format: 'png',
       identityPriority: 'high',
       textLegibility: true,
+      generative: true,
     },
     parameterMapping: (s, t, opts) => {
       const sp = opts?.storyPortrait;
@@ -618,6 +639,7 @@ The overall quality should be indistinguishable from a real professional photosh
       format: 'png',
       identityPriority: 'high',
       textLegibility: false,
+      generative: true,
     },
     parameterMapping: (s, t, opts) => {
       const im = opts?.instaModel;

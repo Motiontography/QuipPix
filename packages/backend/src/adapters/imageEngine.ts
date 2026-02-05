@@ -2,7 +2,7 @@
  * OpenAI GPT Image Model — Adapter
  *
  * This adapter wraps the OpenAI Images API (/images/edits) using
- * gpt-image-1 or gpt-image-1.5 for photo-to-art style transformations.
+ * chatgpt-image-latest (or gpt-image-1.5) for photo-to-art style transformations.
  */
 
 import { config } from '../config';
