@@ -20,6 +20,7 @@ import { authRoutes } from './routes/auth';
 import { analyticsRoutes } from './routes/analytics';
 import { adminRoutes } from './routes/admin';
 import { accountRoutes } from './routes/account';
+import { privacyRoutes } from './routes/privacy';
 import { jwtAuth } from './middleware/jwtAuth';
 import { startCleanupScheduler, stopCleanupScheduler } from './jobs/queue';
 import { startChallengeReminderScheduler, stopChallengeReminderScheduler } from './jobs/challengeReminder';
@@ -94,6 +95,7 @@ async function start() {
   await app.register(analyticsRoutes);
   await app.register(adminRoutes);
   await app.register(accountRoutes);
+  await app.register(privacyRoutes);
 
   // Error handler
   app.setErrorHandler((error, request, reply) => {

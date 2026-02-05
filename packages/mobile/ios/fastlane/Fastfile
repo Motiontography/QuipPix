@@ -61,7 +61,11 @@ platform :ios do
   desc "Capture screenshots for App Store"
   lane :screenshots do
     capture_screenshots(
-      scheme: "QuipPixUITests"
+      scheme: "QuipPixUITests",
+      output_directory: "./fastlane/screenshots",
+      clear_previous_screenshots: true,
+      override_status_bar: true
     )
+    frame_screenshots(path: "./fastlane/screenshots")
   end
 end

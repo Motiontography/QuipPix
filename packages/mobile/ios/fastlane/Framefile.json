@@ -1,0 +1,50 @@
+{
+  "device_frame_version": "latest",
+  "default": {
+    "keyword": {
+      "font": "./fonts/SF-Pro-Display-Bold.otf",
+      "color": "#1d1d1f",
+      "font_size": 72
+    },
+    "title": {
+      "font": "./fonts/SF-Pro-Display-Regular.otf",
+      "color": "#6e6e73",
+      "font_size": 36
+    },
+    "padding": 50,
+    "show_complete_frame": true,
+    "background": "#ffffff"
+  },
+  "data": [
+    {
+      "filter": "01_HomeScreen",
+      "keyword": "Your Gallery",
+      "title": "All your creations in one place"
+    },
+    {
+      "filter": "02_StylePicker",
+      "keyword": "15 Styles",
+      "title": "From caricatures to oil paintings"
+    },
+    {
+      "filter": "03_StyleCustomization",
+      "keyword": "Full Control",
+      "title": "Fine-tune every detail with sliders"
+    },
+    {
+      "filter": "04_Result",
+      "keyword": "Stunning Results",
+      "title": "AI-powered photo transformation"
+    },
+    {
+      "filter": "05_Challenges",
+      "keyword": "Weekly Challenges",
+      "title": "Get inspired and share your art"
+    },
+    {
+      "filter": "06_ProUpgrade",
+      "keyword": "Go Pro",
+      "title": "All styles, high-res, priority processing"
+    }
+  ]
+}

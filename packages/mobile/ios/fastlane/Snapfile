@@ -1,0 +1,21 @@
+# Snapfile — Fastlane Snapshot configuration for QuipPix
+
+devices([
+  "iPhone 16 Pro Max",   # 6.7" (required by App Store)
+  "iPhone 16 Pro",       # 6.3"
+  "iPhone SE (3rd generation)", # 4.7"
+])
+
+languages(["en-US"])
+
+scheme("QuipPixUITests")
+
+output_directory("./fastlane/screenshots")
+
+clear_previous_screenshots(true)
+
+# Stop on first error to save CI time
+stop_after_first_error(true)
+
+# Override status bar
+override_status_bar(true)
