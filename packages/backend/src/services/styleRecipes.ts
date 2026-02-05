@@ -24,15 +24,15 @@ function defaultParamMapping(
     BG_STRENGTH: sliders.backgroundStrength > 50 ? 'prominent background' : 'soft background',
     FACE_FIDELITY: sliders.faceFidelity > 60 ? 'high facial fidelity' : 'stylized facial features',
     KEEP_IDENTITY: toggles.keepIdentity
-      ? 'Preserve the subject identity and recognizable facial features exactly.'
+      ? 'IDENTITY LOCK: Do not change the subject\'s facial bone structure, eye shape, nose shape, lip shape, jawline, or any facial proportions. Preserve exact likeness, expression, hairstyle, and all identifying features. The result must be immediately recognizable as the same person.'
       : '',
     PRESERVE_SKIN: toggles.preserveSkinTone
-      ? 'Maintain the subject original skin tone precisely; do not lighten, darken, or shift hue.'
+      ? 'SKIN LOCK: Maintain the subject\'s exact skin tone — do not lighten, darken, or shift hue in any way. Preserve natural skin texture including pores and fine lines.'
       : '',
   };
 }
 
-const GLOBAL_SYSTEM = `You are an expert photo-to-art style transformation engine. Transform the provided photograph into the requested artistic style while strictly preserving the subject's facial identity, expression, pose, and composition. The output must look like a skilled artist rendered the same scene by hand in the target medium. Do not add text, watermarks, logos, or new elements not present in the original photograph. Keep all content tasteful, safe, and appropriate. If the request seems inappropriate, produce a tasteful, safe alternative.`;
+const GLOBAL_SYSTEM = `You are an expert photo-to-art style transformation engine. Transform the provided photograph into the requested artistic style. CRITICAL RULE: The subject's facial identity must be EXACTLY preserved — same bone structure, same eye shape, same nose shape, same lip shape, same jawline, same skin tone. Do not alter facial anatomy in any way. Apply artistic styling only. The output must look like a skilled artist rendered the same scene by hand in the target medium. Do not add text, watermarks, logos, or new elements not present in the original photograph unless instructed. Keep all content tasteful, safe, and appropriate.`;
 
 export const styleRecipes: Record<StyleId, StyleRecipe> = {
   'caricature-classic': {
@@ -277,17 +277,19 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'pro-headshot',
     displayName: 'Pro Headshot',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photograph into a polished, professional studio headshot suitable for LinkedIn, corporate websites, or a business card.
+    userPromptTemplate: `CRITICAL — FACE PRESERVATION: Do not change the subject's face, facial bone structure, eye shape, nose shape, lip shape, jawline, or any facial proportions in any way. Preserve exact likeness, expression, hairstyle, and proportions. Apply styling changes only — do not alter anatomy.
+
+Transform this photograph into a polished, professional studio headshot suitable for LinkedIn, corporate websites, or a business card. This must be PHOTOREALISTIC — a real photograph, not an illustration or digital rendering.
 
 FRAMING: Medium close-up shot framed from the top of the head (with headroom above) down to mid-chest. The subject's eyes should be positioned at approximately the upper third of the frame. Do NOT crop or cut off the top of the head. Center the subject horizontally. Shot at eye level with an 85mm f/1.4 lens on a full-frame camera.
 
 BACKGROUND: Clean, solid {BACKDROP_COLOR} seamless paper backdrop with {SOFTNESS} edge falloff and {VIGNETTE} vignette. No textures, no patterns, no distractions.
 
-LIGHTING: Professional three-point studio lighting. Soft key light from a large softbox positioned 45 degrees camera-left and slightly above eye level. Gentle fill light from camera-right reducing shadows to a 2:1 ratio. Hair/rim light from behind for clean subject separation from the backdrop. Two bright catchlights visible in both eyes from the key and fill lights.
+LIGHTING: Professional three-point studio lighting. Soft key light from a large softbox positioned 45 degrees camera-left and slightly above eye level. Gentle fill light from camera-right reducing shadows to a 2:1 ratio. Hair/rim light from behind for clean subject separation from the backdrop. Two bright catchlights visible in both eyes from the key and fill lights. Natural lighting, believable detail, no cinematic color grading.
 
-RETOUCHING: Smooth skin blemishes while preserving visible pores and natural skin texture — this must look like a real photograph, not a digital rendering. Subtle contouring with light and shadow to enhance bone structure. Bright, clear eyes. Teeth gently whitened if visible. Clean, groomed appearance. Subtle natural film grain for an authentic photographic feel.
+RETOUCHING: Frequency-separation-style retouching — smooth blemishes while preserving visible pores, natural skin texture, and fine lines. This must look like a real photograph with natural imperfections, not an airbrushed digital rendering. Subtle contouring with light and shadow to enhance bone structure. Bright, clear eyes. Teeth gently whitened if visible. Clean, groomed appearance. Subtle natural film grain (ISO 200 level) for an authentic photographic feel.
 
-{COLOR_MOOD} color toning. {DETAIL}. The subject must be immediately and unmistakably recognizable as the same person. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+{COLOR_MOOD} color toning with professional white balance. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'NEVER crop or cut off the top of the head — always include full head with headroom',
       'No plastic, wax-figure, or over-smoothed skin — preserve visible pores and natural texture',
@@ -352,7 +354,9 @@ RETOUCHING: Smooth skin blemishes while preserving visible pores and natural ski
     styleId: 'motiontography-ethereal',
     displayName: 'Motiontography — Ethereal',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photograph into the signature Motiontography ethereal portrait style. Composite the subject into a dreamlike fantasy environment with soft, luminous atmosphere. Add flowing fabric elements — silk, chiffon, or tulle — draped and floating around the scene as if caught in a gentle wind. Warm golden-amber color grading with rich, saturated tones and deep jewel-tone accents (ruby, emerald, sapphire). Soft diffused key light with dramatic backlit rim lighting creating a glowing halo effect around the subject. Luminosity masking for selective glow on highlights. Subsurface scattering on skin for a radiant, lit-from-within glow. Subtle natural film grain for authentic photographic feel. Shot on a full-frame camera with an 85mm f/1.4 lens. {INTENSITY} ethereal effect. {COLOR_MOOD} palette. {DETAIL}. The mood should be empowering, majestic, and inspiring. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `CRITICAL — FACE PRESERVATION: Do not change the subject's face, facial bone structure, eye shape, nose shape, lip shape, jawline, or any facial proportions. Preserve exact likeness and expression. Apply artistic styling only — do not alter anatomy.
+
+Transform this photograph into the signature Motiontography ethereal portrait style. Composite the subject into a dreamlike fantasy environment with soft, luminous atmosphere. Add flowing fabric elements — silk, chiffon, or tulle — draped and floating around the scene as if caught in a gentle wind. Warm golden-amber color grading with rich, saturated tones and deep jewel-tone accents (ruby, emerald, sapphire). Soft diffused key light with dramatic backlit rim lighting creating a glowing halo effect around the subject. Luminosity masking for selective glow on highlights. Subsurface scattering on skin for a radiant, lit-from-within glow. Subtle natural film grain for authentic photographic feel. Shot on a full-frame camera with an 85mm f/1.4 lens. {INTENSITY} ethereal effect. {COLOR_MOOD} palette. {DETAIL}. The mood should be empowering, majestic, and inspiring. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'Do not darken or desaturate the image',
       'Do not make it look cold or gloomy',
@@ -373,7 +377,9 @@ RETOUCHING: Smooth skin blemishes while preserving visible pores and natural ski
     styleId: 'motiontography-golden',
     displayName: 'Motiontography — Golden Hour',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photograph into the signature Motiontography golden hour portrait style. Rich, warm golden-hour lighting with amber and honey tones flooding the scene. Strong chiaroscuro contrast — deep, warm shadows with luminous highlights kissed by golden light. Bokeh-rich background with soft circular light orbs in warm amber and champagne tones. Selective color enhancement — amplify golds, warm browns, and rich skin tones while keeping shadow detail. Subtle lens flare from a backlit sun source. Skin has a healthy, radiant glow with natural texture and visible pores preserved. Subtle natural film grain for cinematic feel. Shot on a full-frame camera with a 70-200mm f/2.8 lens. {INTENSITY} golden effect. {COLOR_MOOD} palette. {DETAIL}. The mood should be warm, inviting, and cinematic. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `CRITICAL — FACE PRESERVATION: Do not change the subject's face, facial bone structure, eye shape, nose shape, lip shape, jawline, or any facial proportions. Preserve exact likeness and expression. Apply artistic styling only — do not alter anatomy.
+
+Transform this photograph into the signature Motiontography golden hour portrait style. Rich, warm golden-hour lighting with amber and honey tones flooding the scene. Strong chiaroscuro contrast — deep, warm shadows with luminous highlights kissed by golden light. Bokeh-rich background with soft circular light orbs in warm amber and champagne tones. Selective color enhancement — amplify golds, warm browns, and rich skin tones while keeping shadow detail. Subtle lens flare from a backlit sun source. Skin has a healthy, radiant glow with natural texture and visible pores preserved. Subtle natural film grain for cinematic feel. Shot on a full-frame camera with a 70-200mm f/2.8 lens. {INTENSITY} golden effect. {COLOR_MOOD} palette. {DETAIL}. The mood should be warm, inviting, and cinematic. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'Do not use cool or blue tones',
       'Do not flatten the contrast',
@@ -394,7 +400,9 @@ RETOUCHING: Smooth skin blemishes while preserving visible pores and natural ski
     styleId: 'motiontography-dramatic',
     displayName: 'Motiontography — Dramatic',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photograph into the signature Motiontography dramatic portrait style. Bold, high-impact compositing with the subject placed in a richly textured environment — think ornate architecture, dramatic cloud formations, or deep forest backdrops. Strong directional Rembrandt lighting with a defined triangle of light on the shadow-side cheek. Deep, saturated jewel-tone color palette — deep burgundy, royal purple, midnight blue, forest green. Heavy texture overlays with fine cinematic film grain. Strong vignetting drawing the eye to the subject. Metallic and golden accent elements woven into the environment. Visible skin texture and pores — no digital smoothing. Shot on a full-frame camera with an 85mm f/1.4 lens. {INTENSITY} dramatic effect. {COLOR_MOOD} palette. {DETAIL}. The mood should be powerful, regal, and commanding. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `CRITICAL — FACE PRESERVATION: Do not change the subject's face, facial bone structure, eye shape, nose shape, lip shape, jawline, or any facial proportions. Preserve exact likeness and expression. Apply artistic styling only — do not alter anatomy.
+
+Transform this photograph into the signature Motiontography dramatic portrait style. Bold, high-impact compositing with the subject placed in a richly textured environment — think ornate architecture, dramatic cloud formations, or deep forest backdrops. Strong directional Rembrandt lighting with a defined triangle of light on the shadow-side cheek. Deep, saturated jewel-tone color palette — deep burgundy, royal purple, midnight blue, forest green. Heavy texture overlays with fine cinematic film grain. Strong vignetting drawing the eye to the subject. Metallic and golden accent elements woven into the environment. Visible skin texture and pores — no digital smoothing. Shot on a full-frame camera with an 85mm f/1.4 lens. {INTENSITY} dramatic effect. {COLOR_MOOD} palette. {DETAIL}. The mood should be powerful, regal, and commanding. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'Do not wash out colors or reduce saturation',
       'No flat, even lighting — maintain dramatic contrast',
@@ -416,7 +424,9 @@ RETOUCHING: Smooth skin blemishes while preserving visible pores and natural ski
     styleId: 'story-portrait',
     displayName: 'Story Portrait',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Create a personalized caricature portrait of this person rendered in a Pixar-quality digital illustration style with cinematic 3D lighting.
+    userPromptTemplate: `CRITICAL — FACE PRESERVATION: The illustrated character must closely resemble the person in the photo. Preserve their exact facial features, bone structure, skin tone, eye shape, nose shape, lip shape, jawline, hair texture, glasses, and expression. The person must be immediately recognizable.
+
+Create a personalized caricature portrait of this person rendered in a Pixar-quality digital illustration style with cinematic 3D lighting.
 
 SUBJECT RENDERING:
 Preserve the subject's exact facial features, bone structure, skin tone, hair texture, glasses, and expression from the photo. Render the face with subsurface scattering on the skin, soft specular highlights on the forehead and cheekbones, and warm ambient occlusion in the creases. Slightly enlarge the head for a friendly caricature proportion. The face should have the polished dimensional quality of a high-end animated film character.
@@ -484,7 +494,9 @@ COMPOSITION: Dense, celebratory arrangement filling the entire frame with illust
     styleId: 'story-portrait-collage',
     displayName: 'Story Portrait — Collage',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Create a maximalist collage-style personalized caricature portrait of this person rendered in a Pixar-quality digital illustration style with cinematic 3D lighting.
+    userPromptTemplate: `CRITICAL — FACE PRESERVATION: The illustrated character must closely resemble the person in the photo. Preserve their exact facial features, bone structure, skin tone, eye shape, nose shape, lip shape, jawline, hair, glasses, and expression. The person must be immediately recognizable.
+
+Create a maximalist collage-style personalized caricature portrait of this person rendered in a Pixar-quality digital illustration style with cinematic 3D lighting.
 
 SUBJECT RENDERING:
 Preserve the subject's exact facial features, bone structure, skin tone, hair, glasses, and expression. Render the face with subsurface scattering, soft specular highlights on cheekbones, and warm ambient occlusion. Slightly enlarged head for caricature charm. The face should have the polished quality of a high-end animated film character.
@@ -548,7 +560,9 @@ COLOR: Rich saturated pop-art palette with warm golden tones. Comic-panel energy
     styleId: 'story-portrait-minimal',
     displayName: 'Story Portrait — Clean',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Create a clean, elegant personalized portrait of this person rendered in a refined digital illustration style with soft cinematic 3D lighting and natural proportions.
+    userPromptTemplate: `CRITICAL — FACE PRESERVATION: The illustrated character must closely resemble the person in the photo. Preserve their exact facial features, bone structure, skin tone, eye shape, nose shape, lip shape, jawline, hair, glasses, and expression. The person must be immediately recognizable.
+
+Create a clean, elegant personalized portrait of this person rendered in a refined digital illustration style with soft cinematic 3D lighting and natural proportions.
 
 SUBJECT RENDERING:
 Preserve the subject's exact facial features, bone structure, skin tone, hair, glasses, and expression. Render with subsurface scattering on skin, soft specular highlights, and warm ambient occlusion. Natural proportions (no caricature exaggeration). The face should have the polished quality of a premium portrait commission.
@@ -610,9 +624,9 @@ MATERIALS: Each object has realistic material properties — glossy ceramic, pol
     styleId: 'insta-glam',
     displayName: 'Insta Glam',
     systemPrompt: `You are an expert professional portrait and beauty photographer. Transform the provided photo into a polished, magazine-quality professional portrait. The result MUST be PHOTOREALISTIC — a real photograph, not an illustration. The subject's face, bone structure, features, and skin tone MUST be EXACTLY preserved. Do not produce inappropriate content.`,
-    userPromptTemplate: `Transform this photo into a polished, magazine-quality professional portrait. This must be PHOTOREALISTIC — a real photograph, not an illustration or painting.
+    userPromptTemplate: `CRITICAL — FACE PRESERVATION: Do not change the subject's face, facial bone structure, eye shape, nose shape, lip shape, jawline, or any facial proportions in any way. Preserve exact likeness, expression, hairstyle, and proportions. Apply styling changes only — do not alter anatomy.
 
-CRITICAL: The subject's face must be EXACTLY the same person. Same bone structure, same eyes, same nose, same lips, same skin tone, same facial proportions. The only changes are styling, lighting, and professional retouching.
+Transform this photo into a polished, magazine-quality professional portrait. This must be PHOTOREALISTIC — a real photograph, not an illustration or painting. The subject's face must be EXACTLY the same person — same bone structure, same eyes, same nose, same lips, same skin tone, same facial proportions. The only changes are styling, lighting, and professional retouching.
 
 PROFESSIONAL RETOUCHING:
 - Smooth blemishes while preserving natural skin texture and pores
@@ -635,7 +649,7 @@ Professional studio-quality lighting: soft key light positioned slightly above c
 
 MOOD: {MOOD_BLOCK}
 
-Subtle natural film grain for an authentic photographic feel — this must be indistinguishable from a real photograph. Visible skin pores in close-up areas. Two bright catchlights in each eye from the studio key and fill lights. Cinematic color grading that flatters the skin tone.
+Subtle natural film grain for an authentic photographic feel — this must be indistinguishable from a real photograph. Visible skin pores in close-up areas. Two bright catchlights in each eye from the studio key and fill lights. Natural, flattering color toning with professional white balance — no heavy cinematic grading.
 
 The overall quality should match a professional photoshoot for a fashion editorial or magazine cover. Shot on a high-end full-frame camera with an 85mm f/1.4 lens. {INTENSITY} professional enhancement. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
