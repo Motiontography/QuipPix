@@ -64,6 +64,10 @@ export function RetryBanner({
         {t(messageKey)}
       </Text>
 
+      <Text style={[styles.attempt, { color: colors.warning }]}>
+        DEBUG: {error}
+      </Text>
+
       {retryCount > 0 && category !== 'limit' && (
         <Text style={[styles.attempt, { color: colors.textMuted }]}>
           {t('generating.retryAttempt', {

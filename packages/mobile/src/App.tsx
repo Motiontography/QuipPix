@@ -42,7 +42,10 @@ function AppContent() {
     let unsubscribe = () => {};
     try {
       unsubscribe = addEntitlementListener((ent) => {
-        setEntitlement(ent);
+        // Don't let RevenueCat listener override dev mode
+        if (!useAppStore.getState().devModeEnabled) {
+          setEntitlement(ent);
+        }
       });
     } catch {
       // RevenueCat listener may fail if SDK not ready

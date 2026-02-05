@@ -46,6 +46,8 @@ export const useProStore = create<ProState>((set, get) => ({
   },
 
   refreshEntitlement: async () => {
+    // Don't let RevenueCat override dev mode entitlement
+    if (useAppStore.getState().devModeEnabled) return;
     const ent = await getEntitlement();
     set({ entitlement: ent });
     api.setTier(ent.proActive ? 'pro' : 'free');
