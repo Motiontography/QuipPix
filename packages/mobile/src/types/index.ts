@@ -19,7 +19,10 @@ export type StyleId =
   | 'editorial-fashion'
   | 'motiontography-ethereal'
   | 'motiontography-golden'
-  | 'motiontography-dramatic';
+  | 'motiontography-dramatic'
+  | 'story-portrait'
+  | 'story-portrait-collage'
+  | 'story-portrait-minimal';
 
 // ─── Style Pack ──────────────────────────────────────────────────────
 export interface StylePack {
@@ -83,10 +86,19 @@ export interface HeadshotOptions {
   vignette: number;
 }
 
+export interface StoryPortraitOptions {
+  occupation: string;
+  hobbies: string[];
+  heritage: string;
+  vibe: string;
+  extras: string;
+}
+
 export interface StyleSpecificOptions {
   comic?: ComicOptions;
   magazine?: MagazineOptions;
   headshot?: HeadshotOptions;
+  storyPortrait?: StoryPortraitOptions;
 }
 
 // ─── Generation ──────────────────────────────────────────────────────

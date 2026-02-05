@@ -2,6 +2,37 @@ import { StylePack, StyleId } from '../types';
 import { styleAssets } from '../assets/styles';
 
 export const stylePacks: StylePack[] = [
+  // ─── Story Portrait (trending personalized caricature) ────────────
+  {
+    id: 'story-portrait',
+    displayName: 'Story Portrait',
+    category: 'Story Portrait',
+    icon: '\uD83C\uDFA8',
+    thumbnail: styleAssets['story-portrait'],
+    description: 'Personalized illustrated caricature with your life story',
+    previewColor: '#E8A838',
+    proOnly: false,
+  },
+  {
+    id: 'story-portrait-collage',
+    displayName: 'Story Portrait — Collage',
+    category: 'Story Portrait',
+    icon: '\uD83C\uDF1F',
+    thumbnail: styleAssets['story-portrait-collage'],
+    description: 'Maximalist collage packed with your personal symbols',
+    previewColor: '#E17055',
+    proOnly: true,
+  },
+  {
+    id: 'story-portrait-minimal',
+    displayName: 'Story Portrait — Clean',
+    category: 'Story Portrait',
+    icon: '\u2728',
+    thumbnail: styleAssets['story-portrait-minimal'],
+    description: 'Elegant illustrated portrait with subtle personal touches',
+    previewColor: '#00B894',
+    proOnly: true,
+  },
   // ─── Motiontography Signature Styles (featured first) ─────────────
   {
     id: 'motiontography-ethereal',

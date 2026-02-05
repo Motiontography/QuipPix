@@ -20,6 +20,9 @@ export const StyleId = z.enum([
   'motiontography-ethereal',
   'motiontography-golden',
   'motiontography-dramatic',
+  'story-portrait',
+  'story-portrait-collage',
+  'story-portrait-minimal',
 ]);
 export type StyleId = z.infer<typeof StyleId>;
 
@@ -59,11 +62,20 @@ export const HeadshotOptions = z.object({
   vignette: z.number().min(0).max(100).default(20),
 });
 
+export const StoryPortraitOptions = z.object({
+  occupation: z.string().max(100).default(''),
+  hobbies: z.array(z.string().max(50)).max(6).default([]),
+  heritage: z.string().max(100).default(''),
+  vibe: z.string().max(100).default(''),
+  extras: z.string().max(200).default(''),
+});
+
 export const StyleSpecificOptions = z
   .object({
     comic: ComicOptions.optional(),
     magazine: MagazineOptions.optional(),
     headshot: HeadshotOptions.optional(),
+    storyPortrait: StoryPortraitOptions.optional(),
   })
   .optional();
 

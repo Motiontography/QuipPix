@@ -1,7 +1,8 @@
 import { StyleId } from '../types';
 
-// ─── Free styles (7) ─────────────────────────────────────────────────
+// ─── Free styles (8) ─────────────────────────────────────────────────
 export const FREE_STYLES: StyleId[] = [
+  'story-portrait',
   'motiontography-ethereal',
   'caricature-classic',
   'caricature-subtle',
@@ -11,8 +12,10 @@ export const FREE_STYLES: StyleId[] = [
   'watercolor',
 ];
 
-// ─── Pro-only styles (11) ────────────────────────────────────────────
+// ─── Pro-only styles (13) ────────────────────────────────────────────
 export const PRO_ONLY_STYLES: StyleId[] = [
+  'story-portrait-collage',
+  'story-portrait-minimal',
   'motiontography-golden',
   'motiontography-dramatic',
   'caricature-editorial',

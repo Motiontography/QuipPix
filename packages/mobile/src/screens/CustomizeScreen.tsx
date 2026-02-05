@@ -27,6 +27,7 @@ import {
   ComicOptions,
   MagazineOptions,
   HeadshotOptions,
+  StoryPortraitOptions,
   ProSliders,
 } from '../types';
 import { getStylePack } from '../services/stylePacks';
@@ -53,6 +54,7 @@ interface CustomizeState {
   comicOpts: ComicOptions;
   magazineOpts: MagazineOptions;
   headshotOpts: HeadshotOptions;
+  storyOpts: StoryPortraitOptions;
 }
 
 const DEFAULT_CUSTOMIZE_STATE: CustomizeState = {
@@ -62,7 +64,13 @@ const DEFAULT_CUSTOMIZE_STATE: CustomizeState = {
   comicOpts: { lineWeight: 50, halftoneAmount: 40 },
   magazineOpts: { mastheadText: 'QUIPPIX', coverLines: [''], issueDate: '', showBarcode: true },
   headshotOpts: { backdropColor: '#E8E8E8', softness: 40, vignette: 20 },
+  storyOpts: { occupation: '', hobbies: [], heritage: '', vibe: '', extras: '' },
 };
+
+const VIBE_PRESETS = [
+  'Boss Energy', 'Chill Vibes', 'Adventurer', 'Creative Soul',
+  'Nerd Life', 'Hustler', 'Dreamer', 'Fitness Junkie',
+];
 
 const COLOR_MOODS: { value: ColorMood; label: string }[] = [
   { value: 'warm', label: 'Warm' },
@@ -96,6 +104,7 @@ export default function CustomizeScreen() {
     comicOpts: prefillParams.styleOptions?.comic || DEFAULT_CUSTOMIZE_STATE.comicOpts,
     magazineOpts: prefillParams.styleOptions?.magazine || DEFAULT_CUSTOMIZE_STATE.magazineOpts,
     headshotOpts: prefillParams.styleOptions?.headshot || DEFAULT_CUSTOMIZE_STATE.headshotOpts,
+    storyOpts: prefillParams.styleOptions?.storyPortrait || DEFAULT_CUSTOMIZE_STATE.storyOpts,
   } : {
     sliders: { ...lastSliders },
     toggles: { ...lastToggles },
@@ -103,14 +112,17 @@ export default function CustomizeScreen() {
     comicOpts: DEFAULT_CUSTOMIZE_STATE.comicOpts,
     magazineOpts: DEFAULT_CUSTOMIZE_STATE.magazineOpts,
     headshotOpts: DEFAULT_CUSTOMIZE_STATE.headshotOpts,
+    storyOpts: DEFAULT_CUSTOMIZE_STATE.storyOpts,
   };
 
   const { state: customizeState, setState: setCustomizeState, undo, redo, reset, canUndo, canRedo } = useUndoStack<CustomizeState>({ initialState });
-  const { sliders, toggles, proSliders, comicOpts, magazineOpts, headshotOpts } = customizeState;
+  const { sliders, toggles, proSliders, comicOpts, magazineOpts, headshotOpts, storyOpts } = customizeState;
+  const isStoryPortrait = styleId.startsWith('story-portrait');
 
   // Non-undoable state
   const [userPrompt, setUserPrompt] = useState(prefillParams?.userPrompt || '');
   const [outputSize, setOutputSize] = useState(prefillParams?.outputSize || '1024x1024');
+  const [hobbyInput, setHobbyInput] = useState('');
 
   // Preset modal state
   const [showPresetPicker, setShowPresetPicker] = useState(false);
@@ -139,6 +151,7 @@ export default function CustomizeScreen() {
     if (styleId === 'comic-book') styleOptions.comic = comicOpts;
     if (styleId === 'magazine-cover') styleOptions.magazine = magazineOpts;
     if (styleId === 'pro-headshot') styleOptions.headshot = headshotOpts;
+    if (isStoryPortrait) styleOptions.storyPortrait = storyOpts;
 
     saveLastSettings(sliders, toggles, styleOptions);
 
@@ -166,7 +179,7 @@ export default function CustomizeScreen() {
         challengeId,
       });
     }
-  }, [sliders, toggles, userPrompt, comicOpts, magazineOpts, headshotOpts, proSliders, outputSize, styleId, imageUri, challengeId, navigation, saveLastSettings]);
+  }, [sliders, toggles, userPrompt, comicOpts, magazineOpts, headshotOpts, storyOpts, proSliders, outputSize, styleId, imageUri, challengeId, navigation, saveLastSettings]);
 
   const styles = useMemo(() => StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
@@ -282,6 +295,20 @@ export default function CustomizeScreen() {
       marginBottom: spacing.sm,
     },
     addLine: { ...typography.caption, color: colors.primary, marginBottom: spacing.sm },
+    hobbyInputRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      marginBottom: spacing.sm,
+    },
+    hobbyField: { flex: 1, marginBottom: 0 },
+    hobbyAddBtn: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: borderRadius.md,
+    },
+    hobbyAddText: { ...typography.bodyBold, color: colors.textPrimary },
     colorSwatch: {
       width: 36,
       height: 36,
@@ -640,6 +667,124 @@ export default function CustomizeScreen() {
             </View>
           )}
 
+          {/* Story Portrait questionnaire */}
+          {isStoryPortrait && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Tell Us About You</Text>
+
+              <Text style={styles.sliderLabel}>What do you do?</Text>
+              <TextInput
+                style={styles.textField}
+                value={storyOpts.occupation}
+                onChangeText={(text) => setCustomizeState((prev) => ({ ...prev, storyOpts: { ...prev.storyOpts, occupation: text } }))}
+                maxLength={100}
+                placeholder="e.g., Nurse, Software Engineer, Teacher..."
+                placeholderTextColor={colors.textMuted}
+              />
+
+              <Text style={styles.sliderLabel}>Your hobbies & interests (up to 6)</Text>
+              <View style={styles.moodRow}>
+                {storyOpts.hobbies.map((hobby, idx) => (
+                  <TouchableOpacity
+                    key={`hobby-${idx}`}
+                    style={[styles.moodChip, styles.moodChipActive]}
+                    onPress={() => {
+                      const updated = storyOpts.hobbies.filter((_, i) => i !== idx);
+                      setCustomizeState((prev) => ({ ...prev, storyOpts: { ...prev.storyOpts, hobbies: updated } }));
+                    }}
+                  >
+                    <Text style={styles.moodTextActive}>{hobby} x</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              {storyOpts.hobbies.length < 6 && (
+                <View style={styles.hobbyInputRow}>
+                  <TextInput
+                    style={[styles.textField, styles.hobbyField]}
+                    value={hobbyInput}
+                    onChangeText={setHobbyInput}
+                    maxLength={50}
+                    placeholder="Type a hobby and tap Add"
+                    placeholderTextColor={colors.textMuted}
+                    onSubmitEditing={() => {
+                      const trimmed = hobbyInput.trim();
+                      if (trimmed && storyOpts.hobbies.length < 6) {
+                        setCustomizeState((prev) => ({ ...prev, storyOpts: { ...prev.storyOpts, hobbies: [...prev.storyOpts.hobbies, trimmed] } }));
+                        setHobbyInput('');
+                      }
+                    }}
+                  />
+                  <TouchableOpacity
+                    style={styles.hobbyAddBtn}
+                    onPress={() => {
+                      const trimmed = hobbyInput.trim();
+                      if (trimmed && storyOpts.hobbies.length < 6) {
+                        setCustomizeState((prev) => ({ ...prev, storyOpts: { ...prev.storyOpts, hobbies: [...prev.storyOpts.hobbies, trimmed] } }));
+                        setHobbyInput('');
+                      }
+                    }}
+                  >
+                    <Text style={styles.hobbyAddText}>Add</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              <Text style={styles.sliderLabel}>Your heritage or culture</Text>
+              <TextInput
+                style={styles.textField}
+                value={storyOpts.heritage}
+                onChangeText={(text) => setCustomizeState((prev) => ({ ...prev, storyOpts: { ...prev.storyOpts, heritage: text } }))}
+                maxLength={100}
+                placeholder="e.g., Jamaican, Irish-American, Nigerian..."
+                placeholderTextColor={colors.textMuted}
+              />
+
+              <Text style={styles.sliderLabel}>Your vibe</Text>
+              <View style={styles.moodRow}>
+                {VIBE_PRESETS.map((vibe) => (
+                  <TouchableOpacity
+                    key={vibe}
+                    style={[
+                      styles.moodChip,
+                      storyOpts.vibe === vibe && styles.moodChipActive,
+                    ]}
+                    onPress={() => setCustomizeState((prev) => ({
+                      ...prev,
+                      storyOpts: { ...prev.storyOpts, vibe: prev.storyOpts.vibe === vibe ? '' : vibe },
+                    }))}
+                  >
+                    <Text
+                      style={[
+                        styles.moodText,
+                        storyOpts.vibe === vibe && styles.moodTextActive,
+                      ]}
+                    >
+                      {vibe}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <TextInput
+                style={styles.textField}
+                value={VIBE_PRESETS.includes(storyOpts.vibe) ? '' : storyOpts.vibe}
+                onChangeText={(text) => setCustomizeState((prev) => ({ ...prev, storyOpts: { ...prev.storyOpts, vibe: text } }))}
+                maxLength={100}
+                placeholder="Or type your own vibe..."
+                placeholderTextColor={colors.textMuted}
+              />
+
+              <Text style={styles.sliderLabel}>Anything else to include?</Text>
+              <TextInput
+                style={styles.textField}
+                value={storyOpts.extras}
+                onChangeText={(text) => setCustomizeState((prev) => ({ ...prev, storyOpts: { ...prev.storyOpts, extras: text } }))}
+                maxLength={200}
+                placeholder="e.g., my cat Whiskers, my red convertible..."
+                placeholderTextColor={colors.textMuted}
+              />
+            </View>
+          )}
+
           {/* Daily limit banner near generate */}
           {isDailyLimitReached() || !isPro ? <DailyLimitBanner /> : null}
 
@@ -692,6 +837,7 @@ export default function CustomizeScreen() {
                         comicOpts: preset.styleOptions?.comic || DEFAULT_CUSTOMIZE_STATE.comicOpts,
                         magazineOpts: preset.styleOptions?.magazine || DEFAULT_CUSTOMIZE_STATE.magazineOpts,
                         headshotOpts: preset.styleOptions?.headshot || DEFAULT_CUSTOMIZE_STATE.headshotOpts,
+                        storyOpts: preset.styleOptions?.storyPortrait || DEFAULT_CUSTOMIZE_STATE.storyOpts,
                       });
                       trackEvent('preset_loaded', { presetId: preset.id });
                       setShowPresetPicker(false);
@@ -743,6 +889,7 @@ export default function CustomizeScreen() {
                 if (styleId === 'comic-book') styleOpts.comic = comicOpts;
                 if (styleId === 'magazine-cover') styleOpts.magazine = magazineOpts;
                 if (styleId === 'pro-headshot') styleOpts.headshot = headshotOpts;
+                if (isStoryPortrait) styleOpts.storyPortrait = storyOpts;
                 addPreset(name, sliders, toggles, Object.keys(styleOpts).length > 0 ? styleOpts : undefined);
                 triggerHaptic('success');
                 trackEvent('preset_saved');

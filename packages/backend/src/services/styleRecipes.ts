@@ -399,6 +399,164 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     },
     parameterMapping: (s, t) => defaultParamMapping(s, t),
   },
+
+  // ─── Story Portrait Styles (Personalized Illustrated Caricature) ──
+  'story-portrait': {
+    styleId: 'story-portrait',
+    displayName: 'Story Portrait',
+    systemPrompt: GLOBAL_SYSTEM,
+    userPromptTemplate: `Transform this photograph into a richly detailed, warm illustrated caricature portrait in the trending "personalized story portrait" style. The subject's face should be immediately recognizable with high fidelity to the original photo — same facial features, skin tone, hair, glasses, and expression — but rendered in a warm, polished digital illustration style with slightly enlarged head proportions for a friendly caricature feel.
+
+{OCCUPATION_BLOCK}
+
+{HOBBIES_BLOCK}
+
+{HERITAGE_BLOCK}
+
+{VIBE_BLOCK}
+
+{EXTRAS_BLOCK}
+
+Fill the entire background densely with colorful illustrated icons, objects, and symbols that represent the subject's life, profession, and personality. Include small text labels on clipboards, mugs, signs, or badges where appropriate. Use a warm, vibrant, saturated color palette with rich detail. The overall composition should feel joyful, celebratory, and deeply personal — like a visual love letter to who this person is. {INTENSITY} illustration effect. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    negativeConstraints: [
+      'Do not change the subject facial features or skin tone',
+      'Do not make the subject unrecognizable',
+      'No offensive stereotypes or cultural insensitivity',
+      'All text in the image must be spelled correctly and legible',
+      'Keep it celebratory and positive',
+    ],
+    outputRequirements: {
+      defaultSize: '1024x1536',
+      format: 'png',
+      identityPriority: 'high',
+      textLegibility: true,
+    },
+    parameterMapping: (s, t, opts) => {
+      const sp = opts?.storyPortrait;
+      return {
+        ...defaultParamMapping(s, t),
+        OCCUPATION_BLOCK: sp?.occupation
+          ? `Dress the subject in their professional attire for their role as: ${sp.occupation}. Include relevant professional tools, equipment, and symbols of their occupation prominently in the scene.`
+          : '',
+        HOBBIES_BLOCK: sp?.hobbies?.length
+          ? `Surround the subject with illustrated icons and objects representing their hobbies and interests: ${sp.hobbies.join(', ')}. Each hobby should be represented by 1-2 recognizable illustrated objects.`
+          : '',
+        HERITAGE_BLOCK: sp?.heritage
+          ? `Incorporate cultural elements representing: ${sp.heritage}. Include flags, traditional patterns, landmarks, or cultural symbols woven naturally into the background.`
+          : '',
+        VIBE_BLOCK: sp?.vibe
+          ? `The overall mood and energy should convey: "${sp.vibe}". Reflect this vibe in the subject's pose, expression emphasis, and surrounding elements.`
+          : '',
+        EXTRAS_BLOCK: sp?.extras
+          ? `Also include these additional personal elements: ${sp.extras}`
+          : '',
+      };
+    },
+  },
+
+  'story-portrait-collage': {
+    styleId: 'story-portrait-collage',
+    displayName: 'Story Portrait — Collage',
+    systemPrompt: GLOBAL_SYSTEM,
+    userPromptTemplate: `Transform this photograph into a maximalist illustrated story portrait collage. The subject's face should be immediately recognizable — same features, skin tone, hair, and expression — rendered in a warm, polished digital illustration style with a slightly enlarged head for caricature charm.
+
+{OCCUPATION_BLOCK}
+
+{HOBBIES_BLOCK}
+
+{HERITAGE_BLOCK}
+
+{VIBE_BLOCK}
+
+{EXTRAS_BLOCK}
+
+Create an extremely dense, collage-style composition where every inch of the background is packed with illustrated objects, symbols, text labels on signs and mugs, small vignette scenes, and decorative elements. Include bold text banners and badges with personality catchphrases. Multiple small illustrated scenes showing the subject in different activities. Comic-panel energy with lots of visual storytelling. Warm, highly saturated, pop-art-influenced color palette. {INTENSITY} collage density. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    negativeConstraints: [
+      'Do not change the subject facial features or skin tone',
+      'No offensive content or stereotypes',
+      'All text must be legible and correctly spelled',
+      'Keep the subject as the clear focal point despite the busy background',
+    ],
+    outputRequirements: {
+      defaultSize: '1024x1536',
+      format: 'png',
+      identityPriority: 'high',
+      textLegibility: true,
+    },
+    parameterMapping: (s, t, opts) => {
+      const sp = opts?.storyPortrait;
+      return {
+        ...defaultParamMapping(s, t),
+        OCCUPATION_BLOCK: sp?.occupation
+          ? `Feature the subject prominently in their professional role as: ${sp.occupation}. Show tools of the trade, workspace elements, and professional symbols throughout the collage.`
+          : '',
+        HOBBIES_BLOCK: sp?.hobbies?.length
+          ? `Create mini illustrated vignettes for each hobby: ${sp.hobbies.join(', ')}. Scatter related objects and icons densely throughout the composition.`
+          : '',
+        HERITAGE_BLOCK: sp?.heritage
+          ? `Weave cultural elements for: ${sp.heritage} throughout the collage — flags, food, landmarks, patterns, and cultural symbols.`
+          : '',
+        VIBE_BLOCK: sp?.vibe
+          ? `Add bold text banners and badges reflecting the energy: "${sp.vibe}". The whole composition should radiate this vibe.`
+          : '',
+        EXTRAS_BLOCK: sp?.extras
+          ? `Also incorporate: ${sp.extras}`
+          : '',
+      };
+    },
+  },
+
+  'story-portrait-minimal': {
+    styleId: 'story-portrait-minimal',
+    displayName: 'Story Portrait — Clean',
+    systemPrompt: GLOBAL_SYSTEM,
+    userPromptTemplate: `Transform this photograph into a clean, elegant illustrated portrait with subtle personal touches. The subject's face should be immediately recognizable — same features, skin tone, hair, and expression — rendered in a warm, refined digital illustration style with natural proportions (no caricature exaggeration).
+
+{OCCUPATION_BLOCK}
+
+{HOBBIES_BLOCK}
+
+{HERITAGE_BLOCK}
+
+{VIBE_BLOCK}
+
+{EXTRAS_BLOCK}
+
+Keep the composition clean and focused on the subject. Use a soft, blurred or minimally detailed background with only a few carefully chosen personal symbols arranged tastefully around the edges. Elegant typography for any text elements. Warm, harmonious color palette with soft lighting. The result should feel like a premium custom illustration — refined, personal, and professional. {INTENSITY} illustration effect. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    negativeConstraints: [
+      'Do not change the subject facial features or skin tone',
+      'Do not overcrowd the composition — keep it minimal and elegant',
+      'No cartoonish or exaggerated proportions',
+      'All text must be legible and correctly spelled',
+    ],
+    outputRequirements: {
+      defaultSize: '1024x1536',
+      format: 'png',
+      identityPriority: 'high',
+      textLegibility: true,
+    },
+    parameterMapping: (s, t, opts) => {
+      const sp = opts?.storyPortrait;
+      return {
+        ...defaultParamMapping(s, t),
+        OCCUPATION_BLOCK: sp?.occupation
+          ? `Subtly incorporate professional elements for: ${sp.occupation}. A single iconic prop or attire detail rather than filling the scene.`
+          : '',
+        HOBBIES_BLOCK: sp?.hobbies?.length
+          ? `Include small, elegant icons for: ${sp.hobbies.join(', ')}. Keep them subtle and tastefully arranged.`
+          : '',
+        HERITAGE_BLOCK: sp?.heritage
+          ? `Add a subtle cultural nod to: ${sp.heritage}. A small flag pin, pattern accent, or background element.`
+          : '',
+        VIBE_BLOCK: sp?.vibe
+          ? `The mood should quietly convey: "${sp.vibe}" through lighting, color, and composition.`
+          : '',
+        EXTRAS_BLOCK: sp?.extras
+          ? `Subtly include: ${sp.extras}`
+          : '',
+      };
+    },
+  },
 };
 
 export function getRecipe(styleId: StyleId): StyleRecipe {
