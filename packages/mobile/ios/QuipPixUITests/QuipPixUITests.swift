@@ -1,95 +1,69 @@
 import XCTest
 
-class QuipPixUITests: XCTestCase {
+@MainActor
+final class QuipPixUITests: XCTestCase {
 
-    var app: XCUIApplication!
+    let app = XCUIApplication()
 
     override func setUpWithError() throws {
         continueAfterFailure = false
-        app = XCUIApplication()
         setupSnapshot(app)
         app.launch()
     }
 
-    // MARK: - App Store Screenshots
-    //
-    // Captures 6 screenshots across key screens.
-    // The flow navigates tab-by-tab rather than through the full
-    // generation pipeline, since generation requires a real API call.
+    /// Find a tappable element by its label text across all element types.
+    /// React Navigation renders custom tab bars with React Native views,
+    /// not native UITabBar, so we must search the full element tree.
+    private func findElement(label: String, timeout: TimeInterval = 10) -> XCUIElement? {
+        let predicate = NSPredicate(format: "label BEGINSWITH %@", label)
+        let element = app.descendants(matching: .any).matching(predicate).firstMatch
+        return element.waitForExistence(timeout: timeout) ? element : nil
+    }
 
-    func testScreenshots() {
-        // 1. Home screen — shows Choose Photo / Take Photo buttons
-        sleep(3)
+    func testScreenshots() throws {
+        // Wait for the app to load (either onboarding or main tabs)
+        sleep(5)
+
+        // Dismiss onboarding if shown — the Skip button has testID="skip-onboarding"
+        // which maps to accessibilityIdentifier on iOS.
+        let skipById = app.descendants(matching: .any)["skip-onboarding"]
+        if skipById.waitForExistence(timeout: 10) {
+            skipById.tap()
+            sleep(3)
+        }
+
+        // Wait for the Home tab label to appear (React Navigation custom tab bar)
+        _ = findElement(label: "Home", timeout: 15)
+        sleep(2)
+
+        // 1. Home Screen
         snapshot("01_HomeScreen")
 
-        // 2. Style picker — tap "Choose Photo", pick an image, land on StyleSelect
-        let choosePhoto = app.buttons["Choose Photo"]
-        if choosePhoto.waitForExistence(timeout: 5) {
-            choosePhoto.tap()
+        // 2. Gallery Tab
+        if let gallery = findElement(label: "Gallery", timeout: 5) {
+            gallery.tap()
             sleep(2)
-
-            // Tap the first image in the photo picker
-            let firstPhoto = app.images.firstMatch
-            if firstPhoto.waitForExistence(timeout: 5) {
-                firstPhoto.tap()
-                sleep(2)
-            }
-
-            snapshot("02_StylePicker")
-
-            // 3. Style customization — tap a style card to open preview
-            let styleCard = app.buttons.matching(
-                NSPredicate(format: "label CONTAINS[c] 'style'")
-            ).firstMatch
-            if styleCard.waitForExistence(timeout: 5) {
-                styleCard.tap()
-                sleep(1)
-
-                // Tap "Use This Style" to go to Customize screen
-                let useStyle = app.buttons["Use This Style"]
-                if useStyle.waitForExistence(timeout: 3) {
-                    useStyle.tap()
-                    sleep(2)
-                    snapshot("03_Customize")
-                }
-            }
-
-            // Navigate back to tabs for remaining screenshots
-            let backButton = app.buttons["Go back"]
-            if backButton.waitForExistence(timeout: 3) {
-                backButton.tap()
-                sleep(1)
-            }
+            snapshot("02_GalleryScreen")
         }
 
-        // 4. Challenges screen
-        let challengeTab = app.tabBars.buttons["Challenges"]
-        if challengeTab.waitForExistence(timeout: 5) {
-            challengeTab.tap()
+        // 3. Challenges Tab
+        if let challenges = findElement(label: "Challenges", timeout: 5) {
+            challenges.tap()
             sleep(2)
-            snapshot("04_Challenges")
+            snapshot("03_ChallengesScreen")
         }
 
-        // 5. Gallery screen
-        let galleryTab = app.tabBars.buttons["Gallery"]
-        if galleryTab.waitForExistence(timeout: 5) {
-            galleryTab.tap()
+        // 4. Settings Tab
+        if let settings = findElement(label: "Settings", timeout: 5) {
+            settings.tap()
             sleep(2)
-            snapshot("05_Gallery")
+            snapshot("04_SettingsScreen")
         }
 
-        // 6. Settings screen — navigate to Paywall
-        let settingsTab = app.tabBars.buttons["Settings"]
-        if settingsTab.waitForExistence(timeout: 5) {
-            settingsTab.tap()
+        // Return to Home
+        if let home = findElement(label: "Home", timeout: 5) {
+            home.tap()
             sleep(1)
-
-            let upgradePro = app.buttons["Upgrade to Pro"]
-            if upgradePro.waitForExistence(timeout: 3) {
-                upgradePro.tap()
-                sleep(2)
-                snapshot("06_ProUpgrade")
-            }
         }
     }
 }

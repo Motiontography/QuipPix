@@ -178,7 +178,7 @@ export default function OnboardingScreen() {
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
 
       {/* Skip button */}
-      <TouchableOpacity style={styles.skipButton} onPress={handleComplete}>
+      <TouchableOpacity style={styles.skipButton} onPress={handleComplete} testID="skip-onboarding" accessibilityLabel="Skip">
         <Text style={styles.skipText}>{t('onboarding.skip')}</Text>
       </TouchableOpacity>
 

@@ -3,13 +3,17 @@
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
 
-@import Firebase;
+#import <FirebaseCore/FirebaseCore.h>
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  [FIRApp configure];
+  // Only configure Firebase if GoogleService-Info.plist exists
+  NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"];
+  if (plistPath) {
+    [FIRApp configure];
+  }
 
   self.moduleName = @"QuipPix";
   self.initialProps = @{};

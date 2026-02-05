@@ -46,7 +46,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 }
 
-function ErrorFallback({ onRetry }: { onRetry: () => void }) {
+function ErrorFallback({ onRetry, errorDetail }: { onRetry: () => void; errorDetail?: string }) {
   return (
     <View style={fallbackStyles.container}>
       <Text style={fallbackStyles.icon}>!</Text>
@@ -54,6 +54,11 @@ function ErrorFallback({ onRetry }: { onRetry: () => void }) {
       <Text style={fallbackStyles.message}>
         {t('error.message')}
       </Text>
+      {errorDetail ? (
+        <Text style={[fallbackStyles.message, { fontSize: 11, marginTop: 8 }]}>
+          {errorDetail}
+        </Text>
+      ) : null}
       <TouchableOpacity style={fallbackStyles.button} onPress={onRetry}>
         <Text style={fallbackStyles.buttonText}>{t('error.retry')}</Text>
       </TouchableOpacity>

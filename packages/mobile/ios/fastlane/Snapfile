@@ -1,14 +1,17 @@
 # Snapfile — Fastlane Snapshot configuration for QuipPix
 
 devices([
-  "iPhone 16 Pro Max",   # 6.7" (required by App Store)
-  "iPhone 16 Pro",       # 6.3"
-  "iPhone SE (3rd generation)", # 4.7"
+  "iPhone 17 Pro Max",   # 6.9" (required by App Store)
+  "iPhone 17 Pro",       # 6.3"
+  "iPhone 16e",          # smaller display
 ])
 
 languages(["en-US"])
 
 scheme("QuipPixUITests")
+
+# Use Release so the JS bundle is included (no Metro needed)
+configuration("Release")
 
 output_directory("./fastlane/screenshots")
 

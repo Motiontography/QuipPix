@@ -23,16 +23,23 @@ function AppContent() {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    Promise.all([loadGallery(), loadProState()]).then(() => {
-      setIsReady(true);
-    });
+    Promise.all([loadGallery(), loadProState()])
+      .then(() => setIsReady(true))
+      .catch(() => setIsReady(true));
 
-    initPurchases().then(() => refreshEntitlement());
+    initPurchases()
+      .then(() => refreshEntitlement())
+      .catch(() => {});
 
     // Listen for real-time entitlement changes (renewal, cancellation, etc.)
-    const unsubscribe = addEntitlementListener((ent) => {
-      setEntitlement(ent);
-    });
+    let unsubscribe = () => {};
+    try {
+      unsubscribe = addEntitlementListener((ent) => {
+        setEntitlement(ent);
+      });
+    } catch {
+      // RevenueCat listener may fail if SDK not ready
+    }
 
     return unsubscribe;
   }, [loadGallery, loadProState, refreshEntitlement, setEntitlement]);
@@ -46,12 +53,22 @@ function AppContent() {
       .then((userId) => registerForPushNotifications(userId))
       .catch(() => {});
 
-    const unsubscribeNotification = onNotificationOpened((data) => {
-      // Navigate based on notification type (e.g., daily_challenge)
-      // Navigation ref integration can be added later
-    });
+    let unsubscribeNotification = () => {};
+    try {
+      unsubscribeNotification = onNotificationOpened((data) => {
+        // Navigate based on notification type (e.g., daily_challenge)
+        // Navigation ref integration can be added later
+      });
+    } catch {
+      // Firebase may not be configured (missing GoogleService-Info.plist)
+    }
 
-    const unsubscribeQueue = initOfflineQueue();
+    let unsubscribeQueue = () => {};
+    try {
+      unsubscribeQueue = initOfflineQueue();
+    } catch {
+      // NetInfo listener may fail
+    }
 
     return () => {
       unsubscribeNotification();

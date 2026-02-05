@@ -3,7 +3,7 @@ import { compressForUpload } from '../services/imageCompressor';
 
 const API_BASE = __DEV__
   ? 'http://localhost:3000'
-  : 'https://api.quippix.app'; // Replace with production URL
+  : 'https://quippix-production.up.railway.app';
 
 class ApiClient {
   private baseUrl: string;
