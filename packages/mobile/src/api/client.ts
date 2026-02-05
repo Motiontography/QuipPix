@@ -9,6 +9,7 @@ class ApiClient {
   private baseUrl: string;
   private tier: 'free' | 'pro' = 'free';
   private authToken: string | null = null;
+  private adminKey: string | null = null;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
@@ -17,6 +18,11 @@ class ApiClient {
   /** Update tier based on current entitlement — called from useProStore */
   setTier(tier: 'free' | 'pro'): void {
     this.tier = tier;
+  }
+
+  /** Set admin key for dev mode tier bypass */
+  setAdminKey(key: string | null): void {
+    this.adminKey = key;
   }
 
   /** Set JWT auth token — called from auth service */
@@ -34,6 +40,9 @@ class ApiClient {
     const headers = new Headers(init?.headers);
     if (!headers.has('X-QuipPix-Tier')) {
       headers.set('X-QuipPix-Tier', this.tier);
+    }
+    if (this.adminKey) {
+      headers.set('X-Admin-Key', this.adminKey);
     }
     if (this.authToken && !headers.has('Authorization')) {
       headers.set('Authorization', `Bearer ${this.authToken}`);

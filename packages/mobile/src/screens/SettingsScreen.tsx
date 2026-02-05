@@ -10,7 +10,9 @@ import {
   ScrollView,
   Platform,
   Alert,
+  TextInput,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
@@ -62,11 +64,16 @@ export default function SettingsScreen() {
   const [versionTapCount, setVersionTapCount] = useState(0);
   const devModeEnabled = useAppStore((s) => s.devModeEnabled);
   const setDevModeEnabled = useAppStore((s) => s.setDevModeEnabled);
+  const [adminKey, setAdminKey] = useState('');
 
   useEffect(() => {
     isNotificationsEnabled().then(setNotificationsOn);
     getCacheInfo().then(setCacheInfo);
     trackEvent('cache_size_viewed');
+    // Load stored admin key for dev mode
+    AsyncStorage.getItem('@quippix/adminKey').then((key) => {
+      if (key) setAdminKey(key);
+    });
     isBiometricAvailable().then(({ available }) => setBiometricAvailable(available));
   }, []);
 
@@ -596,14 +603,43 @@ export default function SettingsScreen() {
                   setDevModeEnabled(val);
                   if (val) {
                     setEntitlement({ proActive: true, proType: 'lifetime', expiresAt: null });
+                    if (adminKey) api.setAdminKey(adminKey);
                   } else {
-                    // Refresh real entitlement from RevenueCat
+                    api.setAdminKey(null);
                     useProStore.getState().refreshEntitlement().catch(() => {});
                   }
                 }}
                 trackColor={{ false: colors.surfaceLight, true: '#E17055' }}
                 thumbColor={devModeEnabled ? '#E17055' : colors.textMuted}
               />
+            </View>
+            <View style={styles.row}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.rowLabel}>Admin Key</Text>
+                <Text style={styles.rowDesc}>Required to bypass server-side daily limits</Text>
+                <TextInput
+                  style={[styles.rowLabel, {
+                    backgroundColor: colors.surfaceLight,
+                    borderRadius: 8,
+                    paddingHorizontal: 12,
+                    paddingVertical: 8,
+                    marginTop: 8,
+                    fontSize: 13,
+                    color: colors.textPrimary,
+                  }]}
+                  value={adminKey}
+                  onChangeText={(text) => {
+                    setAdminKey(text);
+                    AsyncStorage.setItem('@quippix/adminKey', text);
+                    api.setAdminKey(text || null);
+                  }}
+                  placeholder="Enter admin API key"
+                  placeholderTextColor={colors.textMuted}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  secureTextEntry
+                />
+              </View>
             </View>
           </View>
         )}
@@ -618,8 +654,14 @@ export default function SettingsScreen() {
             if (newCount >= 7) {
               setDevModeEnabled(true);
               setEntitlement({ proActive: true, proType: 'lifetime', expiresAt: null });
+              if (adminKey) api.setAdminKey(adminKey);
               triggerHaptic('success');
-              Alert.alert('Developer Mode', 'Pro features unlocked for testing.');
+              Alert.alert(
+                'Developer Mode',
+                adminKey
+                  ? 'Pro features unlocked for testing.'
+                  : 'Pro features unlocked. Enter Admin Key in Developer settings to bypass server limits.',
+              );
               setVersionTapCount(0);
             }
           }}

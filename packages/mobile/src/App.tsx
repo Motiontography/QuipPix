@@ -3,8 +3,10 @@ import { View, StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './navigation/AppNavigator';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppStore } from './store/useAppStore';
 import { useProStore } from './store/useProStore';
+import { api } from './api/client';
 import { initPurchases, addEntitlementListener } from './services/purchases';
 import { registerForPushNotifications, onNotificationOpened } from './services/pushNotifications';
 import { initAuth } from './services/auth';
@@ -24,11 +26,14 @@ function AppContent() {
 
   useEffect(() => {
     Promise.all([loadGallery(), loadProState()])
-      .then(() => {
+      .then(async () => {
         // If dev mode was persisted, activate pro bypass on startup
         const devMode = useAppStore.getState().devModeEnabled;
         if (devMode) {
           setEntitlement({ proActive: true, proType: 'lifetime', expiresAt: null });
+          // Load and set admin key for server-side bypass
+          const adminKey = await AsyncStorage.getItem('@quippix/adminKey').catch(() => null);
+          if (adminKey) api.setAdminKey(adminKey);
         }
         setIsReady(true);
       })
