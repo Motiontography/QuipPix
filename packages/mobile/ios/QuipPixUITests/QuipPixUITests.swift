@@ -12,50 +12,84 @@ class QuipPixUITests: XCTestCase {
     }
 
     // MARK: - App Store Screenshots
+    //
+    // Captures 6 screenshots across key screens.
+    // The flow navigates tab-by-tab rather than through the full
+    // generation pipeline, since generation requires a real API call.
 
     func testScreenshots() {
-        // 1. Home / Gallery screen
-        sleep(3) // Wait for app to fully load
+        // 1. Home screen — shows Choose Photo / Take Photo buttons
+        sleep(3)
         snapshot("01_HomeScreen")
 
-        // 2. Style picker — tap the generate/create button
-        //    Update the accessibility identifier or button label to match your app
-        let createButton = app.buttons["Create"].firstMatch
-        if createButton.waitForExistence(timeout: 5) {
-            createButton.tap()
+        // 2. Style picker — tap "Choose Photo", pick an image, land on StyleSelect
+        let choosePhoto = app.buttons["Choose Photo"]
+        if choosePhoto.waitForExistence(timeout: 5) {
+            choosePhoto.tap()
             sleep(2)
+
+            // Tap the first image in the photo picker
+            let firstPhoto = app.images.firstMatch
+            if firstPhoto.waitForExistence(timeout: 5) {
+                firstPhoto.tap()
+                sleep(2)
+            }
+
             snapshot("02_StylePicker")
+
+            // 3. Style customization — tap a style card to open preview
+            let styleCard = app.buttons.matching(
+                NSPredicate(format: "label CONTAINS[c] 'style'")
+            ).firstMatch
+            if styleCard.waitForExistence(timeout: 5) {
+                styleCard.tap()
+                sleep(1)
+
+                // Tap "Use This Style" to go to Customize screen
+                let useStyle = app.buttons["Use This Style"]
+                if useStyle.waitForExistence(timeout: 3) {
+                    useStyle.tap()
+                    sleep(2)
+                    snapshot("03_Customize")
+                }
+            }
+
+            // Navigate back to tabs for remaining screenshots
+            let backButton = app.buttons["Go back"]
+            if backButton.waitForExistence(timeout: 3) {
+                backButton.tap()
+                sleep(1)
+            }
         }
 
-        // 3. Style customization — tap a style card
-        let firstStyle = app.cells.firstMatch
-        if firstStyle.waitForExistence(timeout: 5) {
-            firstStyle.tap()
-            sleep(2)
-            snapshot("03_StyleCustomization")
-        }
-
-        // 4. Generation result — wait for result to appear
-        //    This may need adjustment based on your actual UI
-        let resultImage = app.images["ResultImage"].firstMatch
-        if resultImage.waitForExistence(timeout: 30) {
-            snapshot("04_Result")
-        }
-
-        // 5. Challenges screen
-        let challengeTab = app.buttons["Challenges"].firstMatch
+        // 4. Challenges screen
+        let challengeTab = app.tabBars.buttons["Challenges"]
         if challengeTab.waitForExistence(timeout: 5) {
             challengeTab.tap()
             sleep(2)
-            snapshot("05_Challenges")
+            snapshot("04_Challenges")
         }
 
-        // 6. Pro upgrade screen
-        let proButton = app.buttons["Pro"].firstMatch
-        if proButton.waitForExistence(timeout: 5) {
-            proButton.tap()
+        // 5. Gallery screen
+        let galleryTab = app.tabBars.buttons["Gallery"]
+        if galleryTab.waitForExistence(timeout: 5) {
+            galleryTab.tap()
             sleep(2)
-            snapshot("06_ProUpgrade")
+            snapshot("05_Gallery")
+        }
+
+        // 6. Settings screen — navigate to Paywall
+        let settingsTab = app.tabBars.buttons["Settings"]
+        if settingsTab.waitForExistence(timeout: 5) {
+            settingsTab.tap()
+            sleep(1)
+
+            let upgradePro = app.buttons["Upgrade to Pro"]
+            if upgradePro.waitForExistence(timeout: 3) {
+                upgradePro.tap()
+                sleep(2)
+                snapshot("06_ProUpgrade")
+            }
         }
     }
 }
