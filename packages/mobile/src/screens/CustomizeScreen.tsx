@@ -459,21 +459,25 @@ export default function CustomizeScreen() {
 
             <SliderRow
               label="Intensity"
+              hint="How strong the style effect is applied"
               value={sliders.intensity}
               onChange={(v) => updateSlider('intensity', v)}
             />
             <SliderRow
               label="Face Fidelity"
+              hint="Higher = face stays closer to the original photo"
               value={sliders.faceFidelity}
               onChange={(v) => updateSlider('faceFidelity', v)}
             />
             <SliderRow
               label="Background"
+              hint="How much the background is transformed"
               value={sliders.backgroundStrength}
               onChange={(v) => updateSlider('backgroundStrength', v)}
             />
             <SliderRow
               label="Detail"
+              hint="Amount of fine detail in the final image"
               value={sliders.detail}
               onChange={(v) => updateSlider('detail', v)}
             />
@@ -530,18 +534,21 @@ export default function CustomizeScreen() {
             <View style={!isPro ? styles.lockedOverlay : undefined}>
               <SliderRow
                 label="Micro Detail"
+                hint="Adds fine skin texture and pore detail"
                 value={proSliders.microDetail ?? 0}
                 onChange={(v) => handleProSlider('microDetail', v)}
                 disabled={!isPro}
               />
               <SliderRow
                 label="Studio Relight"
+                hint="Enhances lighting like a professional studio"
                 value={proSliders.studioRelight ?? 0}
                 onChange={(v) => handleProSlider('studioRelight', v)}
                 disabled={!isPro}
               />
               <SliderRow
                 label="Background Pro"
+                hint="Advanced background enhancement and blur"
                 value={proSliders.backgroundPro ?? 0}
                 onChange={(v) => handleProSlider('backgroundPro', v)}
                 disabled={!isPro}
@@ -1025,11 +1032,13 @@ function SliderRow({
   value,
   onChange,
   disabled,
+  hint,
 }: {
   label: string;
   value: number;
   onChange: (v: number) => void;
   disabled?: boolean;
+  hint?: string;
 }) {
   const { colors } = useTheme();
 
@@ -1041,6 +1050,7 @@ function SliderRow({
       alignItems: 'center',
     },
     sliderLabel: { ...typography.caption, color: colors.textSecondary, marginBottom: spacing.xs },
+    sliderHint: { ...typography.small, color: colors.textMuted, marginBottom: spacing.xs, fontSize: 11 },
     sliderValue: { ...typography.caption, color: colors.primaryLight },
     slider: { width: '100%', height: 36 },
   }), [colors]);
@@ -1051,6 +1061,7 @@ function SliderRow({
         <Text style={styles.sliderLabel}>{label}</Text>
         <Text style={styles.sliderValue}>{Math.round(value)}</Text>
       </View>
+      {hint && <Text style={styles.sliderHint}>{hint}</Text>}
       <Slider
         style={styles.slider}
         minimumValue={0}

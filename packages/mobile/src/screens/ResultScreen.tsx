@@ -337,6 +337,22 @@ export default function ResultScreen() {
     actionIcon: { fontSize: 24, marginBottom: 4 },
     actionLabel: { ...typography.small, color: colors.textSecondary },
     actionLabelPrimary: { color: colors.primary },
+    savePhotosBtn: {
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.lg,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.xl,
+      marginHorizontal: spacing.md,
+      marginBottom: spacing.md,
+      alignItems: 'center',
+      flexDirection: 'row',
+      justifyContent: 'center',
+    },
+    savePhotosBtnText: {
+      ...typography.bodyBold,
+      color: '#FFFFFF',
+      marginLeft: spacing.sm,
+    },
     footer: {
       alignItems: 'center',
       paddingBottom: spacing.md,
@@ -460,10 +476,15 @@ export default function ResultScreen() {
         </ViewShot>
       </View>
 
+      {/* Prominent Save to Photos Button */}
+      <TouchableOpacity style={styles.savePhotosBtn} onPress={handleSaveToPhotos} activeOpacity={0.8}>
+        <Text style={{ fontSize: 20 }}>📥</Text>
+        <Text style={styles.savePhotosBtnText}>Save to Photos</Text>
+      </TouchableOpacity>
+
       {/* Actions */}
       <View style={styles.actions}>
         <ActionButton icon="💾" label={t('result.save')} onPress={handleSave} primary />
-        <ActionButton icon="📷" label={t('result.photos')} onPress={handleSaveToPhotos} />
         {sourceImageUri && (
           <ActionButton
             icon={showComparison ? '🖼️' : '🔄'}
