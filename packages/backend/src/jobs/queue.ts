@@ -113,11 +113,15 @@ export const generateWorker = new Worker<GenerateJobData>(
       );
       updateJobProgress(jobId, 20);
 
-      // 2. Pre-generation moderation
-      const modCheck = moderatePrompt(userPrompt);
-      if (!modCheck.allowed) {
-        updateJobStatus(jobId, 'failed', 100, modCheck.reason);
-        return;
+      // 2. Pre-generation moderation — only check the user's freeform text,
+      //    not the full composed prompt (which contains our own trusted templates
+      //    with words like "NSFW", "violence" in negative constraints).
+      if (request.userPrompt) {
+        const modCheck = moderatePrompt(request.userPrompt);
+        if (!modCheck.allowed) {
+          updateJobStatus(jobId, 'failed', 100, modCheck.reason);
+          return;
+        }
       }
       updateJobProgress(jobId, 30);
 

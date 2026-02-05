@@ -32,7 +32,7 @@ function defaultParamMapping(
   };
 }
 
-const GLOBAL_SYSTEM = `You are an expert photo-to-art style transformation engine. Transform the provided photograph into the requested artistic style while strictly preserving the subject's facial identity, expression, pose, and composition. The output must look like a skilled artist rendered the same scene by hand in the target medium. Do not add text, watermarks, logos, or new elements not present in the original photograph. Do not produce NSFW, violent, hateful, or illegal content. If the request seems inappropriate, produce a tasteful, safe alternative.`;
+const GLOBAL_SYSTEM = `You are an expert photo-to-art style transformation engine. Transform the provided photograph into the requested artistic style while strictly preserving the subject's facial identity, expression, pose, and composition. The output must look like a skilled artist rendered the same scene by hand in the target medium. Do not add text, watermarks, logos, or new elements not present in the original photograph. Keep all content tasteful, safe, and appropriate. If the request seems inappropriate, produce a tasteful, safe alternative.`;
 
 export const styleRecipes: Record<StyleId, StyleRecipe> = {
   'caricature-classic': {
@@ -217,7 +217,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     negativeConstraints: [
       'No copyrighted franchise styles (Ghibli, Naruto, Dragon Ball, etc.)',
       'Original anime aesthetic only',
-      'No sexualized content',
+      'Keep it tasteful and appropriate',
     ],
     outputRequirements: {
       defaultSize: '1024x1024',
@@ -235,7 +235,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     userPromptTemplate: `Transform this photograph into a cyberpunk neon-lit scene. Rim lighting in electric pink, cyan, and purple neon. Rain-slicked surfaces with reflective puddles catching colored light. {INTENSITY} cyberpunk effect. Futuristic holographic UI overlays and volumetric fog. Blade-Runner-inspired atmosphere. {DETAIL}. Preserve the subject's identity and expression. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'No copyrighted cyberpunk franchise elements',
-      'No weapons',
+      'No harmful or dangerous objects',
       'Keep it artistic and atmospheric',
     ],
     outputRequirements: {
@@ -255,7 +255,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     negativeConstraints: [
       'No garbled or illegible text',
       'No copyrighted magazine mastheads (Vogue, TIME, etc.)',
-      'No NSFW content',
+      'Keep content tasteful and appropriate',
       'Text must be clean and readable',
     ],
     outputRequirements: {
@@ -323,7 +323,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     systemPrompt: GLOBAL_SYSTEM,
     userPromptTemplate: `Transform this photograph into a high-end editorial fashion photograph for a luxury fashion magazine. High contrast with a glossy finish. Dramatic directional studio lighting with hard shadows. {INTENSITY} editorial polish. {COLOR_MOOD} palette with fashion-forward color grading. {DETAIL}. Bold cinematic composition with strong leading lines. Preserve the subject's features and expression. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
-      'No overly sexualized poses',
+      'Keep poses tasteful and professional',
       'No brand logos',
       'Keep it high-fashion editorial, not commercial',
     ],
@@ -341,12 +341,12 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'motiontography-ethereal',
     displayName: 'Motiontography — Ethereal',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photograph into the signature Motiontography ethereal portrait style. Composite the subject into a dreamlike fantasy environment with soft, luminous atmosphere. Add flowing translucent fabric elements — tulle, silk, or chiffon — billowing around the subject as if caught in a gentle wind. Warm golden-amber color grading with rich, saturated tones and deep jewel-tone accents (ruby, emerald, sapphire). Soft diffused key light with dramatic backlit rim lighting creating a glowing halo effect around the subject. Luminosity masking for selective glow on highlights. {INTENSITY} ethereal effect. {COLOR_MOOD} palette. {DETAIL}. The mood should be empowering, majestic, and inspiring. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `Transform this photograph into the signature Motiontography ethereal portrait style. Composite the subject into a dreamlike fantasy environment with soft, luminous atmosphere. Add flowing fabric elements — silk, chiffon, or tulle — draped and floating around the scene as if caught in a gentle wind. Warm golden-amber color grading with rich, saturated tones and deep jewel-tone accents (ruby, emerald, sapphire). Soft diffused key light with dramatic backlit rim lighting creating a glowing halo effect around the subject. Luminosity masking for selective glow on highlights. {INTENSITY} ethereal effect. {COLOR_MOOD} palette. {DETAIL}. The mood should be empowering, majestic, and inspiring. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'Do not darken or desaturate the image',
       'Do not make it look cold or gloomy',
       'No harsh shadows on the face',
-      'Keep the subject looking empowered and beautiful',
+      'Keep the subject looking empowered and dignified',
       'No cartoonish or painted look — maintain photographic realism with artistic enhancement',
     ],
     outputRequirements: {
@@ -362,7 +362,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'motiontography-golden',
     displayName: 'Motiontography — Golden Hour',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photograph into the signature Motiontography golden hour portrait style. Rich, warm golden-hour lighting with amber and honey tones flooding the scene. Strong chiaroscuro contrast — deep, warm shadows with luminous highlights kissed by golden light. Bokeh-rich background with soft circular light orbs in warm amber and champagne tones. Selective color enhancement — amplify golds, warm browns, and rich skin tones while keeping shadow detail. Subtle lens flare from a backlit sun source. Skin has a healthy, radiant glow with professional frequency-separation retouching. {INTENSITY} golden effect. {COLOR_MOOD} palette. {DETAIL}. The mood should be warm, intimate, and cinematic. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `Transform this photograph into the signature Motiontography golden hour portrait style. Rich, warm golden-hour lighting with amber and honey tones flooding the scene. Strong chiaroscuro contrast — deep, warm shadows with luminous highlights kissed by golden light. Bokeh-rich background with soft circular light orbs in warm amber and champagne tones. Selective color enhancement — amplify golds, warm browns, and rich skin tones while keeping shadow detail. Subtle lens flare from a backlit sun source. Skin has a healthy, radiant glow with professional retouching. {INTENSITY} golden effect. {COLOR_MOOD} palette. {DETAIL}. The mood should be warm, inviting, and cinematic. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'Do not use cool or blue tones',
       'Do not flatten the contrast',
@@ -387,7 +387,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     negativeConstraints: [
       'Do not wash out colors or reduce saturation',
       'No flat, even lighting — maintain dramatic contrast',
-      'Do not add weapons, violence, or threatening elements',
+      'Do not add dangerous or threatening elements',
       'Keep it empowering and dignified, not menacing',
       'Maintain photographic realism — no cartoon or painting look',
     ],
@@ -630,7 +630,7 @@ The overall quality should match a professional photoshoot for a fashion editori
       'NEVER lighten or darken the skin tone — preserve it exactly',
       'No illustration, cartoon, painting, or digital art style — must be photorealistic',
       'No plastic, wax-figure, or uncanny-valley skin — keep natural texture',
-      'No overly sexualized poses or content',
+      'Keep poses tasteful and professional',
       'No brand logos or trademarked items',
       'Do not make the subject look like a different person',
     ],
