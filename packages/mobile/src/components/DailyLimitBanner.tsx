@@ -51,7 +51,7 @@ export default function DailyLimitBanner() {
     <View style={[styles.banner, limitReached && styles.bannerWarning]}>
       {limitReached ? (
         <Text style={styles.textWarning}>
-          Daily limit reached. Upgrade to Pro for unlimited generations.
+          Daily limit reached. Upgrade to Pro for 30 generations per day.
         </Text>
       ) : (
         <Text style={styles.text}>

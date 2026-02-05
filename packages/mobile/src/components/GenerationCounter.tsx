@@ -1,22 +1,26 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useProStore } from '../store/useProStore';
+import { useAppStore } from '../store/useAppStore';
 import { useTheme } from '../contexts/ThemeContext';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { t } from '../i18n';
 
-const DAILY_LIMIT = 5;
+const FREE_DAILY_LIMIT = 5;
+const PRO_DAILY_LIMIT = 30;
 
 export function GenerationCounter() {
   const { colors } = useTheme();
   const entitlement = useProStore((s) => s.entitlement);
   const dailyGenerations = useProStore((s) => s.dailyGenerations);
   const dailyDate = useProStore((s) => s.dailyDate);
+  const devMode = useAppStore((s) => s.devModeEnabled);
 
   const today = new Date().toISOString().split('T')[0];
   const used = dailyDate === today ? dailyGenerations : 0;
-  const remaining = Math.max(0, DAILY_LIMIT - used);
-  const progress = entitlement.proActive ? 1 : used / DAILY_LIMIT;
+  const limit = entitlement.proActive ? PRO_DAILY_LIMIT : FREE_DAILY_LIMIT;
+  const remaining = Math.max(0, limit - used);
+  const progress = used / limit;
 
   if (entitlement.proActive) {
     return (
@@ -24,8 +28,24 @@ export function GenerationCounter() {
         <View style={[styles.badge, { backgroundColor: '#6C5CE7' }]}>
           <Text style={styles.badgeText}>PRO</Text>
         </View>
+        <View style={styles.progressRow}>
+          <View style={[styles.progressTrack, { backgroundColor: colors.surfaceLight }]}>
+            <View
+              style={[
+                styles.progressFill,
+                {
+                  backgroundColor: remaining > 5 ? '#6C5CE7' : colors.warning,
+                  width: `${Math.min(progress * 100, 100)}%`,
+                },
+              ]}
+            />
+          </View>
+          <Text style={[styles.count, { color: colors.textPrimary }]}>
+            {used}/{PRO_DAILY_LIMIT}
+          </Text>
+        </View>
         <Text style={[styles.label, { color: colors.textSecondary }]}>
-          {t('home.unlimitedGenerations')}
+          {remaining} Pro generations remaining today
         </Text>
       </View>
     );
@@ -46,13 +66,13 @@ export function GenerationCounter() {
           />
         </View>
         <Text style={[styles.count, { color: colors.textPrimary }]}>
-          {used}/{DAILY_LIMIT}
+          {used}/{FREE_DAILY_LIMIT}
         </Text>
       </View>
       <Text style={[styles.label, { color: colors.textSecondary }]}>
         {t('home.generationsToday', {
           used: String(used),
-          total: String(DAILY_LIMIT),
+          total: String(FREE_DAILY_LIMIT),
         })}
       </Text>
     </View>

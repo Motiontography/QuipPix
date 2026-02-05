@@ -29,7 +29,7 @@ const BENEFITS = [
   { icon: '📐', text: 'High-res exports (2K & 4K)' },
   { icon: '⚡', text: 'Priority processing' },
   { icon: '🎛️', text: 'Advanced controls' },
-  { icon: '♾️', text: 'Unlimited generations' },
+  { icon: '⚡', text: '30 generations per day' },
 ];
 
 export default function PaywallScreen() {
