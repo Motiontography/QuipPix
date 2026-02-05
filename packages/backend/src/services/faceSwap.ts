@@ -2,6 +2,18 @@ import Replicate from 'replicate';
 import { config } from '../config';
 import { logger } from '../utils/logger';
 
+// ─── Timeout for Replicate API calls (60 seconds) ────────────────────
+const REPLICATE_TIMEOUT_MS = 60_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, operation: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`${operation} timed out after ${ms / 1000}s`)), ms),
+    ),
+  ]);
+}
+
 // ─── Eligible styles for face-swap (photorealistic only) ─────────────
 const FACE_SWAP_ELIGIBLE_STYLES = new Set([
   'pro-headshot',
@@ -63,7 +75,11 @@ export async function swapFace(
       };
     }
 
-    const output = await replicate.run(model as `${string}/${string}`, { input });
+    const output = await withTimeout(
+      replicate.run(model as `${string}/${string}`, { input }),
+      REPLICATE_TIMEOUT_MS,
+      'Face-swap',
+    );
 
     // replicate.run returns a FileOutput (ReadableStream) or a string URL
     let resultBuffer: Buffer;
@@ -100,15 +116,19 @@ export async function enhanceFace(image: Buffer): Promise<Buffer | null> {
 
     logger.info({ model }, 'Starting face enhancement');
 
-    const output = await replicate.run(model as `${string}/${string}`, {
-      input: {
-        image: imageUri,
-        codeformer_fidelity: 0.7,
-        face_upsample: true,
-        background_enhance: false,
-        upscale: 1,
-      },
-    });
+    const output = await withTimeout(
+      replicate.run(model as `${string}/${string}`, {
+        input: {
+          image: imageUri,
+          codeformer_fidelity: 0.7,
+          face_upsample: true,
+          background_enhance: false,
+          upscale: 1,
+        },
+      }),
+      REPLICATE_TIMEOUT_MS,
+      'Face-enhance',
+    );
 
     let resultBuffer: Buffer;
 
