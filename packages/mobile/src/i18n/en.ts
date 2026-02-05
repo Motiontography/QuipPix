@@ -25,6 +25,8 @@ export const en = {
   'onboarding.slide3Desc': 'Complete daily creative challenges, build streaks, and share your best work.',
   'onboarding.slide4Title': 'Share Your Creations',
   'onboarding.slide4Desc': 'Create share cards, remix links, and post directly to your favorite platforms.',
+  'onboarding.slide5Title': 'By Motiontography',
+  'onboarding.slide5Desc': 'QuipPix is crafted by Motiontography — a professional photography and videography studio. Love AI art? Wait until you see what we do with a real camera.',
 
   // Generating
   'generating.creatingYour': 'Creating Your {styleName}',
@@ -110,7 +112,7 @@ export const en = {
   'settings.manageSubscription': 'Manage Subscription',
   'settings.export': 'Export',
   'settings.watermark': 'Watermark',
-  'settings.watermarkDesc': 'Add a small "Made in QuipPix" watermark to exports',
+  'settings.watermarkDesc': 'Add a "QuipPix by Motiontography" watermark to exports',
   'settings.notifications': 'Notifications',
   'settings.dailyReminder': 'Daily Challenge Reminder',
   'settings.dailyReminderDesc': 'Get notified about the daily challenge each morning',

@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy — QuipPix by Motiontography</title>
+    <meta name="description" content="Privacy Policy for QuipPix, a photo-to-art transformation app by Motiontography.">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #0D0D1A;
+            color: #C8C8D4;
+            line-height: 1.7;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        a {
+            color: #8B5CF6;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: #A78BFA;
+            text-decoration: underline;
+        }
+
+        /* Top navigation bar */
+        .top-bar {
+            background-color: rgba(13, 13, 26, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(108, 92, 231, 0.15);
+            padding: 14px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .top-bar-inner {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-link {
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #8B5CF6;
+        }
+
+        .back-link:hover {
+            color: #A78BFA;
+            text-decoration: none;
+        }
+
+        .back-link svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .top-bar-brand {
+            font-size: 13px;
+            color: #6C5CE7;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Hero / header section */
+        .hero {
+            text-align: center;
+            padding: 60px 24px 40px;
+            background: linear-gradient(180deg, rgba(108, 92, 231, 0.08) 0%, transparent 100%);
+        }
+
+        .logo-mark {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #6C5CE7, #8B5CF6);
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(108, 92, 231, 0.3);
+        }
+
+        .logo-mark svg {
+            width: 38px;
+            height: 38px;
+            fill: #FFFFFF;
+        }
+
+        .hero h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+
+        .hero .app-name {
+            font-size: 15px;
+            color: #8B5CF6;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .hero .subtitle {
+            font-size: 15px;
+            color: #7A7A8E;
+        }
+
+        .last-updated {
+            display: inline-block;
+            margin-top: 16px;
+            font-size: 13px;
+            color: #5A5A6E;
+            background-color: rgba(108, 92, 231, 0.08);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(108, 92, 231, 0.12);
+        }
+
+        /* Main content area */
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 24px 80px;
+        }
+
+        /* Table of Contents */
+        .toc {
+            background-color: #1A1A2E;
+            border: 1px solid rgba(108, 92, 231, 0.12);
+            border-radius: 12px;
+            padding: 28px 32px;
+            margin-bottom: 40px;
+        }
+
+        .toc h2 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #8B5CF6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .toc ol {
+            list-style: none;
+            counter-reset: toc-counter;
+        }
+
+        .toc ol li {
+            counter-increment: toc-counter;
+            margin-bottom: 8px;
+        }
+
+        .toc ol li a {
+            font-size: 15px;
+            color: #C8C8D4;
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            padding: 4px 0;
+            transition: color 0.2s ease, padding-left 0.2s ease;
+        }
+
+        .toc ol li a::before {
+            content: counter(toc-counter, decimal-leading-zero);
+            font-size: 12px;
+            font-weight: 700;
+            color: #6C5CE7;
+            min-width: 22px;
+        }
+
+        .toc ol li a:hover {
+            color: #FFFFFF;
+            text-decoration: none;
+            padding-left: 4px;
+        }
+
+        /* Section cards */
+        .section {
+            background-color: #1A1A2E;
+            border: 1px solid rgba(108, 92, 231, 0.08);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            transition: border-color 0.2s ease;
+        }
+
+        .section:hover {
+            border-color: rgba(108, 92, 231, 0.2);
+        }
+
+        .section h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(108, 92, 231, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h2 .section-number {
+            font-size: 13px;
+            font-weight: 700;
+            color: #6C5CE7;
+            background-color: rgba(108, 92, 231, 0.1);
+            padding: 3px 10px;
+            border-radius: 6px;
+        }
+
+        .section h3 {
+            font-size: 17px;
+            font-weight: 600;
+            color: #E0E0EC;
+            margin-top: 22px;
+            margin-bottom: 10px;
+        }
+
+        .section p {
+            margin-bottom: 14px;
+            color: #B0B0C0;
+        }
+
+        .section ul, .section ol {
+            margin-bottom: 14px;
+            padding-left: 24px;
+        }
+
+        .section li {
+            margin-bottom: 8px;
+            color: #B0B0C0;
+        }
+
+        .section li strong {
+            color: #D0D0DC;
+        }
+
+        /* Highlight / callout box */
+        .callout {
+            background-color: rgba(108, 92, 231, 0.06);
+            border-left: 3px solid #6C5CE7;
+            border-radius: 0 8px 8px 0;
+            padding: 16px 20px;
+            margin: 18px 0;
+        }
+
+        .callout p {
+            margin-bottom: 0;
+            font-size: 14px;
+            color: #A0A0B4;
+        }
+
+        .callout strong {
+            color: #C8C8D4;
+        }
+
+        /* Contact card */
+        .contact-card {
+            background: linear-gradient(135deg, rgba(108, 92, 231, 0.1), rgba(139, 92, 246, 0.05));
+            border: 1px solid rgba(108, 92, 231, 0.2);
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .contact-card h2 {
+            font-size: 20px;
+            color: #FFFFFF;
+            margin-bottom: 10px;
+        }
+
+        .contact-card p {
+            color: #9090A4;
+            margin-bottom: 16px;
+            font-size: 15px;
+        }
+
+        .contact-card .email-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #6C5CE7, #8B5CF6);
+            color: #FFFFFF;
+            font-weight: 600;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .contact-card .email-link:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(108, 92, 231, 0.35);
+            text-decoration: none;
+            color: #FFFFFF;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 24px;
+            border-top: 1px solid rgba(108, 92, 231, 0.08);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer p {
+            font-size: 13px;
+            color: #4A4A5E;
+        }
+
+        .footer a {
+            color: #6C5CE7;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .hero {
+                padding: 40px 20px 30px;
+            }
+
+            .hero h1 {
+                font-size: 26px;
+            }
+
+            .content {
+                padding: 0 16px 60px;
+            }
+
+            .section {
+                padding: 24px 20px;
+            }
+
+            .toc {
+                padding: 22px 20px;
+            }
+
+            .section h2 {
+                font-size: 19px;
+            }
+
+            .top-bar-brand {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Bar -->
+    <nav class="top-bar" role="navigation" aria-label="Main navigation">
+        <div class="top-bar-inner">
+            <a href="https://www.motiontography.com" class="back-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                Back to Motiontography
+            </a>
+            <span class="top-bar-brand">Motiontography</span>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="hero">
+        <div class="logo-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <rect x="8" y="10" width="32" height="24" rx="3" fill="none" stroke="#FFF" stroke-width="2.5"/>
+                <circle cx="24" cy="22" r="7" fill="none" stroke="#FFF" stroke-width="2.5"/>
+                <circle cx="24" cy="22" r="3" fill="#FFF"/>
+                <circle cx="35" cy="15" r="2" fill="#FFF"/>
+                <path d="M14 38L20 30L25 34L32 26L38 38Z" fill="#FFF" opacity="0.5"/>
+            </svg>
+        </div>
+        <p class="app-name">QuipPix</p>
+        <h1>Privacy Policy</h1>
+        <p class="subtitle">How we handle your data with care and transparency</p>
+        <span class="last-updated">Last updated: February 2026</span>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+
+        <!-- Table of Contents -->
+        <nav class="toc" aria-label="Table of contents">
+            <h2>Contents</h2>
+            <ol>
+                <li><a href="#introduction">Introduction</a></li>
+                <li><a href="#data-we-collect">Information We Collect</a></li>
+                <li><a href="#how-we-use">How We Use Your Information</a></li>
+                <li><a href="#photo-processing">Photo Processing &amp; Storage</a></li>
+                <li><a href="#third-party">Third-Party Services</a></li>
+                <li><a href="#data-retention">Data Retention</a></li>
+                <li><a href="#data-security">Data Security</a></li>
+                <li><a href="#your-rights">Your Rights &amp; Choices</a></li>
+                <li><a href="#no-data-sales">We Do Not Sell Your Data</a></li>
+                <li><a href="#childrens-privacy">Children's Privacy</a></li>
+                <li><a href="#push-notifications">Push Notifications</a></li>
+                <li><a href="#changes">Changes to This Policy</a></li>
+                <li><a href="#contact">Contact Us</a></li>
+            </ol>
+        </nav>
+
+        <!-- 1. Introduction -->
+        <section class="section" id="introduction">
+            <h2><span class="section-number">01</span> Introduction</h2>
+            <p>Welcome to <strong>QuipPix</strong>, a photo-to-art transformation application developed and operated by <strong>Motiontography</strong> ("we," "us," or "our"). QuipPix allows you to upload photographs and transform them into artistic styles including caricatures, oil paintings, watercolors, anime, and more.</p>
+            <p>This Privacy Policy explains what information we collect, how we use it, and the choices you have regarding your data when you use the QuipPix application ("the App"). By using QuipPix, you agree to the collection and use of information in accordance with this policy.</p>
+            <p>We are committed to protecting your privacy and being transparent about our data practices. We believe you should always know what data we collect and how we use it, and that you should have meaningful control over both.</p>
+        </section>
+
+        <!-- 2. Information We Collect -->
+        <section class="section" id="data-we-collect">
+            <h2><span class="section-number">02</span> Information We Collect</h2>
+
+            <h3>Information You Provide</h3>
+            <ul>
+                <li><strong>Photos:</strong> Images you upload for artistic transformation. These are processed and then deleted (see <a href="#photo-processing">Photo Processing &amp; Storage</a>).</li>
+                <li><strong>Account Information (optional):</strong> If you choose to create an account, we collect the information necessary for authentication, secured with JWT (JSON Web Token) technology.</li>
+                <li><strong>Style and Prompt Selections:</strong> The artistic styles and any customization options you select when generating artwork.</li>
+            </ul>
+
+            <h3>Information Collected Automatically</h3>
+            <ul>
+                <li><strong>Device Identifier:</strong> A unique device ID used to manage your generation limits and associate your usage with your device. This is not linked to your personal identity.</li>
+                <li><strong>Anonymous Usage Analytics:</strong> We collect anonymized data about how you interact with the App, including features used, generation counts, and general usage patterns. This helps us improve QuipPix.</li>
+                <li><strong>Job Tracking Data:</strong> Technical records of your image transformation jobs (status, timestamps, style selections) stored in a local SQLite database to manage the processing queue.</li>
+            </ul>
+
+            <h3>Information We Do NOT Collect</h3>
+            <ul>
+                <li>Your name, email address, or phone number (unless you voluntarily create an account)</li>
+                <li>Precise geolocation data</li>
+                <li>Contacts, calendars, or other personal data from your device</li>
+            </ul>
+        </section>
+
+        <!-- 3. How We Use Your Information -->
+        <section class="section" id="how-we-use">
+            <h2><span class="section-number">03</span> How We Use Your Information</h2>
+            <p>We use the information we collect for the following purposes:</p>
+            <ul>
+                <li><strong>Provide the Service:</strong> To transform your photos into artistic styles using AI-powered image generation.</li>
+                <li><strong>Manage Usage Limits:</strong> To enforce daily generation limits based on your subscription tier (5 per day for Free, 30 per day for Pro).</li>
+                <li><strong>Process Transactions:</strong> To validate and manage in-app purchases and subscriptions through Apple and RevenueCat.</li>
+                <li><strong>Improve the App:</strong> To understand how users interact with QuipPix so we can enhance features, fix issues, and develop new artistic styles.</li>
+                <li><strong>Queue Management:</strong> To manage image processing jobs through our Redis-based queuing system, ensuring reliable delivery of your generated artwork.</li>
+                <li><strong>Send Notifications:</strong> If you opt in, to send push notifications about daily challenges and new features.</li>
+            </ul>
+        </section>
+
+        <!-- 4. Photo Processing & Storage -->
+        <section class="section" id="photo-processing">
+            <h2><span class="section-number">04</span> Photo Processing &amp; Storage</h2>
+            <p>Transparency about how we handle your photos is critically important to us. Here is exactly what happens when you use QuipPix:</p>
+            <ol>
+                <li><strong>Upload:</strong> When you submit a photo for transformation, it is securely transmitted to our servers.</li>
+                <li><strong>Processing:</strong> Your photo is sent to OpenAI's image generation API, which processes the image and generates the artistic transformation based on your selected style.</li>
+                <li><strong>Delivery:</strong> The generated artwork is delivered back to you within the App.</li>
+                <li><strong>Deletion:</strong> Your original uploaded photo and the generated image are automatically deleted from our servers within <strong>one (1) hour</strong> of processing.</li>
+            </ol>
+
+            <div class="callout">
+                <p><strong>Important:</strong> Your photos are sent to OpenAI for processing. While on our servers, photos are stored temporarily and are automatically purged within one hour. We do not retain, review, or use your photos for any purpose beyond generating your requested artwork. Please also review <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener">OpenAI's Privacy Policy</a> for information about how they handle data processed through their API.</p>
+            </div>
+        </section>
+
+        <!-- 5. Third-Party Services -->
+        <section class="section" id="third-party">
+            <h2><span class="section-number">05</span> Third-Party Services</h2>
+            <p>QuipPix relies on the following third-party services to operate. Each has its own privacy policy governing their use of data:</p>
+            <ul>
+                <li><strong>OpenAI:</strong> Provides the AI image generation API that powers photo transformations. Your uploaded photos are sent to OpenAI for processing. <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener">OpenAI Privacy Policy</a></li>
+                <li><strong>RevenueCat:</strong> Manages in-app purchase and subscription validation. RevenueCat receives transaction data from Apple to verify your subscription status. <a href="https://www.revenuecat.com/privacy" target="_blank" rel="noopener">RevenueCat Privacy Policy</a></li>
+                <li><strong>Apple (App Store):</strong> Processes all in-app purchase payments. We do not receive or store your payment details; these are handled entirely by Apple. <a href="https://www.apple.com/legal/privacy/" target="_blank" rel="noopener">Apple Privacy Policy</a></li>
+            </ul>
+            <p>We require that our third-party service providers handle your data in a manner consistent with this Privacy Policy and applicable laws. However, we are not responsible for the privacy practices of these third parties. We encourage you to review their respective policies.</p>
+        </section>
+
+        <!-- 6. Data Retention -->
+        <section class="section" id="data-retention">
+            <h2><span class="section-number">06</span> Data Retention</h2>
+            <ul>
+                <li><strong>Uploaded Photos:</strong> Automatically deleted within <strong>1 hour</strong> of processing.</li>
+                <li><strong>Generated Artwork:</strong> Automatically deleted from our servers within <strong>1 hour</strong> of generation. You may save generated images to your device locally.</li>
+                <li><strong>Device Identifier:</strong> Retained while you actively use the App. Removed upon account deletion request.</li>
+                <li><strong>Usage Analytics:</strong> Anonymized analytics data may be retained in aggregate form for up to 12 months to inform product improvements.</li>
+                <li><strong>Job Tracking Records:</strong> Processing job metadata is retained for operational purposes and is purged periodically.</li>
+                <li><strong>Account Data:</strong> If you create an account, your account data is retained until you request deletion.</li>
+            </ul>
+        </section>
+
+        <!-- 7. Data Security -->
+        <section class="section" id="data-security">
+            <h2><span class="section-number">07</span> Data Security</h2>
+            <p>We take the security of your data seriously and implement appropriate technical and organizational measures, including:</p>
+            <ul>
+                <li>Encrypted data transmission (HTTPS/TLS) for all communications between the App and our servers.</li>
+                <li>JWT-based authentication for account security.</li>
+                <li>Automatic deletion of uploaded and generated images within one hour.</li>
+                <li>Secure server infrastructure with access controls.</li>
+            </ul>
+            <p>While we strive to protect your data, no method of transmission or storage is 100% secure. We cannot guarantee absolute security but are committed to promptly addressing any security incidents.</p>
+        </section>
+
+        <!-- 8. Your Rights & Choices -->
+        <section class="section" id="your-rights">
+            <h2><span class="section-number">08</span> Your Rights &amp; Choices</h2>
+            <p>You have the following rights regarding your data:</p>
+            <ul>
+                <li><strong>Data Export:</strong> You can export your data directly from the App's settings. This provides you with a copy of the information we hold about your account and usage.</li>
+                <li><strong>Account Deletion:</strong> You can delete your account and all associated data at any time from the App's settings. Upon deletion, we will remove your data from our active systems. Some anonymized, aggregated data may persist in backups for a limited time.</li>
+                <li><strong>Push Notifications:</strong> You can enable or disable push notifications at any time through your device settings or within the App.</li>
+                <li><strong>Opt Out of Analytics:</strong> You may contact us to request opting out of anonymized usage analytics.</li>
+            </ul>
+            <p>If you are located in the European Economic Area (EEA), United Kingdom, or California, you may have additional rights under GDPR, UK GDPR, or CCPA respectively. Please contact us to exercise these rights.</p>
+        </section>
+
+        <!-- 9. No Data Sales -->
+        <section class="section" id="no-data-sales">
+            <h2><span class="section-number">09</span> We Do Not Sell Your Data</h2>
+            <div class="callout">
+                <p><strong>Motiontography does not sell, rent, or trade your personal information to third parties.</strong> We do not share your data with advertisers or data brokers. Your photos and personal information are used solely to provide and improve the QuipPix service.</p>
+            </div>
+        </section>
+
+        <!-- 10. Children's Privacy -->
+        <section class="section" id="childrens-privacy">
+            <h2><span class="section-number">10</span> Children's Privacy</h2>
+            <p>QuipPix is not intended for use by children under the age of 13. We do not knowingly collect personal information from children under 13. If we become aware that we have inadvertently collected personal information from a child under 13, we will take steps to delete that information as promptly as possible.</p>
+            <p>If you are a parent or guardian and believe your child has provided us with personal information, please contact us at <a href="mailto:hello@motiontography.com">hello@motiontography.com</a> so we can take appropriate action.</p>
+        </section>
+
+        <!-- 11. Push Notifications -->
+        <section class="section" id="push-notifications">
+            <h2><span class="section-number">11</span> Push Notifications</h2>
+            <p>QuipPix may offer optional push notifications for features such as daily artistic challenges and announcements about new styles or features. Push notifications are entirely optional and require your explicit consent.</p>
+            <p>You can manage your notification preferences at any time through your device's system settings or within the QuipPix app. Disabling notifications will not affect the core functionality of the App.</p>
+        </section>
+
+        <!-- 12. Changes -->
+        <section class="section" id="changes">
+            <h2><span class="section-number">12</span> Changes to This Policy</h2>
+            <p>We may update this Privacy Policy from time to time to reflect changes in our practices, technology, legal requirements, or other factors. When we make material changes, we will notify you by updating the "Last updated" date at the top of this policy and, where appropriate, provide additional notice within the App.</p>
+            <p>We encourage you to review this Privacy Policy periodically to stay informed about how we protect your data. Your continued use of QuipPix after any changes constitutes your acceptance of the updated policy.</p>
+        </section>
+
+        <!-- 13. Contact -->
+        <div class="contact-card" id="contact">
+            <h2>Questions or Concerns?</h2>
+            <p>If you have any questions about this Privacy Policy or our data practices, we would love to hear from you.</p>
+            <a href="mailto:hello@motiontography.com" class="email-link">hello@motiontography.com</a>
+            <p style="margin-top: 16px; font-size: 13px; color: #5A5A6E;">Motiontography &mdash; <a href="https://www.motiontography.com" target="_blank" rel="noopener">www.motiontography.com</a></p>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 Motiontography. All rights reserved.</p>
+        <p style="margin-top: 8px;"><a href="https://www.motiontography.com">Motiontography</a> &middot; <a href="quippix-terms.html">Terms of Use</a></p>
+    </footer>
+
+</body>
+</html>

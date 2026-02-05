@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Use — QuipPix by Motiontography</title>
+    <meta name="description" content="Terms of Use for QuipPix, a photo-to-art transformation app by Motiontography.">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #0D0D1A;
+            color: #C8C8D4;
+            line-height: 1.7;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        a {
+            color: #8B5CF6;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: #A78BFA;
+            text-decoration: underline;
+        }
+
+        /* Top navigation bar */
+        .top-bar {
+            background-color: rgba(13, 13, 26, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(108, 92, 231, 0.15);
+            padding: 14px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .top-bar-inner {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-link {
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #8B5CF6;
+        }
+
+        .back-link:hover {
+            color: #A78BFA;
+            text-decoration: none;
+        }
+
+        .back-link svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .top-bar-brand {
+            font-size: 13px;
+            color: #6C5CE7;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Hero / header section */
+        .hero {
+            text-align: center;
+            padding: 60px 24px 40px;
+            background: linear-gradient(180deg, rgba(108, 92, 231, 0.08) 0%, transparent 100%);
+        }
+
+        .logo-mark {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #6C5CE7, #8B5CF6);
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(108, 92, 231, 0.3);
+        }
+
+        .logo-mark svg {
+            width: 38px;
+            height: 38px;
+            fill: #FFFFFF;
+        }
+
+        .hero h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+
+        .hero .app-name {
+            font-size: 15px;
+            color: #8B5CF6;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .hero .subtitle {
+            font-size: 15px;
+            color: #7A7A8E;
+        }
+
+        .last-updated {
+            display: inline-block;
+            margin-top: 16px;
+            font-size: 13px;
+            color: #5A5A6E;
+            background-color: rgba(108, 92, 231, 0.08);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(108, 92, 231, 0.12);
+        }
+
+        /* Main content area */
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 24px 80px;
+        }
+
+        /* Table of Contents */
+        .toc {
+            background-color: #1A1A2E;
+            border: 1px solid rgba(108, 92, 231, 0.12);
+            border-radius: 12px;
+            padding: 28px 32px;
+            margin-bottom: 40px;
+        }
+
+        .toc h2 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #8B5CF6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .toc ol {
+            list-style: none;
+            counter-reset: toc-counter;
+        }
+
+        .toc ol li {
+            counter-increment: toc-counter;
+            margin-bottom: 8px;
+        }
+
+        .toc ol li a {
+            font-size: 15px;
+            color: #C8C8D4;
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            padding: 4px 0;
+            transition: color 0.2s ease, padding-left 0.2s ease;
+        }
+
+        .toc ol li a::before {
+            content: counter(toc-counter, decimal-leading-zero);
+            font-size: 12px;
+            font-weight: 700;
+            color: #6C5CE7;
+            min-width: 22px;
+        }
+
+        .toc ol li a:hover {
+            color: #FFFFFF;
+            text-decoration: none;
+            padding-left: 4px;
+        }
+
+        /* Section cards */
+        .section {
+            background-color: #1A1A2E;
+            border: 1px solid rgba(108, 92, 231, 0.08);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            transition: border-color 0.2s ease;
+        }
+
+        .section:hover {
+            border-color: rgba(108, 92, 231, 0.2);
+        }
+
+        .section h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(108, 92, 231, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h2 .section-number {
+            font-size: 13px;
+            font-weight: 700;
+            color: #6C5CE7;
+            background-color: rgba(108, 92, 231, 0.1);
+            padding: 3px 10px;
+            border-radius: 6px;
+        }
+
+        .section h3 {
+            font-size: 17px;
+            font-weight: 600;
+            color: #E0E0EC;
+            margin-top: 22px;
+            margin-bottom: 10px;
+        }
+
+        .section p {
+            margin-bottom: 14px;
+            color: #B0B0C0;
+        }
+
+        .section ul, .section ol {
+            margin-bottom: 14px;
+            padding-left: 24px;
+        }
+
+        .section li {
+            margin-bottom: 8px;
+            color: #B0B0C0;
+        }
+
+        .section li strong {
+            color: #D0D0DC;
+        }
+
+        /* Highlight / callout box */
+        .callout {
+            background-color: rgba(108, 92, 231, 0.06);
+            border-left: 3px solid #6C5CE7;
+            border-radius: 0 8px 8px 0;
+            padding: 16px 20px;
+            margin: 18px 0;
+        }
+
+        .callout p {
+            margin-bottom: 0;
+            font-size: 14px;
+            color: #A0A0B4;
+        }
+
+        .callout strong {
+            color: #C8C8D4;
+        }
+
+        .callout.warning {
+            border-left-color: #F59E0B;
+            background-color: rgba(245, 158, 11, 0.06);
+        }
+
+        /* Contact card */
+        .contact-card {
+            background: linear-gradient(135deg, rgba(108, 92, 231, 0.1), rgba(139, 92, 246, 0.05));
+            border: 1px solid rgba(108, 92, 231, 0.2);
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .contact-card h2 {
+            font-size: 20px;
+            color: #FFFFFF;
+            margin-bottom: 10px;
+        }
+
+        .contact-card p {
+            color: #9090A4;
+            margin-bottom: 16px;
+            font-size: 15px;
+        }
+
+        .contact-card .email-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #6C5CE7, #8B5CF6);
+            color: #FFFFFF;
+            font-weight: 600;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .contact-card .email-link:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(108, 92, 231, 0.35);
+            text-decoration: none;
+            color: #FFFFFF;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 24px;
+            border-top: 1px solid rgba(108, 92, 231, 0.08);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer p {
+            font-size: 13px;
+            color: #4A4A5E;
+        }
+
+        .footer a {
+            color: #6C5CE7;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .hero {
+                padding: 40px 20px 30px;
+            }
+
+            .hero h1 {
+                font-size: 26px;
+            }
+
+            .content {
+                padding: 0 16px 60px;
+            }
+
+            .section {
+                padding: 24px 20px;
+            }
+
+            .toc {
+                padding: 22px 20px;
+            }
+
+            .section h2 {
+                font-size: 19px;
+            }
+
+            .top-bar-brand {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Bar -->
+    <nav class="top-bar" role="navigation" aria-label="Main navigation">
+        <div class="top-bar-inner">
+            <a href="https://www.motiontography.com" class="back-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                Back to Motiontography
+            </a>
+            <span class="top-bar-brand">Motiontography</span>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="hero">
+        <div class="logo-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <rect x="8" y="10" width="32" height="24" rx="3" fill="none" stroke="#FFF" stroke-width="2.5"/>
+                <circle cx="24" cy="22" r="7" fill="none" stroke="#FFF" stroke-width="2.5"/>
+                <circle cx="24" cy="22" r="3" fill="#FFF"/>
+                <circle cx="35" cy="15" r="2" fill="#FFF"/>
+                <path d="M14 38L20 30L25 34L32 26L38 38Z" fill="#FFF" opacity="0.5"/>
+            </svg>
+        </div>
+        <p class="app-name">QuipPix</p>
+        <h1>Terms of Use</h1>
+        <p class="subtitle">The agreement between you and Motiontography</p>
+        <span class="last-updated">Last updated: February 2026</span>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+
+        <!-- Table of Contents -->
+        <nav class="toc" aria-label="Table of contents">
+            <h2>Contents</h2>
+            <ol>
+                <li><a href="#acceptance">Acceptance of Terms</a></li>
+                <li><a href="#description">Description of Service</a></li>
+                <li><a href="#eligibility">Eligibility</a></li>
+                <li><a href="#accounts">Accounts &amp; Authentication</a></li>
+                <li><a href="#acceptable-use">Acceptable Use</a></li>
+                <li><a href="#intellectual-property">Intellectual Property</a></li>
+                <li><a href="#purchases">In-App Purchases &amp; Subscriptions</a></li>
+                <li><a href="#content-moderation">Content Moderation</a></li>
+                <li><a href="#third-party">Third-Party Services</a></li>
+                <li><a href="#availability">Service Availability</a></li>
+                <li><a href="#limitation">Limitation of Liability</a></li>
+                <li><a href="#indemnification">Indemnification</a></li>
+                <li><a href="#termination">Termination</a></li>
+                <li><a href="#changes">Changes to These Terms</a></li>
+                <li><a href="#governing-law">Governing Law</a></li>
+                <li><a href="#severability">Severability</a></li>
+                <li><a href="#contact">Contact Us</a></li>
+            </ol>
+        </nav>
+
+        <!-- 1. Acceptance of Terms -->
+        <section class="section" id="acceptance">
+            <h2><span class="section-number">01</span> Acceptance of Terms</h2>
+            <p>By downloading, installing, accessing, or using QuipPix ("the App"), you agree to be bound by these Terms of Use ("Terms"). These Terms constitute a legal agreement between you ("you" or "user") and <strong>Motiontography</strong> ("we," "us," or "our").</p>
+            <p>If you do not agree to these Terms, you must not use the App. Your continued use of QuipPix constitutes your ongoing acceptance of these Terms and any future modifications.</p>
+            <div class="callout">
+                <p><strong>Please read these Terms carefully before using QuipPix.</strong> They include important information about your rights, obligations, and limitations of liability.</p>
+            </div>
+        </section>
+
+        <!-- 2. Description of Service -->
+        <section class="section" id="description">
+            <h2><span class="section-number">02</span> Description of Service</h2>
+            <p>QuipPix is a photo-to-art transformation application that allows users to upload photographs and transform them into various artistic styles, including but not limited to:</p>
+            <ul>
+                <li>Caricatures</li>
+                <li>Oil paintings</li>
+                <li>Watercolors</li>
+                <li>Anime and manga styles</li>
+                <li>And additional artistic styles as made available</li>
+            </ul>
+            <p>The App uses artificial intelligence, specifically OpenAI's image generation API, to process and transform your images. The service is provided on a tiered basis:</p>
+            <ul>
+                <li><strong>Free Tier:</strong> 5 daily image generations with access to 6 artistic styles.</li>
+                <li><strong>Pro Tier:</strong> 30 daily image generations with access to 15 artistic styles, plus larger output sizes and additional features.</li>
+            </ul>
+            <p>Daily generation limits reset every 24 hours. Unused generations do not carry over to the next day.</p>
+        </section>
+
+        <!-- 3. Eligibility -->
+        <section class="section" id="eligibility">
+            <h2><span class="section-number">03</span> Eligibility</h2>
+            <p>You must be at least 13 years of age to use QuipPix. If you are between 13 and 18 years of age (or the age of majority in your jurisdiction), you may only use the App with the consent of a parent or legal guardian who agrees to be bound by these Terms.</p>
+            <p>By using the App, you represent and warrant that you meet these eligibility requirements.</p>
+        </section>
+
+        <!-- 4. Accounts & Authentication -->
+        <section class="section" id="accounts">
+            <h2><span class="section-number">04</span> Accounts &amp; Authentication</h2>
+            <p>QuipPix offers optional account creation with JWT-based authentication. While an account is not required to use the basic features of the App, certain features may require or benefit from account registration.</p>
+            <p>If you create an account, you are responsible for:</p>
+            <ul>
+                <li>Maintaining the confidentiality of your account credentials.</li>
+                <li>All activity that occurs under your account.</li>
+                <li>Notifying us promptly of any unauthorized use of your account.</li>
+            </ul>
+            <p>We reserve the right to suspend or terminate accounts that we reasonably believe are being used in violation of these Terms.</p>
+        </section>
+
+        <!-- 5. Acceptable Use -->
+        <section class="section" id="acceptable-use">
+            <h2><span class="section-number">05</span> Acceptable Use</h2>
+            <p>You agree to use QuipPix only for lawful purposes and in accordance with these Terms. When using the App, you agree <strong>NOT</strong> to:</p>
+            <ul>
+                <li><strong>Upload illegal content:</strong> Submit photos that depict illegal activity, exploit minors, or violate any applicable law or regulation.</li>
+                <li><strong>Upload harmful content:</strong> Submit content that is threatening, harassing, defamatory, obscene, or otherwise objectionable.</li>
+                <li><strong>Submit NSFW material:</strong> Upload sexually explicit, pornographic, or excessively violent images.</li>
+                <li><strong>Infringe on rights:</strong> Upload images for which you do not have the necessary rights, permissions, or licenses, or that infringe on the intellectual property or privacy rights of others.</li>
+                <li><strong>Attempt to circumvent:</strong> Try to bypass daily generation limits, subscription requirements, content filters, or any other technical restrictions of the App.</li>
+                <li><strong>Abuse the service:</strong> Use automated scripts, bots, or other tools to access or interact with the App in a manner not intended by its design.</li>
+                <li><strong>Reverse engineer:</strong> Decompile, disassemble, reverse engineer, or attempt to derive the source code of the App or its AI processing pipeline.</li>
+                <li><strong>Impersonate others:</strong> Use the App to create misleading content intended to impersonate or deceive others, including deepfakes.</li>
+            </ul>
+            <p>Violation of these rules may result in immediate suspension or termination of your access to QuipPix, at our sole discretion.</p>
+        </section>
+
+        <!-- 6. Intellectual Property -->
+        <section class="section" id="intellectual-property">
+            <h2><span class="section-number">06</span> Intellectual Property</h2>
+
+            <h3>Your Content</h3>
+            <p>You retain all ownership rights to the original photographs you upload to QuipPix. By uploading a photo, you grant us a limited, temporary license to process that image solely for the purpose of generating your requested artwork. This license terminates when the image is deleted from our servers (within one hour of processing).</p>
+
+            <h3>Generated Artwork</h3>
+            <p>Artwork generated by QuipPix through AI transformation is licensed to you for personal and commercial use, subject to the following conditions:</p>
+            <ul>
+                <li>You may use, share, print, and publish generated artwork.</li>
+                <li>You may use generated artwork for commercial purposes.</li>
+                <li>You may not claim that AI-generated artwork is a traditional photograph or human-created artwork in contexts where such distinction is material.</li>
+                <li>Your use of generated images is also subject to <a href="https://openai.com/policies/terms-of-use" target="_blank" rel="noopener">OpenAI's Terms of Use</a>, as their technology powers the generation process.</li>
+            </ul>
+
+            <h3>Our Intellectual Property</h3>
+            <p>The QuipPix application, including its design, branding, user interface, code, algorithms, and all associated intellectual property, is owned by Motiontography and protected by applicable intellectual property laws. These Terms do not grant you any rights to our trademarks, logos, or brand assets.</p>
+        </section>
+
+        <!-- 7. In-App Purchases & Subscriptions -->
+        <section class="section" id="purchases">
+            <h2><span class="section-number">07</span> In-App Purchases &amp; Subscriptions</h2>
+            <p>QuipPix offers a Pro subscription tier available as an in-app purchase through the Apple App Store.</p>
+
+            <h3>Subscription Details</h3>
+            <ul>
+                <li><strong>Auto-Renewal:</strong> Subscriptions automatically renew at the end of each billing period unless you cancel at least 24 hours before the renewal date.</li>
+                <li><strong>Payment:</strong> All payments are processed by Apple through the App Store. We do not directly collect or store your payment information.</li>
+                <li><strong>Price Changes:</strong> Subscription prices may change. You will be notified of any price changes before your next renewal, and your continued subscription constitutes acceptance of the new price.</li>
+            </ul>
+
+            <h3>Managing Your Subscription</h3>
+            <ul>
+                <li><strong>Cancel:</strong> You can cancel your subscription at any time through your Apple ID account settings. Cancellation takes effect at the end of the current billing period.</li>
+                <li><strong>Refunds:</strong> Refund requests must be directed to Apple, as they process all transactions. We do not have the ability to issue refunds for App Store purchases.</li>
+                <li><strong>Restore Purchases:</strong> If you reinstall the App or switch devices, you can restore your active subscription through the App's settings.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>Subscription management</strong> is handled through RevenueCat, which securely validates your purchase status with Apple. For questions about billing, please refer to your Apple ID subscription settings or contact <a href="https://support.apple.com">Apple Support</a>.</p>
+            </div>
+        </section>
+
+        <!-- 8. Content Moderation -->
+        <section class="section" id="content-moderation">
+            <h2><span class="section-number">08</span> Content Moderation</h2>
+            <p>QuipPix uses AI-powered image generation, which includes built-in content moderation. You should be aware that:</p>
+            <ul>
+                <li>The AI may refuse to process certain images or style prompts that it determines violate content policies.</li>
+                <li>Content moderation decisions are made automatically by the AI system and may occasionally produce false positives (rejecting acceptable content) or false negatives (allowing borderline content).</li>
+                <li>We reserve the right to review flagged content and take action, including removing content and suspending accounts, if violations are identified.</li>
+                <li>Repeated attempts to submit content that violates our <a href="#acceptable-use">Acceptable Use</a> policy may result in account termination.</li>
+            </ul>
+            <p>If you believe your content was incorrectly rejected, you may contact us at <a href="mailto:hello@motiontography.com">hello@motiontography.com</a> for review.</p>
+        </section>
+
+        <!-- 9. Third-Party Services -->
+        <section class="section" id="third-party">
+            <h2><span class="section-number">09</span> Third-Party Services</h2>
+            <p>QuipPix relies on third-party services to deliver its functionality. By using the App, you acknowledge and agree that:</p>
+            <ul>
+                <li><strong>OpenAI:</strong> Your uploaded photos are transmitted to OpenAI's API for AI-powered image transformation. Your use of this feature is subject to <a href="https://openai.com/policies/terms-of-use" target="_blank" rel="noopener">OpenAI's Terms of Use</a> and <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener">OpenAI's Privacy Policy</a>.</li>
+                <li><strong>Apple App Store:</strong> The download, installation, and payment for QuipPix are governed by Apple's terms and conditions.</li>
+                <li><strong>RevenueCat:</strong> Subscription validation is managed by RevenueCat, subject to their <a href="https://www.revenuecat.com/terms" target="_blank" rel="noopener">Terms of Service</a>.</li>
+            </ul>
+            <p>We are not responsible for the performance, availability, or policies of third-party services. Any issues arising from third-party services should be directed to those providers.</p>
+        </section>
+
+        <!-- 10. Service Availability -->
+        <section class="section" id="availability">
+            <h2><span class="section-number">10</span> Service Availability</h2>
+            <p>We strive to keep QuipPix available and functional at all times. However, you acknowledge and agree that:</p>
+            <ul>
+                <li><strong>No uptime guarantee:</strong> We do not guarantee 100% availability of the App or its services. The App may experience downtime due to maintenance, updates, server issues, or circumstances beyond our control.</li>
+                <li><strong>Service interruptions:</strong> AI processing depends on third-party APIs (including OpenAI), which may experience their own outages or rate limitations.</li>
+                <li><strong>Feature changes:</strong> We reserve the right to modify, suspend, or discontinue any feature of the App at any time, with or without notice.</li>
+                <li><strong>Maintenance:</strong> Scheduled and unscheduled maintenance may temporarily affect the availability of the service.</li>
+            </ul>
+            <p>We will make reasonable efforts to provide advance notice of planned downtime when possible.</p>
+        </section>
+
+        <!-- 11. Limitation of Liability -->
+        <section class="section" id="limitation">
+            <h2><span class="section-number">11</span> Limitation of Liability</h2>
+            <div class="callout warning">
+                <p><strong>Please read this section carefully as it limits our liability to you.</strong></p>
+            </div>
+            <p>To the maximum extent permitted by applicable law:</p>
+            <ul>
+                <li>QuipPix is provided on an <strong>"AS IS"</strong> and <strong>"AS AVAILABLE"</strong> basis, without warranties of any kind, either express or implied, including but not limited to implied warranties of merchantability, fitness for a particular purpose, and non-infringement.</li>
+                <li>We do not warrant that the App will be uninterrupted, error-free, secure, or that defects will be corrected.</li>
+                <li>We do not warrant the accuracy, quality, or reliability of any artwork generated by the AI.</li>
+                <li>In no event shall Motiontography, its directors, employees, partners, or affiliates be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, use, or goodwill, arising out of or related to your use of or inability to use the App.</li>
+                <li>Our total aggregate liability for all claims arising from or relating to the App shall not exceed the amount you have paid to us in the twelve (12) months preceding the claim, or fifty US dollars ($50), whichever is greater.</li>
+            </ul>
+            <p>Some jurisdictions do not allow the exclusion or limitation of certain warranties or liabilities, so some of the above limitations may not apply to you. In such cases, our liability will be limited to the fullest extent permitted by applicable law.</p>
+        </section>
+
+        <!-- 12. Indemnification -->
+        <section class="section" id="indemnification">
+            <h2><span class="section-number">12</span> Indemnification</h2>
+            <p>You agree to indemnify, defend, and hold harmless Motiontography and its officers, directors, employees, and agents from and against any and all claims, liabilities, damages, losses, costs, and expenses (including reasonable attorneys' fees) arising out of or related to:</p>
+            <ul>
+                <li>Your use of QuipPix.</li>
+                <li>Your violation of these Terms.</li>
+                <li>Your violation of any third-party rights, including intellectual property or privacy rights.</li>
+                <li>Any content you upload or submit through the App.</li>
+            </ul>
+        </section>
+
+        <!-- 13. Termination -->
+        <section class="section" id="termination">
+            <h2><span class="section-number">13</span> Termination</h2>
+            <p>We reserve the right to suspend or terminate your access to QuipPix at any time, with or without cause, and with or without notice, including but not limited to situations where:</p>
+            <ul>
+                <li>You violate these Terms or our Acceptable Use policy.</li>
+                <li>We are required to do so by law.</li>
+                <li>We discontinue the App or the service.</li>
+            </ul>
+            <p>You may stop using QuipPix at any time. If you have an account, you may delete it through the App's settings, which will result in the removal of your associated data from our systems.</p>
+            <p>Upon termination, your license to use the App is immediately revoked. Sections of these Terms that by their nature should survive termination (including Intellectual Property, Limitation of Liability, Indemnification, and Governing Law) will continue to apply.</p>
+        </section>
+
+        <!-- 14. Changes to These Terms -->
+        <section class="section" id="changes">
+            <h2><span class="section-number">14</span> Changes to These Terms</h2>
+            <p>We may revise these Terms from time to time at our sole discretion. When we make material changes, we will:</p>
+            <ul>
+                <li>Update the "Last updated" date at the top of these Terms.</li>
+                <li>Where appropriate, provide notice within the App.</li>
+            </ul>
+            <p>Your continued use of QuipPix after any changes to these Terms constitutes your acceptance of the revised Terms. If you do not agree to the new Terms, you should discontinue your use of the App.</p>
+            <p>We encourage you to review these Terms periodically to stay informed of any updates.</p>
+        </section>
+
+        <!-- 15. Governing Law -->
+        <section class="section" id="governing-law">
+            <h2><span class="section-number">15</span> Governing Law</h2>
+            <p>These Terms shall be governed by and construed in accordance with the laws of the United States, without regard to conflict of law principles. Any disputes arising under or in connection with these Terms shall be subject to the exclusive jurisdiction of the courts located in the United States.</p>
+            <p>If any dispute arises between you and Motiontography, we encourage you to first contact us at <a href="mailto:hello@motiontography.com">hello@motiontography.com</a> to attempt to resolve the matter informally before pursuing formal legal action.</p>
+        </section>
+
+        <!-- 16. Severability -->
+        <section class="section" id="severability">
+            <h2><span class="section-number">16</span> Severability</h2>
+            <p>If any provision of these Terms is found to be unenforceable or invalid by a court of competent jurisdiction, that provision shall be limited or eliminated to the minimum extent necessary, and the remaining provisions shall continue in full force and effect.</p>
+            <p>The failure of Motiontography to exercise or enforce any right or provision of these Terms shall not constitute a waiver of such right or provision.</p>
+        </section>
+
+        <!-- 17. Contact -->
+        <div class="contact-card" id="contact">
+            <h2>Questions About These Terms?</h2>
+            <p>If you have any questions, concerns, or feedback regarding these Terms of Use, we are here to help.</p>
+            <a href="mailto:hello@motiontography.com" class="email-link">hello@motiontography.com</a>
+            <p style="margin-top: 16px; font-size: 13px; color: #5A5A6E;">Motiontography &mdash; <a href="https://www.motiontography.com" target="_blank" rel="noopener">www.motiontography.com</a></p>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 Motiontography. All rights reserved.</p>
+        <p style="margin-top: 8px;"><a href="https://www.motiontography.com">Motiontography</a> &middot; <a href="quippix-privacy.html">Privacy Policy</a></p>
+    </footer>
+
+</body>
+</html>

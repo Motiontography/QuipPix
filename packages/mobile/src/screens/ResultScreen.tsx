@@ -43,6 +43,7 @@ import { cropToStories } from '../services/storiesFormat';
 import { QuickShareBar } from '../components/QuickShareBar';
 import { ShareTip } from '../components/ShareTip';
 import { ShareHistorySheet } from '../components/ShareHistorySheet';
+import { PoweredByMotiontography } from '../components/PoweredByMotiontography';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Result'>;
 type Route = RouteProp<RootStackParamList, 'Result'>;
@@ -452,7 +453,7 @@ export default function ResultScreen() {
               accessibilityLabel={`Generated ${stylePack.displayName} art`}
             >
               {watermarkEnabled && (
-                <Text style={styles.watermark}>Made in QuipPix</Text>
+                <Text style={styles.watermark}>QuipPix by Motiontography</Text>
               )}
             </ZoomableImage>
           )}
@@ -523,12 +524,9 @@ export default function ResultScreen() {
       <ShareHistorySheet visible={historyVisible} onClose={() => setHistoryVisible(false)} />
 
       {/* Footer */}
-      <TouchableOpacity
-        style={styles.footer}
-        onPress={() => Linking.openURL('https://motiontography.com')}
-      >
-        <Text style={styles.footerText}>motiontography.com</Text>
-      </TouchableOpacity>
+      <View style={styles.footer}>
+        <PoweredByMotiontography variant="inline" />
+      </View>
 
       <CoachMark
         markId={COACH_MARKS.RESULT_ZOOM.id}

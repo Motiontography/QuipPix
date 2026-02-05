@@ -34,6 +34,7 @@ import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme, ThemeMode } from '../contexts/ThemeContext';
 import { t } from '../i18n';
 import { UpdateBanner } from '../components/UpdateBanner';
+import { PoweredByMotiontography } from '../components/PoweredByMotiontography';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -535,13 +536,13 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* About */}
+        {/* Motiontography */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle} accessibilityRole="header">{t('settings.about')}</Text>
+          <PoweredByMotiontography variant="banner" />
 
           <TouchableOpacity
-            style={styles.linkRow}
-            onPress={() => Linking.openURL('https://motiontography.com')}
+            style={[styles.linkRow, { marginTop: spacing.md }]}
+            onPress={() => Linking.openURL('https://motiontography.com/portfolio.html')}
             accessibilityLabel="View Portfolio"
             accessibilityRole="link"
           >
@@ -624,7 +625,7 @@ export default function SettingsScreen() {
           }}
         >
           <Text style={styles.versionText}>QuipPix v{getAppVersion()} ({getBuildNumber()})</Text>
-          <Text style={styles.versionSub}>{t('settings.byMotiontography')}</Text>
+          <Text style={[styles.versionSub, { color: colors.primary, fontWeight: '600' }]}>A Motiontography Production</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

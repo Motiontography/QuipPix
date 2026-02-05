@@ -19,6 +19,7 @@ import OfflineBanner from '../components/OfflineBanner';
 import { GenerationCounter } from '../components/GenerationCounter';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
+import { PoweredByMotiontography } from '../components/PoweredByMotiontography';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'MainTabs'>;
 
@@ -196,12 +197,7 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity
-          onPress={() => Linking.openURL('https://motiontography.com')}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.footerLink}>{t('home.byMotiontography')}</Text>
-        </TouchableOpacity>
+        <PoweredByMotiontography variant="badge" />
       </View>
     </SafeAreaView>
   );

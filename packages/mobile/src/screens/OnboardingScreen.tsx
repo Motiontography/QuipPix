@@ -19,6 +19,7 @@ import { useAppStore } from '../store/useAppStore';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
 import { GradientButton } from '../components/GradientButton';
+import { PoweredByMotiontography } from '../components/PoweredByMotiontography';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Onboarding'>;
 
@@ -55,6 +56,12 @@ const SLIDES: Slide[] = [
     title: t('onboarding.slide4Title'),
     description: t('onboarding.slide4Desc'),
     highlights: ['Share cards', 'Remix deep links', 'Direct social posting'],
+  },
+  {
+    icon: '\uD83D\uDCF7',
+    title: t('onboarding.slide5Title'),
+    description: t('onboarding.slide5Desc'),
+    highlights: ['Professional Portraits', 'Events & Weddings', 'Commercial Work', 'Book a Session'],
   },
 ];
 
@@ -158,7 +165,7 @@ export default function OnboardingScreen() {
     },
   }), [colors]);
 
-  const renderSlide = ({ item }: { item: Slide }) => (
+  const renderSlide = ({ item, index }: { item: Slide; index: number }) => (
     <View style={styles.slide}>
       <Text style={styles.slideIcon}>{item.icon}</Text>
       <Text style={styles.slideTitle}>{item.title}</Text>
@@ -170,6 +177,11 @@ export default function OnboardingScreen() {
           </View>
         ))}
       </View>
+      {index === SLIDES.length - 1 && (
+        <View style={{ marginTop: spacing.xl }}>
+          <PoweredByMotiontography variant="banner" />
+        </View>
+      )}
     </View>
   );
 

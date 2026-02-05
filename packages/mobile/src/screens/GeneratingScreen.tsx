@@ -29,6 +29,7 @@ import { RetryBanner } from '../components/RetryBanner';
 import { classifyError, ErrorCategory } from '../utils/errorClassifier';
 import { savePendingGeneration, clearPendingGeneration } from '../services/generationRecovery';
 import { useNetworkQuality } from '../hooks/useNetworkQuality';
+import { PoweredByMotiontography } from '../components/PoweredByMotiontography';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Generating'>;
 type Route = RouteProp<RootStackParamList, 'Generating'>;
@@ -346,6 +347,10 @@ export default function GeneratingScreen() {
             {t('performance.slowNetwork')}
           </Text>
         )}
+
+        <View style={{ marginTop: spacing.xl }}>
+          <PoweredByMotiontography variant="inline" />
+        </View>
       </View>
     </SafeAreaView>
   );
