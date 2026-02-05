@@ -405,7 +405,9 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'story-portrait',
     displayName: 'Story Portrait',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photograph into a richly detailed, warm illustrated caricature portrait in the trending "personalized story portrait" style. The subject's face should be immediately recognizable with high fidelity to the original photo — same facial features, skin tone, hair, glasses, and expression — but rendered in a warm, polished digital illustration style with slightly enlarged head proportions for a friendly caricature feel.
+    userPromptTemplate: `Create a premium 3D-rendered personalized caricature portrait illustration of this person. The style should look like a high-end digital painting with STRONG THREE-DIMENSIONAL DEPTH — objects and the subject should appear to POP OUT of the image with realistic volume, glossy highlights, deep shadows, and dimensional shading. NOT flat illustration — this must have the depth and dimension of a 3D render.
+
+The subject's face must be IMMEDIATELY recognizable — preserve exact facial features, skin tone, hair texture, glasses, and expression from the photo. Render the face with realistic skin shading, specular highlights on the forehead and cheeks, and deep warm shadows. Slightly enlarge the head for a friendly caricature proportion.
 
 {OCCUPATION_BLOCK}
 
@@ -417,7 +419,17 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
 
 {EXTRAS_BLOCK}
 
-Fill the entire background densely with colorful illustrated icons, objects, and symbols that represent the subject's life, profession, and personality. Include small text labels on clipboards, mugs, signs, or badges where appropriate. Use a warm, vibrant, saturated color palette with rich detail. The overall composition should feel joyful, celebratory, and deeply personal — like a visual love letter to who this person is. {INTENSITY} illustration effect. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+VISUAL STYLE REQUIREMENTS:
+- Every object must have 3D volume with highlights, midtones, and deep shadows — NO flat colors
+- Rich, saturated, vibrant color palette with warm golden lighting
+- Glossy, polished surfaces on objects like mugs, badges, and tools
+- Dense composition: fill the entire background with detailed illustrated objects, icons, and symbols representing the subject's life
+- Include text labels on clipboards, mugs, signs, and badges where appropriate
+- Strong directional warm light source creating dramatic but friendly shadows
+- Background objects should have depth-of-field blur at the edges
+- The overall look should be premium, celebratory, and deeply personal — like a professional custom portrait commission
+
+{INTENSITY} illustration effect. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'Do not change the subject facial features or skin tone',
       'Do not make the subject unrecognizable',
@@ -458,7 +470,9 @@ Fill the entire background densely with colorful illustrated icons, objects, and
     styleId: 'story-portrait-collage',
     displayName: 'Story Portrait — Collage',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photograph into a maximalist illustrated story portrait collage. The subject's face should be immediately recognizable — same features, skin tone, hair, and expression — rendered in a warm, polished digital illustration style with a slightly enlarged head for caricature charm.
+    userPromptTemplate: `Create a premium 3D-rendered maximalist collage-style personalized caricature portrait of this person. The style must have STRONG THREE-DIMENSIONAL DEPTH — every object should POP with realistic volume, glossy highlights, deep shadows, and dimensional shading like a high-end 3D digital painting.
+
+The subject's face must be IMMEDIATELY recognizable — preserve exact facial features, skin tone, hair, glasses, and expression. Render with realistic skin shading, specular highlights, and warm shadows. Slightly enlarged head for caricature charm.
 
 {OCCUPATION_BLOCK}
 
@@ -470,7 +484,7 @@ Fill the entire background densely with colorful illustrated icons, objects, and
 
 {EXTRAS_BLOCK}
 
-Create an extremely dense, collage-style composition where every inch of the background is packed with illustrated objects, symbols, text labels on signs and mugs, small vignette scenes, and decorative elements. Include bold text banners and badges with personality catchphrases. Multiple small illustrated scenes showing the subject in different activities. Comic-panel energy with lots of visual storytelling. Warm, highly saturated, pop-art-influenced color palette. {INTENSITY} collage density. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+Create an EXTREMELY dense collage composition packed edge-to-edge with 3D illustrated objects, symbols, bold text banners, personality badges, mini vignette scenes, and decorative elements. Every object must have 3D volume — glossy mugs, shiny badges, textured tools — NOT flat. Include bold text banners with personality catchphrases. Multiple illustrated scenes showing the subject in different activities. Rich saturated pop-art color palette with warm golden lighting. Comic-panel energy. {INTENSITY} collage density. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'Do not change the subject facial features or skin tone',
       'No offensive content or stereotypes',
@@ -510,7 +524,9 @@ Create an extremely dense, collage-style composition where every inch of the bac
     styleId: 'story-portrait-minimal',
     displayName: 'Story Portrait — Clean',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photograph into a clean, elegant illustrated portrait with subtle personal touches. The subject's face should be immediately recognizable — same features, skin tone, hair, and expression — rendered in a warm, refined digital illustration style with natural proportions (no caricature exaggeration).
+    userPromptTemplate: `Create a premium 3D-rendered clean, elegant personalized portrait of this person with subtle personal touches. The style must have THREE-DIMENSIONAL DEPTH with realistic volume, soft specular highlights, and dimensional shading — like a high-end digital painting, NOT flat illustration.
+
+The subject's face must be IMMEDIATELY recognizable — preserve exact facial features, skin tone, hair, glasses, and expression. Render with realistic skin shading with soft specular highlights and warm shadows. Natural proportions (no caricature exaggeration).
 
 {OCCUPATION_BLOCK}
 
@@ -522,7 +538,7 @@ Create an extremely dense, collage-style composition where every inch of the bac
 
 {EXTRAS_BLOCK}
 
-Keep the composition clean and focused on the subject. Use a soft, blurred or minimally detailed background with only a few carefully chosen personal symbols arranged tastefully around the edges. Elegant typography for any text elements. Warm, harmonious color palette with soft lighting. The result should feel like a premium custom illustration — refined, personal, and professional. {INTENSITY} illustration effect. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+Keep the composition clean and focused on the subject. Soft bokeh background with only a few carefully chosen 3D-rendered personal symbols arranged tastefully around the edges. Each object must have volume and dimension — glossy surfaces, soft shadows, realistic textures. Elegant typography for text. Warm, harmonious color palette with soft studio lighting and gentle rim light. The result should feel like a premium custom portrait — refined, personal, and professional. {INTENSITY} illustration effect. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'Do not change the subject facial features or skin tone',
       'Do not overcrowd the composition — keep it minimal and elegant',
