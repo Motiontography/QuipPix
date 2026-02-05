@@ -144,7 +144,22 @@ export const generateWorker = new Worker<GenerateJobData>(
       };
       updateJobProgress(jobId, 50);
 
-      const result = await imageEngine.generate(engineRequest);
+      // Gradually tick progress during the long AI generation (30-90s)
+      // so the user sees continuous movement instead of stalling at 50%.
+      const progressTicker = setInterval(() => {
+        const entry = getJobEntry(jobId);
+        const current = entry?.progress ?? 50;
+        if (current < 78) {
+          updateJobProgress(jobId, current + 3);
+        }
+      }, 4000);
+
+      let result;
+      try {
+        result = await imageEngine.generate(engineRequest);
+      } finally {
+        clearInterval(progressTicker);
+      }
       updateJobProgress(jobId, 80);
 
       // 6. Post-generation moderation
