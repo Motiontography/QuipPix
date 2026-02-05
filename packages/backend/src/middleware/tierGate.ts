@@ -14,8 +14,7 @@ export async function tierGate(
   // If jwtAuth already set the tier from entitlements, keep it
   if (request.userId && request.tier) return;
 
-  // Legacy: read from header
-  const raw = request.headers['x-quippix-tier'];
-  const value = typeof raw === 'string' ? raw.toLowerCase() : 'free';
-  request.tier = value === 'pro' ? 'pro' : 'free';
+  // Never trust client-provided tier — default to free.
+  // Pro tier must be verified via JWT/entitlement, not a header.
+  request.tier = 'free';
 }

@@ -58,6 +58,9 @@ export default function SettingsScreen() {
   const [notificationsOn, setNotificationsOn] = useState(false);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [versionTapCount, setVersionTapCount] = useState(0);
+  const devModeEnabled = useAppStore((s) => s.devModeEnabled);
+  const setDevModeEnabled = useAppStore((s) => s.setDevModeEnabled);
 
   useEffect(() => {
     isNotificationsEnabled().then(setNotificationsOn);
@@ -548,7 +551,7 @@ export default function SettingsScreen() {
 
           <TouchableOpacity
             style={styles.linkRow}
-            onPress={() => Linking.openURL('https://motiontography.com/contact')}
+            onPress={() => Linking.openURL('https://motiontography.com/booking.html')}
             accessibilityLabel="Book a Real Shoot"
             accessibilityRole="link"
           >
@@ -558,7 +561,7 @@ export default function SettingsScreen() {
 
           <TouchableOpacity
             style={styles.linkRow}
-            onPress={() => Linking.openURL('https://quippix.app/privacy')}
+            onPress={() => Linking.openURL('https://motiontography.com/quippix-privacy.html')}
             accessibilityLabel="Privacy Policy"
             accessibilityRole="link"
           >
@@ -568,7 +571,7 @@ export default function SettingsScreen() {
 
           <TouchableOpacity
             style={styles.linkRow}
-            onPress={() => Linking.openURL('https://quippix.app/terms')}
+            onPress={() => Linking.openURL('https://motiontography.com/quippix-terms.html')}
             accessibilityLabel="Terms of Service"
             accessibilityRole="link"
           >
@@ -577,11 +580,52 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Developer Mode (hidden until activated) */}
+        {devModeEnabled && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle} accessibilityRole="header">Developer</Text>
+            <View style={styles.row}>
+              <View style={styles.rowInfo}>
+                <Text style={styles.rowLabel}>Developer Mode</Text>
+                <Text style={styles.rowDesc}>Bypass Pro paywall and daily limits for testing</Text>
+              </View>
+              <Switch
+                value={devModeEnabled}
+                onValueChange={(val) => {
+                  setDevModeEnabled(val);
+                  if (val) {
+                    setEntitlement({ proActive: true, proType: 'lifetime', expiresAt: null });
+                  } else {
+                    // Refresh real entitlement from RevenueCat
+                    useProStore.getState().refreshEntitlement().catch(() => {});
+                  }
+                }}
+                trackColor={{ false: colors.surfaceLight, true: '#E17055' }}
+                thumbColor={devModeEnabled ? '#E17055' : colors.textMuted}
+              />
+            </View>
+          </View>
+        )}
+
         {/* Version */}
-        <View style={styles.versionBlock}>
+        <TouchableOpacity
+          style={styles.versionBlock}
+          activeOpacity={0.7}
+          onPress={() => {
+            const newCount = versionTapCount + 1;
+            setVersionTapCount(newCount);
+            if (newCount >= 7 && !devModeEnabled) {
+              setDevModeEnabled(true);
+              setEntitlement({ proActive: true, proType: 'lifetime', expiresAt: null });
+              triggerHaptic('success');
+              Alert.alert('Developer Mode', 'Pro features unlocked for testing.');
+              setVersionTapCount(0);
+            }
+          }}
+        >
           <Text style={styles.versionText}>QuipPix v{getAppVersion()} ({getBuildNumber()})</Text>
           <Text style={styles.versionSub}>{t('settings.byMotiontography')}</Text>
-        </View>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );

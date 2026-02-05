@@ -25,9 +25,11 @@ export async function dailyGenerationLimit(
   request: FastifyRequest,
   reply: FastifyReply,
 ): Promise<void> {
+  // Use authenticated userId first, then fall back to IP to prevent anonymous abuse
   const userId =
     request.userId ??
-    (request.headers['x-quippix-user-id'] as string | undefined);
+    (request.headers['x-quippix-user-id'] as string | undefined) ??
+    `ip:${request.ip}`;
   if (typeof userId !== 'string' || userId.length === 0) return;
 
   const tier: Tier = request.tier ?? 'free';

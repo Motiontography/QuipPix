@@ -121,6 +121,10 @@ interface AppState {
   submitFeedback: (itemId: string, positive: boolean) => void;
   hasFeedback: (itemId: string) => boolean;
 
+  // Developer Mode
+  devModeEnabled: boolean;
+  setDevModeEnabled: (enabled: boolean) => void;
+
   // Gallery Selectors
   getGalleryItemsBySource: (sourceUri: string) => GalleryItem[];
   getGalleryItem: (id: string) => GalleryItem | undefined;
@@ -156,6 +160,7 @@ const SHARE_HISTORY_KEY = '@quippix/shareHistory';
 const HIGH_CONTRAST_KEY = '@quippix/highContrast';
 const FONT_SCALING_KEY = '@quippix/fontScaling';
 const BIOMETRIC_LOCK_KEY = '@quippix/biometricLock';
+const DEV_MODE_KEY = '@quippix/devMode';
 
 export const useAppStore = create<AppState>((set, get) => ({
   // Gallery
@@ -348,6 +353,11 @@ export const useAppStore = create<AppState>((set, get) => ({
     try {
       const blRaw = await AsyncStorage.getItem(BIOMETRIC_LOCK_KEY);
       if (blRaw !== null) set({ biometricLockEnabled: JSON.parse(blRaw) });
+    } catch { /* Ignore */ }
+
+    try {
+      const dmRaw = await AsyncStorage.getItem(DEV_MODE_KEY);
+      if (dmRaw !== null) set({ devModeEnabled: JSON.parse(dmRaw) });
     } catch { /* Ignore */ }
   },
 
@@ -641,6 +651,13 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   hasFeedback: (itemId: string) => {
     return itemId in get().feedbackItems;
+  },
+
+  // Developer Mode
+  devModeEnabled: false,
+  setDevModeEnabled: async (enabled: boolean) => {
+    set({ devModeEnabled: enabled });
+    await AsyncStorage.setItem(DEV_MODE_KEY, JSON.stringify(enabled));
   },
 
   // Gallery Selectors

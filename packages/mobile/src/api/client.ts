@@ -38,6 +38,11 @@ class ApiClient {
     if (this.authToken && !headers.has('Authorization')) {
       headers.set('Authorization', `Bearer ${this.authToken}`);
     }
+    // When body is FormData, remove any explicit Content-Type so React Native
+    // auto-generates the correct multipart boundary.
+    if (init?.body instanceof FormData) {
+      headers.delete('Content-Type');
+    }
     return fetch(url, { ...init, headers });
   }
 
@@ -62,12 +67,11 @@ class ApiClient {
     // Append params as JSON string
     formData.append('params', JSON.stringify(params));
 
+    // Do NOT set Content-Type manually — React Native must auto-set it
+    // with the multipart boundary. Setting it explicitly breaks the upload.
     const res = await this.request(`${this.baseUrl}/generate`, {
       method: 'POST',
       body: formData,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
     });
 
     if (!res.ok) {
@@ -124,9 +128,6 @@ class ApiClient {
     const res = await this.request(`${this.baseUrl}/batch-generate`, {
       method: 'POST',
       body: formData,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
     });
 
     if (!res.ok) {

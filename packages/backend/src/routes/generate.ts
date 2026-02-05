@@ -105,8 +105,14 @@ export async function generateRoutes(app: FastifyInstance): Promise<void> {
 
     // Enqueue generation job
     const jobId = nanoid(12);
-    enqueueGenerate(jobId, inputKey, genRequest, request.tier, outputSize, request.userId);
+    try {
+      enqueueGenerate(jobId, inputKey, genRequest, request.tier, outputSize, request.userId);
+    } catch (enqueueErr: any) {
+      logger.error({ jobId, error: enqueueErr.message }, 'Failed to enqueue generation job');
+      return reply.status(500).send({ error: 'Failed to start generation. Please try again.' });
+    }
 
+    // Only count against daily limit after job is successfully enqueued
     if (request.userId) {
       await incrementDailyCount(request.userId);
     }

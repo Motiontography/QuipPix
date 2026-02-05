@@ -3,6 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList, StyleId } from '../types';
 import { useProStore } from '../store/useProStore';
+import { useAppStore } from '../store/useAppStore';
 import { isProStyle, isProSize } from '../services/tierConfig';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -10,7 +11,8 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 export function usePaywallGuard() {
   const navigation = useNavigation<Nav>();
   const entitlement = useProStore((s) => s.entitlement);
-  const isPro = entitlement.proActive;
+  const devMode = useAppStore((s) => s.devModeEnabled);
+  const isPro = entitlement.proActive || devMode;
 
   const guardStyle = useCallback(
     (styleId: StyleId): boolean => {

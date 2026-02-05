@@ -35,13 +35,15 @@ async function start() {
 
   // Plugins
   await app.register(cors, {
-    origin: true,
+    origin: config.server.env === 'production'
+      ? ['https://motiontography.com', 'https://quippix-production.up.railway.app']
+      : true,
     methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
   });
 
   await app.register(multipart, {
     limits: {
-      fileSize: 20 * 1024 * 1024, // 20MB per file
+      fileSize: 10 * 1024 * 1024, // 10MB per file (images are compressed client-side)
       files: 10,
     },
   });

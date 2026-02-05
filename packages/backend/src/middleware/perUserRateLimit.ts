@@ -21,7 +21,9 @@ export async function perUserRateLimit(
   request: FastifyRequest,
   reply: FastifyReply,
 ): Promise<void> {
-  const userId = request.userId ?? (request.headers['x-quippix-user-id'] as string | undefined);
+  // Use authenticated userId first, then fall back to IP to prevent anonymous abuse
+  const headerUserId = request.headers['x-quippix-user-id'] as string | undefined;
+  const userId = request.userId ?? headerUserId ?? `ip:${request.ip}`;
   if (typeof userId !== 'string' || userId.length === 0) return;
 
   const tier: Tier = request.tier ?? 'free';

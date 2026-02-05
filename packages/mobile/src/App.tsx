@@ -24,7 +24,14 @@ function AppContent() {
 
   useEffect(() => {
     Promise.all([loadGallery(), loadProState()])
-      .then(() => setIsReady(true))
+      .then(() => {
+        // If dev mode was persisted, activate pro bypass on startup
+        const devMode = useAppStore.getState().devModeEnabled;
+        if (devMode) {
+          setEntitlement({ proActive: true, proType: 'lifetime', expiresAt: null });
+        }
+        setIsReady(true);
+      })
       .catch(() => setIsReady(true));
 
     initPurchases()

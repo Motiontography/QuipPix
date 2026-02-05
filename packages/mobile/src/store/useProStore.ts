@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Entitlement } from '../services/purchases';
 import { getEntitlement } from '../services/purchases';
 import { api } from '../api/client';
+import { useAppStore } from './useAppStore';
 
 const PRO_STORAGE_KEY = '@quippix/pro';
 
@@ -68,6 +69,7 @@ export const useProStore = create<ProState>((set, get) => ({
   isDailyLimitReached: () => {
     const state = get();
     if (state.entitlement.proActive) return false;
+    if (useAppStore.getState().devModeEnabled) return false;
     const today = getToday();
     if (state.dailyDate !== today) return false;
     return state.dailyGenerations >= DAILY_LIMIT;
