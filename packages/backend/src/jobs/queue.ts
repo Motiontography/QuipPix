@@ -6,6 +6,7 @@ import { composePrompt } from '../services/promptComposer';
 import { getRecipe } from '../services/styleRecipes';
 import { moderatePrompt, checkProviderFlags } from '../services/moderation';
 import { getObjectBuffer, uploadResult, deleteObject } from '../services/storage';
+import { swapFace, enhanceFace, isFaceSwapEligible } from '../services/faceSwap';
 import { GenerateRequest, ImageEngineRequest, JobStatus, JobStatusResponse } from '../types';
 import { Tier, OutputSize } from '../services/tierConfig';
 import {
@@ -169,7 +170,7 @@ export const generateWorker = new Worker<GenerateJobData>(
         return;
       }
 
-      // 7. Upload result
+      // 7. Resolve image data
       if (!result.imageData && result.imageUrl) {
         // Fetch from URL if engine returned URL instead of base64
         const urlRes = await fetch(result.imageUrl);
@@ -180,6 +181,23 @@ export const generateWorker = new Worker<GenerateJobData>(
         throw new Error('No image data in engine response');
       }
 
+      // 8. Face-swap: swap user's real face onto the styled image
+      if (config.replicate.faceSwapEnabled && isFaceSwapEligible(request.styleId)) {
+        updateJobProgress(jobId, 82);
+        const swapped = await swapFace(imageBuffer, result.imageData);
+        if (swapped) result.imageData = swapped;
+        updateJobProgress(jobId, 88);
+      }
+
+      // 9. Face enhancement: polish with CodeFormer
+      if (config.replicate.faceEnhanceEnabled && isFaceSwapEligible(request.styleId)) {
+        updateJobProgress(jobId, 90);
+        const enhanced = await enhanceFace(result.imageData);
+        if (enhanced) result.imageData = enhanced;
+        updateJobProgress(jobId, 95);
+      }
+
+      // 10. Upload final result
       const resultKey = await uploadResult(result.imageData, jobId);
       dbSetJobResultKey(jobId, resultKey);
       updateJobStatus(jobId, 'done', 100);

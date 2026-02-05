@@ -118,4 +118,12 @@ export const config = {
     webhookSecret: env('REVENUECAT_WEBHOOK_SECRET', 'whsec_placeholder'),
     entitlementId: env('REVENUECAT_ENTITLEMENT_ID', 'pro'),
   },
+
+  replicate: {
+    apiToken: process.env.REPLICATE_API_TOKEN || undefined,
+    faceSwapEnabled: envBool('FACE_SWAP_ENABLED', false),
+    faceSwapModel: env('FACE_SWAP_MODEL', 'codeplugtech/face-swap'),
+    faceEnhanceEnabled: envBool('FACE_ENHANCE_ENABLED', false),
+    faceEnhanceModel: env('FACE_ENHANCE_MODEL', 'sczhou/codeformer'),
+  },
 } as const;
