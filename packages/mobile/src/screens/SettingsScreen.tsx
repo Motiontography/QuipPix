@@ -11,6 +11,7 @@ import {
   Platform,
   Alert,
   TextInput,
+  Keyboard,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
@@ -258,7 +259,7 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <Text style={styles.title} accessibilityRole="header">{t('settings.title')}</Text>
         <UpdateBanner />
 
@@ -613,33 +614,51 @@ export default function SettingsScreen() {
                 thumbColor={devModeEnabled ? '#E17055' : colors.textMuted}
               />
             </View>
-            <View style={styles.row}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.rowLabel}>Admin Key</Text>
-                <Text style={styles.rowDesc}>Required to bypass server-side daily limits</Text>
-                <TextInput
-                  style={[styles.rowLabel, {
-                    backgroundColor: colors.surfaceLight,
-                    borderRadius: 8,
-                    paddingHorizontal: 12,
-                    paddingVertical: 8,
-                    marginTop: 8,
-                    fontSize: 13,
-                    color: colors.textPrimary,
-                  }]}
-                  value={adminKey}
-                  onChangeText={(text) => {
-                    setAdminKey(text);
-                    AsyncStorage.setItem('@quippix/adminKey', text);
-                    api.setAdminKey(text || null);
-                  }}
-                  placeholder="Enter admin API key"
-                  placeholderTextColor={colors.textMuted}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  secureTextEntry
-                />
-              </View>
+            <View style={[styles.row, { flexDirection: 'column', alignItems: 'stretch' }]}>
+              <Text style={styles.rowLabel}>Admin Key</Text>
+              <Text style={styles.rowDesc}>Paste key, then tap Save to bypass server limits</Text>
+              <TextInput
+                style={{
+                  backgroundColor: colors.surfaceLight,
+                  borderRadius: 8,
+                  paddingHorizontal: 12,
+                  paddingVertical: 10,
+                  marginTop: 8,
+                  fontSize: 13,
+                  color: colors.textPrimary,
+                  fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+                }}
+                value={adminKey}
+                onChangeText={setAdminKey}
+                placeholder="Paste admin API key here"
+                placeholderTextColor={colors.textMuted}
+                autoCapitalize="none"
+                autoCorrect={false}
+                returnKeyType="done"
+                onSubmitEditing={() => {
+                  AsyncStorage.setItem('@quippix/adminKey', adminKey);
+                  api.setAdminKey(adminKey || null);
+                  Keyboard.dismiss();
+                  Alert.alert('Saved', 'Admin key saved. Server limits bypassed.');
+                }}
+              />
+              <TouchableOpacity
+                style={{
+                  backgroundColor: '#E17055',
+                  borderRadius: 8,
+                  paddingVertical: 10,
+                  marginTop: 8,
+                  alignItems: 'center',
+                }}
+                onPress={() => {
+                  AsyncStorage.setItem('@quippix/adminKey', adminKey);
+                  api.setAdminKey(adminKey || null);
+                  Keyboard.dismiss();
+                  Alert.alert('Saved', 'Admin key saved. Server limits bypassed.');
+                }}
+              >
+                <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 14 }}>Save Admin Key</Text>
+              </TouchableOpacity>
             </View>
           </View>
         )}
