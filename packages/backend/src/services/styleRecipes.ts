@@ -277,12 +277,23 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'pro-headshot',
     displayName: 'Pro Headshot',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photograph into a professional studio headshot. Clean {BACKDROP_COLOR} seamless paper backdrop with {SOFTNESS} edge falloff and {VIGNETTE} vignette. Three-point studio lighting: soft key light at 45 degrees, subtle fill light, and hair/rim light for separation. Professional frequency-separation skin retouching that preserves natural skin texture while smoothing blemishes. {COLOR_MOOD} color toning. {DETAIL}. The subject must be immediately recognizable. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `Transform this photograph into a polished, professional studio headshot suitable for LinkedIn, corporate websites, or a business card.
+
+FRAMING: Medium close-up shot framed from the top of the head (with headroom above) down to mid-chest. The subject's eyes should be positioned at approximately the upper third of the frame. Do NOT crop or cut off the top of the head. Center the subject horizontally. Shot at eye level with an 85mm f/1.4 lens on a full-frame camera.
+
+BACKGROUND: Clean, solid {BACKDROP_COLOR} seamless paper backdrop with {SOFTNESS} edge falloff and {VIGNETTE} vignette. No textures, no patterns, no distractions.
+
+LIGHTING: Professional three-point studio lighting. Soft key light from a large softbox positioned 45 degrees camera-left and slightly above eye level. Gentle fill light from camera-right reducing shadows to a 2:1 ratio. Hair/rim light from behind for clean subject separation from the backdrop. Two bright catchlights visible in both eyes from the key and fill lights.
+
+RETOUCHING: Smooth skin blemishes while preserving visible pores and natural skin texture — this must look like a real photograph, not a digital rendering. Subtle contouring with light and shadow to enhance bone structure. Bright, clear eyes. Teeth gently whitened if visible. Clean, groomed appearance. Subtle natural film grain for an authentic photographic feel.
+
+{COLOR_MOOD} color toning. {DETAIL}. The subject must be immediately and unmistakably recognizable as the same person. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
-      'No heavy filters',
-      'No plastic skin look',
-      'Keep it natural and professional',
-      'No background distractions',
+      'NEVER crop or cut off the top of the head — always include full head with headroom',
+      'No plastic, wax-figure, or over-smoothed skin — preserve visible pores and natural texture',
+      'No digital rendering look — this must be indistinguishable from a real studio photograph',
+      'No background distractions, textures, or gradients beyond what was specified',
+      'Do not change the subject facial features, skin tone, or identity',
     ],
     outputRequirements: {
       defaultSize: '1024x1024',
@@ -341,7 +352,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'motiontography-ethereal',
     displayName: 'Motiontography — Ethereal',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photograph into the signature Motiontography ethereal portrait style. Composite the subject into a dreamlike fantasy environment with soft, luminous atmosphere. Add flowing fabric elements — silk, chiffon, or tulle — draped and floating around the scene as if caught in a gentle wind. Warm golden-amber color grading with rich, saturated tones and deep jewel-tone accents (ruby, emerald, sapphire). Soft diffused key light with dramatic backlit rim lighting creating a glowing halo effect around the subject. Luminosity masking for selective glow on highlights. {INTENSITY} ethereal effect. {COLOR_MOOD} palette. {DETAIL}. The mood should be empowering, majestic, and inspiring. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `Transform this photograph into the signature Motiontography ethereal portrait style. Composite the subject into a dreamlike fantasy environment with soft, luminous atmosphere. Add flowing fabric elements — silk, chiffon, or tulle — draped and floating around the scene as if caught in a gentle wind. Warm golden-amber color grading with rich, saturated tones and deep jewel-tone accents (ruby, emerald, sapphire). Soft diffused key light with dramatic backlit rim lighting creating a glowing halo effect around the subject. Luminosity masking for selective glow on highlights. Subsurface scattering on skin for a radiant, lit-from-within glow. Subtle natural film grain for authentic photographic feel. Shot on a full-frame camera with an 85mm f/1.4 lens. {INTENSITY} ethereal effect. {COLOR_MOOD} palette. {DETAIL}. The mood should be empowering, majestic, and inspiring. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'Do not darken or desaturate the image',
       'Do not make it look cold or gloomy',
@@ -362,7 +373,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'motiontography-golden',
     displayName: 'Motiontography — Golden Hour',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photograph into the signature Motiontography golden hour portrait style. Rich, warm golden-hour lighting with amber and honey tones flooding the scene. Strong chiaroscuro contrast — deep, warm shadows with luminous highlights kissed by golden light. Bokeh-rich background with soft circular light orbs in warm amber and champagne tones. Selective color enhancement — amplify golds, warm browns, and rich skin tones while keeping shadow detail. Subtle lens flare from a backlit sun source. Skin has a healthy, radiant glow with professional retouching. {INTENSITY} golden effect. {COLOR_MOOD} palette. {DETAIL}. The mood should be warm, inviting, and cinematic. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `Transform this photograph into the signature Motiontography golden hour portrait style. Rich, warm golden-hour lighting with amber and honey tones flooding the scene. Strong chiaroscuro contrast — deep, warm shadows with luminous highlights kissed by golden light. Bokeh-rich background with soft circular light orbs in warm amber and champagne tones. Selective color enhancement — amplify golds, warm browns, and rich skin tones while keeping shadow detail. Subtle lens flare from a backlit sun source. Skin has a healthy, radiant glow with natural texture and visible pores preserved. Subtle natural film grain for cinematic feel. Shot on a full-frame camera with a 70-200mm f/2.8 lens. {INTENSITY} golden effect. {COLOR_MOOD} palette. {DETAIL}. The mood should be warm, inviting, and cinematic. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'Do not use cool or blue tones',
       'Do not flatten the contrast',
@@ -383,7 +394,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'motiontography-dramatic',
     displayName: 'Motiontography — Dramatic',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photograph into the signature Motiontography dramatic portrait style. Bold, high-impact compositing with the subject placed in a richly textured environment — think ornate architecture, dramatic cloud formations, or deep forest backdrops. Strong directional Rembrandt lighting with a defined triangle of light on the shadow-side cheek. Deep, saturated jewel-tone color palette — deep burgundy, royal purple, midnight blue, forest green. Heavy texture overlays with fine grain for a cinematic film look. Strong vignetting drawing the eye to the subject. Metallic and golden accent elements woven into the environment. {INTENSITY} dramatic effect. {COLOR_MOOD} palette. {DETAIL}. The mood should be powerful, regal, and commanding. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `Transform this photograph into the signature Motiontography dramatic portrait style. Bold, high-impact compositing with the subject placed in a richly textured environment — think ornate architecture, dramatic cloud formations, or deep forest backdrops. Strong directional Rembrandt lighting with a defined triangle of light on the shadow-side cheek. Deep, saturated jewel-tone color palette — deep burgundy, royal purple, midnight blue, forest green. Heavy texture overlays with fine cinematic film grain. Strong vignetting drawing the eye to the subject. Metallic and golden accent elements woven into the environment. Visible skin texture and pores — no digital smoothing. Shot on a full-frame camera with an 85mm f/1.4 lens. {INTENSITY} dramatic effect. {COLOR_MOOD} palette. {DETAIL}. The mood should be powerful, regal, and commanding. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'Do not wash out colors or reduce saturation',
       'No flat, even lighting — maintain dramatic contrast',
@@ -623,6 +634,8 @@ LIGHTING:
 Professional studio-quality lighting: soft key light positioned slightly above center, subtle fill to prevent harsh shadows, rim/hair light for subject separation from background. Shallow depth of field with the face tack-sharp.
 
 MOOD: {MOOD_BLOCK}
+
+Subtle natural film grain for an authentic photographic feel — this must be indistinguishable from a real photograph. Visible skin pores in close-up areas. Two bright catchlights in each eye from the studio key and fill lights. Cinematic color grading that flatters the skin tone.
 
 The overall quality should match a professional photoshoot for a fashion editorial or magazine cover. Shot on a high-end full-frame camera with an 85mm f/1.4 lens. {INTENSITY} professional enhancement. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
