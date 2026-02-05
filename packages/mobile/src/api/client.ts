@@ -1,9 +1,9 @@
 import { GenerateParams, JobStatusResponse, BatchStatusResponse, ChallengeResponse, RemixTemplate, RemixResponse } from '../types';
 import { compressForUpload } from '../services/imageCompressor';
 
-const API_BASE = __DEV__
-  ? 'http://localhost:3000'
-  : 'https://quippix-production.up.railway.app';
+// Use Railway backend for both dev and production.
+// localhost won't work on a physical device — it refers to the phone itself.
+const API_BASE = 'https://quippix-production.up.railway.app';
 
 class ApiClient {
   private baseUrl: string;

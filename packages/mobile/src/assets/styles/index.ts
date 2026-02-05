@@ -1,6 +1,9 @@
 import { ImageSourcePropType } from 'react-native';
 
 export const styleAssets: Record<string, ImageSourcePropType> = {
+  'motiontography-ethereal': require('./motiontography-ethereal.png'),
+  'motiontography-golden': require('./motiontography-golden.png'),
+  'motiontography-dramatic': require('./motiontography-dramatic.png'),
   'caricature-classic': require('./caricature-classic.png'),
   'caricature-subtle': require('./caricature-subtle.png'),
   'caricature-editorial': require('./caricature-editorial.png'),

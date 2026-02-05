@@ -1,7 +1,8 @@
 import { StyleId } from '../types';
 
-// ─── Free styles (6) — mirrors backend ───────────────────────────────
+// ─── Free styles (7) — mirrors backend ───────────────────────────────
 export const FREE_STYLES: StyleId[] = [
+  'motiontography-ethereal',
   'caricature-classic',
   'caricature-subtle',
   'comic-book',

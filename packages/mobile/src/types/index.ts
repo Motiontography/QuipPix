@@ -16,7 +16,10 @@ export type StyleId =
   | 'magazine-cover'
   | 'pro-headshot'
   | 'dreamy-portrait'
-  | 'editorial-fashion';
+  | 'editorial-fashion'
+  | 'motiontography-ethereal'
+  | 'motiontography-golden'
+  | 'motiontography-dramatic';
 
 // ─── Style Pack ──────────────────────────────────────────────────────
 export interface StylePack {

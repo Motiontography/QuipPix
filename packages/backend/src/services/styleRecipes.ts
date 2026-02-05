@@ -335,6 +335,70 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     },
     parameterMapping: (s, t) => defaultParamMapping(s, t),
   },
+
+  // ─── Motiontography Signature Styles ──────────────────────────────
+  'motiontography-ethereal': {
+    styleId: 'motiontography-ethereal',
+    displayName: 'Motiontography — Ethereal',
+    systemPrompt: GLOBAL_SYSTEM,
+    userPromptTemplate: `Transform this photograph into the signature Motiontography ethereal portrait style. Composite the subject into a dreamlike fantasy environment with soft, luminous atmosphere. Add flowing translucent fabric elements — tulle, silk, or chiffon — billowing around the subject as if caught in a gentle wind. Warm golden-amber color grading with rich, saturated tones and deep jewel-tone accents (ruby, emerald, sapphire). Soft diffused key light with dramatic backlit rim lighting creating a glowing halo effect around the subject. Luminosity masking for selective glow on highlights. {INTENSITY} ethereal effect. {COLOR_MOOD} palette. {DETAIL}. The mood should be empowering, majestic, and inspiring. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    negativeConstraints: [
+      'Do not darken or desaturate the image',
+      'Do not make it look cold or gloomy',
+      'No harsh shadows on the face',
+      'Keep the subject looking empowered and beautiful',
+      'No cartoonish or painted look — maintain photographic realism with artistic enhancement',
+    ],
+    outputRequirements: {
+      defaultSize: '1024x1536',
+      format: 'png',
+      identityPriority: 'high',
+      textLegibility: false,
+    },
+    parameterMapping: (s, t) => defaultParamMapping(s, t),
+  },
+
+  'motiontography-golden': {
+    styleId: 'motiontography-golden',
+    displayName: 'Motiontography — Golden Hour',
+    systemPrompt: GLOBAL_SYSTEM,
+    userPromptTemplate: `Transform this photograph into the signature Motiontography golden hour portrait style. Rich, warm golden-hour lighting with amber and honey tones flooding the scene. Strong chiaroscuro contrast — deep, warm shadows with luminous highlights kissed by golden light. Bokeh-rich background with soft circular light orbs in warm amber and champagne tones. Selective color enhancement — amplify golds, warm browns, and rich skin tones while keeping shadow detail. Subtle lens flare from a backlit sun source. Skin has a healthy, radiant glow with professional frequency-separation retouching. {INTENSITY} golden effect. {COLOR_MOOD} palette. {DETAIL}. The mood should be warm, intimate, and cinematic. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    negativeConstraints: [
+      'Do not use cool or blue tones',
+      'Do not flatten the contrast',
+      'No plastic or over-smoothed skin',
+      'Keep it photographic, not illustrated',
+      'Do not blow out highlights — maintain detail in bright areas',
+    ],
+    outputRequirements: {
+      defaultSize: '1024x1536',
+      format: 'png',
+      identityPriority: 'high',
+      textLegibility: false,
+    },
+    parameterMapping: (s, t) => defaultParamMapping(s, t),
+  },
+
+  'motiontography-dramatic': {
+    styleId: 'motiontography-dramatic',
+    displayName: 'Motiontography — Dramatic',
+    systemPrompt: GLOBAL_SYSTEM,
+    userPromptTemplate: `Transform this photograph into the signature Motiontography dramatic portrait style. Bold, high-impact compositing with the subject placed in a richly textured environment — think ornate architecture, dramatic cloud formations, or deep forest backdrops. Strong directional Rembrandt lighting with a defined triangle of light on the shadow-side cheek. Deep, saturated jewel-tone color palette — deep burgundy, royal purple, midnight blue, forest green. Heavy texture overlays with fine grain for a cinematic film look. Strong vignetting drawing the eye to the subject. Metallic and golden accent elements woven into the environment. {INTENSITY} dramatic effect. {COLOR_MOOD} palette. {DETAIL}. The mood should be powerful, regal, and commanding. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    negativeConstraints: [
+      'Do not wash out colors or reduce saturation',
+      'No flat, even lighting — maintain dramatic contrast',
+      'Do not add weapons, violence, or threatening elements',
+      'Keep it empowering and dignified, not menacing',
+      'Maintain photographic realism — no cartoon or painting look',
+    ],
+    outputRequirements: {
+      defaultSize: '1024x1536',
+      format: 'png',
+      identityPriority: 'high',
+      textLegibility: false,
+    },
+    parameterMapping: (s, t) => defaultParamMapping(s, t),
+  },
 };
 
 export function getRecipe(styleId: StyleId): StyleRecipe {

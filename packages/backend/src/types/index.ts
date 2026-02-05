@@ -17,6 +17,9 @@ export const StyleId = z.enum([
   'pro-headshot',
   'dreamy-portrait',
   'editorial-fashion',
+  'motiontography-ethereal',
+  'motiontography-golden',
+  'motiontography-dramatic',
 ]);
 export type StyleId = z.infer<typeof StyleId>;
 

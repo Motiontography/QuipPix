@@ -34,7 +34,7 @@ import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme, ThemeMode } from '../contexts/ThemeContext';
 import { t } from '../i18n';
 import { UpdateBanner } from '../components/UpdateBanner';
-import { PoweredByMotiontography } from '../components/PoweredByMotiontography';
+
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -538,10 +538,10 @@ export default function SettingsScreen() {
 
         {/* Motiontography */}
         <View style={styles.section}>
-          <PoweredByMotiontography variant="banner" />
+          <Text style={styles.sectionTitle} accessibilityRole="header">Motiontography</Text>
 
           <TouchableOpacity
-            style={[styles.linkRow, { marginTop: spacing.md }]}
+            style={styles.linkRow}
             onPress={() => Linking.openURL('https://motiontography.com/portfolio.html')}
             accessibilityLabel="View Portfolio"
             accessibilityRole="link"
@@ -552,7 +552,7 @@ export default function SettingsScreen() {
 
           <TouchableOpacity
             style={styles.linkRow}
-            onPress={() => Linking.openURL('https://motiontography.com/booking.html')}
+            onPress={() => Linking.openURL('https://www.motiontography.com')}
             accessibilityLabel="Book a Real Shoot"
             accessibilityRole="link"
           >
@@ -562,7 +562,7 @@ export default function SettingsScreen() {
 
           <TouchableOpacity
             style={styles.linkRow}
-            onPress={() => Linking.openURL('https://motiontography.com/quippix-privacy.html')}
+            onPress={() => Linking.openURL('https://www.motiontography.com')}
             accessibilityLabel="Privacy Policy"
             accessibilityRole="link"
           >
@@ -572,7 +572,7 @@ export default function SettingsScreen() {
 
           <TouchableOpacity
             style={styles.linkRow}
-            onPress={() => Linking.openURL('https://motiontography.com/quippix-terms.html')}
+            onPress={() => Linking.openURL('https://www.motiontography.com')}
             accessibilityLabel="Terms of Service"
             accessibilityRole="link"
           >
@@ -615,7 +615,7 @@ export default function SettingsScreen() {
           onPress={() => {
             const newCount = versionTapCount + 1;
             setVersionTapCount(newCount);
-            if (newCount >= 7 && !devModeEnabled) {
+            if (newCount >= 7) {
               setDevModeEnabled(true);
               setEntitlement({ proActive: true, proType: 'lifetime', expiresAt: null });
               triggerHaptic('success');

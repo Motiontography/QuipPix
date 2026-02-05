@@ -2,6 +2,38 @@ import { StylePack, StyleId } from '../types';
 import { styleAssets } from '../assets/styles';
 
 export const stylePacks: StylePack[] = [
+  // ─── Motiontography Signature Styles (featured first) ─────────────
+  {
+    id: 'motiontography-ethereal',
+    displayName: 'Motiontography — Ethereal',
+    category: 'Motiontography',
+    icon: '\u2728',
+    thumbnail: styleAssets['motiontography-ethereal'],
+    description: 'Ethereal fantasy portraits with flowing fabrics & golden glow',
+    previewColor: '#D4A574',
+    proOnly: false,
+  },
+  {
+    id: 'motiontography-golden',
+    displayName: 'Motiontography — Golden Hour',
+    category: 'Motiontography',
+    icon: '\u2600\uFE0F',
+    thumbnail: styleAssets['motiontography-golden'],
+    description: 'Warm golden-hour glow with rich chiaroscuro lighting',
+    previewColor: '#E8A838',
+    proOnly: true,
+  },
+  {
+    id: 'motiontography-dramatic',
+    displayName: 'Motiontography — Dramatic',
+    category: 'Motiontography',
+    icon: '\uD83D\uDC51',
+    thumbnail: styleAssets['motiontography-dramatic'],
+    description: 'Bold, regal portraits with jewel tones & dramatic lighting',
+    previewColor: '#6B2D5B',
+    proOnly: true,
+  },
+  // ─── Other Styles ─────────────────────────────────────────────────
   {
     id: 'caricature-classic',
     displayName: 'Classic Caricature',
