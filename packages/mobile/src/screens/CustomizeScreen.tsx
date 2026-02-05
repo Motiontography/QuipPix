@@ -109,7 +109,8 @@ export default function CustomizeScreen() {
   const { lastSliders, lastToggles, saveLastSettings, presets, addPreset, removePreset } = useAppStore();
   const { isPro, guardExport, guardSlider } = usePaywallGuard();
   const { colors } = useTheme();
-  const isDailyLimitReached = useProStore((s) => s.isDailyLimitReached);
+  const hasCredits = useProStore((s) => s.hasCredits);
+  const credits = useProStore((s) => s.credits);
 
   // Undo stack for all customize state
   const initialState: CustomizeState = prefillParams ? {
@@ -901,8 +902,8 @@ export default function CustomizeScreen() {
             </View>
           )}
 
-          {/* Daily limit banner near generate */}
-          {isDailyLimitReached() || !isPro ? <DailyLimitBanner /> : null}
+          {/* Credits banner near generate */}
+          {!hasCredits() ? <DailyLimitBanner /> : null}
 
           <View style={{ height: spacing.xxl }} />
         </ScrollView>

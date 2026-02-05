@@ -3,8 +3,7 @@ import { useProStore } from '../store/useProStore';
 function resetStore() {
   useProStore.setState({
     entitlement: { proActive: false, proType: null, expiresAt: null },
-    dailyGenerations: 0,
-    dailyDate: new Date().toISOString().split('T')[0],
+    credits: 3, // Default starting credits
     successfulGenerations: 0,
     softUpsellDismissed: false,
   });
@@ -19,6 +18,11 @@ describe('useProStore', () => {
     expect(state.entitlement.proType).toBeNull();
   });
 
+  it('starts with 3 credits', () => {
+    const state = useProStore.getState();
+    expect(state.credits).toBe(3);
+  });
+
   it('updates entitlement to pro', () => {
     useProStore.getState().setEntitlement({
       proActive: true,
@@ -29,30 +33,25 @@ describe('useProStore', () => {
     expect(useProStore.getState().entitlement.proType).toBe('annual');
   });
 
-  it('tracks daily generations', () => {
-    useProStore.getState().incrementDailyGenerations();
-    expect(useProStore.getState().dailyGenerations).toBe(1);
-    useProStore.getState().incrementDailyGenerations();
-    expect(useProStore.getState().dailyGenerations).toBe(2);
+  it('decrements credits', () => {
+    useProStore.getState().decrementCredits();
+    expect(useProStore.getState().credits).toBe(2);
+    useProStore.getState().decrementCredits();
+    expect(useProStore.getState().credits).toBe(1);
   });
 
-  it('daily limit reached for free user at 5 generations', () => {
-    for (let i = 0; i < 5; i++) {
-      useProStore.getState().incrementDailyGenerations();
-    }
-    expect(useProStore.getState().isDailyLimitReached()).toBe(true);
+  it('hasCredits returns true when credits > 0', () => {
+    expect(useProStore.getState().hasCredits()).toBe(true);
+    useProStore.getState().setCredits(0);
+    expect(useProStore.getState().hasCredits()).toBe(false);
   });
 
-  it('daily limit never reached for pro user', () => {
-    useProStore.getState().setEntitlement({
-      proActive: true,
-      proType: 'monthly',
-      expiresAt: null,
-    });
-    for (let i = 0; i < 10; i++) {
-      useProStore.getState().incrementDailyGenerations();
-    }
-    expect(useProStore.getState().isDailyLimitReached()).toBe(false);
+  it('does not decrement credits below 0', () => {
+    useProStore.getState().setCredits(1);
+    useProStore.getState().decrementCredits();
+    expect(useProStore.getState().credits).toBe(0);
+    useProStore.getState().decrementCredits();
+    expect(useProStore.getState().credits).toBe(0); // Should stay at 0
   });
 
   it('increments successful generations', () => {
@@ -61,7 +60,8 @@ describe('useProStore', () => {
     expect(useProStore.getState().successfulGenerations).toBe(2);
   });
 
-  it('shows soft upsell after 2 generations for free user', () => {
+  it('shows soft upsell after 2 generations when low credits', () => {
+    useProStore.getState().setCredits(1);
     expect(useProStore.getState().shouldShowSoftUpsell()).toBe(false);
 
     useProStore.getState().incrementSuccessfulGenerations();
@@ -70,12 +70,8 @@ describe('useProStore', () => {
     expect(useProStore.getState().shouldShowSoftUpsell()).toBe(true);
   });
 
-  it('does not show soft upsell for pro users', () => {
-    useProStore.getState().setEntitlement({
-      proActive: true,
-      proType: 'lifetime',
-      expiresAt: null,
-    });
+  it('does not show soft upsell when user has plenty of credits', () => {
+    useProStore.getState().setCredits(10);
     useProStore.getState().incrementSuccessfulGenerations();
     useProStore.getState().incrementSuccessfulGenerations();
     useProStore.getState().incrementSuccessfulGenerations();
@@ -84,6 +80,7 @@ describe('useProStore', () => {
   });
 
   it('dismisses soft upsell', () => {
+    useProStore.getState().setCredits(1);
     useProStore.getState().incrementSuccessfulGenerations();
     useProStore.getState().incrementSuccessfulGenerations();
     expect(useProStore.getState().shouldShowSoftUpsell()).toBe(true);

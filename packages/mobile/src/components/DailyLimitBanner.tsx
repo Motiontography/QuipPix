@@ -1,29 +1,21 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useProStore } from '../store/useProStore';
 import { spacing, borderRadius, typography } from '../styles/theme';
 import { useTheme } from '../contexts/ThemeContext';
+import { RootStackParamList } from '../types';
 
-const DAILY_LIMIT = 5;
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export default function DailyLimitBanner() {
   const { colors } = useTheme();
-  const entitlement = useProStore((s) => s.entitlement);
-  const dailyGenerations = useProStore((s) => s.dailyGenerations);
-  const isDailyLimitReached = useProStore((s) => s.isDailyLimitReached);
-  const [, setTick] = useState(0);
+  const navigation = useNavigation<Nav>();
+  const credits = useProStore((s) => s.credits);
+  const hasCredits = useProStore((s) => s.hasCredits);
 
-  // Refresh every minute if limit is reached (for cooldown timer display)
-  useEffect(() => {
-    if (!isDailyLimitReached()) return;
-    const interval = setInterval(() => setTick((t) => t + 1), 60_000);
-    return () => clearInterval(interval);
-  }, [isDailyLimitReached]);
-
-  if (entitlement.proActive) return null;
-
-  const remaining = Math.max(DAILY_LIMIT - dailyGenerations, 0);
-  const limitReached = isDailyLimitReached();
+  const noCredits = !hasCredits();
 
   const styles = useMemo(() => StyleSheet.create({
     banner: {
@@ -45,17 +37,33 @@ export default function DailyLimitBanner() {
       color: '#E17055',
       fontWeight: '600',
     },
+    buyLink: {
+      ...typography.caption,
+      color: colors.primary,
+      fontWeight: '600',
+      textDecorationLine: 'underline',
+      marginTop: 4,
+    },
   }), [colors]);
 
+  const handleBuyCredits = () => {
+    navigation.navigate('Paywall', { trigger: 'no_credits' });
+  };
+
   return (
-    <View style={[styles.banner, limitReached && styles.bannerWarning]}>
-      {limitReached ? (
-        <Text style={styles.textWarning}>
-          Daily limit reached. Upgrade to Pro for 30 generations per day.
-        </Text>
+    <View style={[styles.banner, noCredits && styles.bannerWarning]}>
+      {noCredits ? (
+        <>
+          <Text style={styles.textWarning}>
+            No credits remaining
+          </Text>
+          <TouchableOpacity onPress={handleBuyCredits}>
+            <Text style={styles.buyLink}>Buy credits to continue</Text>
+          </TouchableOpacity>
+        </>
       ) : (
         <Text style={styles.text}>
-          {remaining} generation{remaining !== 1 ? 's' : ''} remaining today
+          {credits} credit{credits !== 1 ? 's' : ''} remaining
         </Text>
       )}
     </View>

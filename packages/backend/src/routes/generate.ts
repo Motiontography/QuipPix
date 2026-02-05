@@ -8,7 +8,7 @@ import { moderatePrompt, moderateImage } from '../services/moderation';
 import { tierGate } from '../middleware/tierGate';
 import { perUserRateLimit } from '../middleware/perUserRateLimit';
 import { isStyleAllowed, isSizeAllowed, OutputSize } from '../services/tierConfig';
-import { dailyGenerationLimit, incrementDailyCount } from '../middleware/dailyGenerationLimit';
+import { creditCheck, deductCredit } from '../middleware/creditCheck';
 import { logger } from '../utils/logger';
 
 export async function generateRoutes(app: FastifyInstance): Promise<void> {
@@ -17,7 +17,7 @@ export async function generateRoutes(app: FastifyInstance): Promise<void> {
    * Accepts multipart: image file + JSON params
    * Returns: { jobId }
    */
-  app.post('/generate', { preHandler: [tierGate, perUserRateLimit, dailyGenerationLimit] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  app.post('/generate', { preHandler: [tierGate, perUserRateLimit, creditCheck] }, async (request: FastifyRequest, reply: FastifyReply) => {
     const parts = request.parts();
     let imageBuffer: Buffer | null = null;
     let params: any = {};
@@ -112,9 +112,13 @@ export async function generateRoutes(app: FastifyInstance): Promise<void> {
       return reply.status(500).send({ error: 'Failed to start generation. Please try again.' });
     }
 
-    // Only count against daily limit after job is successfully enqueued
-    if (request.userId) {
-      await incrementDailyCount(request.userId);
+    // Deduct credit after job is successfully enqueued
+    const userId =
+      request.userId ??
+      (request.headers['x-quippix-user-id'] as string | undefined) ??
+      `ip:${request.ip}`;
+    if (userId) {
+      deductCredit(userId);
     }
 
     logger.info({ jobId, styleId: genRequest.styleId, tier: request.tier }, 'Generation request accepted');

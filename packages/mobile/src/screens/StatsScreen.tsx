@@ -38,7 +38,7 @@ export default function StatsScreen() {
 
   const entitlement = useProStore((s) => s.entitlement);
   const successfulGenerations = useProStore((s) => s.successfulGenerations);
-  const dailyGenerations = useProStore((s) => s.dailyGenerations);
+  const credits = useProStore((s) => s.credits);
 
   useEffect(() => {
     trackEvent('stats_viewed');
@@ -207,7 +207,7 @@ export default function StatsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('stats.generations')}</Text>
           <StatRow label={t('stats.successfulGenerations')} value={String(successfulGenerations)} />
-          <StatRow label={t('stats.usedToday')} value={String(dailyGenerations)} />
+          <StatRow label={t('stats.creditsRemaining')} value={String(credits)} />
           <StatRow label={t('stats.challengesCompleted')} value={String(completions.length)} />
         </View>
 

@@ -7,21 +7,18 @@ import { useAppStore } from './useAppStore';
 
 const PRO_STORAGE_KEY = '@quippix/pro';
 
-function getToday(): string {
-  return new Date().toISOString().split('T')[0];
-}
-
 interface ProState {
-  // Entitlement
+  // Entitlement (kept for Pro features like HD export, priority queue)
   entitlement: Entitlement;
   setEntitlement: (ent: Entitlement) => void;
   refreshEntitlement: () => Promise<void>;
 
-  // Daily generation limit (client-side)
-  dailyGenerations: number;
-  dailyDate: string;
-  incrementDailyGenerations: () => void;
-  isDailyLimitReached: () => boolean;
+  // Credits system
+  credits: number;
+  setCredits: (credits: number) => void;
+  refreshCredits: () => Promise<void>;
+  decrementCredits: () => void;
+  hasCredits: () => boolean;
 
   // Soft upsell tracking
   successfulGenerations: number;
@@ -33,9 +30,6 @@ interface ProState {
   // Persistence
   loadProState: () => Promise<void>;
 }
-
-// TODO: Set back to 5 before App Store release
-const DAILY_LIMIT = 99999;
 
 export const useProStore = create<ProState>((set, get) => ({
   entitlement: { proActive: false, proType: null, expiresAt: null },
@@ -55,27 +49,36 @@ export const useProStore = create<ProState>((set, get) => ({
     persist(get());
   },
 
-  dailyGenerations: 0,
-  dailyDate: getToday(),
+  // Credits system
+  credits: 0,
 
-  incrementDailyGenerations: () => {
-    const state = get();
-    const today = getToday();
-    if (state.dailyDate !== today) {
-      set({ dailyGenerations: 1, dailyDate: today });
-    } else {
-      set({ dailyGenerations: state.dailyGenerations + 1 });
-    }
+  setCredits: (credits: number) => {
+    set({ credits });
     persist(get());
   },
 
-  isDailyLimitReached: () => {
-    const state = get();
-    if (state.entitlement.proActive) return false;
-    if (useAppStore.getState().devModeEnabled) return false;
-    const today = getToday();
-    if (state.dailyDate !== today) return false;
-    return state.dailyGenerations >= DAILY_LIMIT;
+  refreshCredits: async () => {
+    try {
+      const { credits } = await api.getCredits();
+      set({ credits });
+      persist(get());
+    } catch {
+      // Keep existing credits on error
+    }
+  },
+
+  decrementCredits: () => {
+    const current = get().credits;
+    if (current > 0) {
+      set({ credits: current - 1 });
+      persist(get());
+    }
+  },
+
+  hasCredits: () => {
+    // Dev mode bypasses credit check
+    if (useAppStore.getState().devModeEnabled) return true;
+    return get().credits > 0;
   },
 
   successfulGenerations: 0,
@@ -90,7 +93,7 @@ export const useProStore = create<ProState>((set, get) => ({
     const state = get();
     return (
       state.successfulGenerations >= 2 &&
-      !state.entitlement.proActive &&
+      state.credits <= 1 &&
       !state.softUpsellDismissed
     );
   },
@@ -105,14 +108,14 @@ export const useProStore = create<ProState>((set, get) => ({
       const raw = await AsyncStorage.getItem(PRO_STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        const today = getToday();
         set({
-          dailyGenerations: parsed.dailyDate === today ? (parsed.dailyGenerations ?? 0) : 0,
-          dailyDate: parsed.dailyDate === today ? today : today,
+          credits: parsed.credits ?? 0,
           successfulGenerations: parsed.successfulGenerations ?? 0,
           softUpsellDismissed: parsed.softUpsellDismissed ?? false,
         });
       }
+      // Also fetch fresh credits from server
+      get().refreshCredits();
     } catch {
       // Ignore parse errors
     }
@@ -124,8 +127,7 @@ async function persist(state: ProState): Promise<void> {
     await AsyncStorage.setItem(
       PRO_STORAGE_KEY,
       JSON.stringify({
-        dailyGenerations: state.dailyGenerations,
-        dailyDate: state.dailyDate,
+        credits: state.credits,
         successfulGenerations: state.successfulGenerations,
         softUpsellDismissed: state.softUpsellDismissed,
       }),

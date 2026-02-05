@@ -100,6 +100,7 @@ function runMigrations(database: Database.Database): void {
 
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
+      credits INTEGER NOT NULL DEFAULT 3,
       created_at TEXT NOT NULL
     );
 
@@ -129,4 +130,15 @@ function runMigrations(database: Database.Database): void {
     CREATE INDEX IF NOT EXISTS idx_analytics_events_timestamp
       ON analytics_events(timestamp);
   `);
+
+  // Migration: Add credits column to users table if it doesn't exist
+  const hasCreditsColumn = database
+    .prepare(`PRAGMA table_info(users)`)
+    .all()
+    .some((col: any) => col.name === 'credits');
+
+  if (!hasCreditsColumn) {
+    database.exec(`ALTER TABLE users ADD COLUMN credits INTEGER NOT NULL DEFAULT 3`);
+    logger.info('Migration: Added credits column to users table');
+  }
 }

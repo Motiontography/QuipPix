@@ -354,6 +354,23 @@ class ApiClient {
 
     return res.json();
   }
+
+  /**
+   * GET /credits
+   * Get user's credit balance and available packs
+   */
+  async getCredits(): Promise<{
+    credits: number;
+    packs: Array<{ id: string; credits: number; price: string; bestValue?: boolean }>;
+  }> {
+    const res = await this.request(`${this.baseUrl}/credits`);
+
+    if (!res.ok) {
+      throw new ApiError(res.status, 'Failed to get credits');
+    }
+
+    return res.json();
+  }
 }
 
 export class ApiError extends Error {

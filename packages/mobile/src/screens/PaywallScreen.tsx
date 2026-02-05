@@ -24,12 +24,10 @@ import { GradientButton } from '../components/GradientButton';
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Paywall'>;
 type Route = RouteProp<RootStackParamList, 'Paywall'>;
 
-const BENEFITS = [
-  { icon: '🎨', text: 'All 15 styles unlocked' },
-  { icon: '📐', text: 'High-res exports (2K & 4K)' },
-  { icon: '⚡', text: 'Priority processing' },
-  { icon: '🎛️', text: 'Advanced controls' },
-  { icon: '⚡', text: '30 generations per day' },
+const CREDIT_PACKS = [
+  { id: 'small', credits: 25, price: '$4.99', perCredit: '$0.20' },
+  { id: 'medium', credits: 100, price: '$14.99', perCredit: '$0.15', bestValue: true },
+  { id: 'large', credits: 250, price: '$29.99', perCredit: '$0.12' },
 ];
 
 export default function PaywallScreen() {
@@ -37,10 +35,11 @@ export default function PaywallScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { trigger } = route.params;
-  const setEntitlement = useProStore((s) => s.setEntitlement);
+  const credits = useProStore((s) => s.credits);
+  const refreshCredits = useProStore((s) => s.refreshCredits);
 
   const [packages, setPackages] = useState<PurchasesPackage[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState(1); // Annual default
+  const [selectedIndex, setSelectedIndex] = useState(1); // Medium pack default
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
 
@@ -49,7 +48,11 @@ export default function PaywallScreen() {
     (async () => {
       const offerings = await getOfferings();
       if (offerings?.current?.availablePackages) {
-        setPackages(offerings.current.availablePackages);
+        // Filter to only credit packs (consumables)
+        const creditPackages = offerings.current.availablePackages.filter(
+          (pkg) => pkg.identifier.toLowerCase().includes('credit'),
+        );
+        setPackages(creditPackages.length > 0 ? creditPackages : offerings.current.availablePackages);
       }
       setLoading(false);
     })();
@@ -61,14 +64,15 @@ export default function PaywallScreen() {
 
     setPurchasing(true);
     try {
-      const ent = await purchasePackage(pkg);
-      setEntitlement(ent);
-      trackEvent('paywall_converted', { trigger, package: pkg.identifier });
-      Alert.alert(t('paywall.welcomePro'), t('paywall.welcomeProMessage'));
+      await purchasePackage(pkg);
+      // Refresh credits from server after purchase
+      await refreshCredits();
+      trackEvent('credits_purchased', { trigger, package: pkg.identifier });
+      Alert.alert('Credits Added!', 'Your credits have been added to your account.');
       navigation.goBack();
     } catch (err: any) {
       if (!err.userCancelled) {
-        Alert.alert(t('paywall.purchaseFailed'), err.message || 'Please try again.');
+        Alert.alert('Purchase Failed', err.message || 'Please try again.');
       }
     } finally {
       setPurchasing(false);
@@ -78,16 +82,11 @@ export default function PaywallScreen() {
   const handleRestore = async () => {
     setPurchasing(true);
     try {
-      const ent = await restorePurchases();
-      setEntitlement(ent);
-      if (ent.proActive) {
-        Alert.alert(t('paywall.restored'), t('paywall.restoredMessage'));
-        navigation.goBack();
-      } else {
-        Alert.alert(t('paywall.noPurchases'), t('paywall.noPurchasesMessage'));
-      }
+      await restorePurchases();
+      await refreshCredits();
+      Alert.alert('Restored', 'Your purchases have been restored.');
     } catch (err: any) {
-      Alert.alert(t('paywall.restoreFailed'), err.message || 'Please try again.');
+      Alert.alert('Restore Failed', err.message || 'Please try again.');
     } finally {
       setPurchasing(false);
     }
@@ -98,15 +97,17 @@ export default function PaywallScreen() {
     navigation.goBack();
   };
 
-  const getPackageLabel = (pkg: PurchasesPackage): string => {
+  const getPackageCredits = (pkg: PurchasesPackage): number => {
     const id = pkg.identifier.toLowerCase();
-    if (id.includes('lifetime')) return t('paywall.lifetime');
-    if (id.includes('annual')) return t('paywall.annual');
-    return t('paywall.monthly');
+    if (id.includes('250') || id.includes('large')) return 250;
+    if (id.includes('100') || id.includes('medium')) return 100;
+    if (id.includes('25') || id.includes('small')) return 25;
+    return 25; // default
   };
 
   const isBestValue = (pkg: PurchasesPackage): boolean => {
-    return pkg.identifier.toLowerCase().includes('annual');
+    const id = pkg.identifier.toLowerCase();
+    return id.includes('100') || id.includes('medium');
   };
 
   const styles = useMemo(() => StyleSheet.create({
@@ -141,41 +142,40 @@ export default function PaywallScreen() {
       ...typography.body,
       color: '#A29BFE',
       textAlign: 'center',
-      marginBottom: spacing.xl,
+      marginBottom: spacing.md,
     },
-    benefitsContainer: {
-      width: '100%',
-      marginBottom: spacing.xl,
-    },
-    benefitRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
+    currentCredits: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.md,
+      paddingHorizontal: spacing.lg,
       paddingVertical: spacing.sm,
+      marginBottom: spacing.xl,
     },
-    benefitIcon: {
-      fontSize: 20,
-      marginRight: spacing.md,
-      width: 28,
-    },
-    benefitText: {
-      ...typography.body,
+    currentCreditsText: {
+      ...typography.bodyBold,
       color: '#FFFFFF',
+    },
+    sectionTitle: {
+      ...typography.bodyBold,
+      color: '#FFFFFF',
+      marginBottom: spacing.md,
+      alignSelf: 'flex-start',
     },
     loader: {
       marginVertical: spacing.xl,
     },
     pricingContainer: {
-      flexDirection: 'row',
+      width: '100%',
       gap: spacing.sm,
       marginBottom: spacing.lg,
-      width: '100%',
     },
     pricingCard: {
-      flex: 1,
       backgroundColor: '#1A1A2E',
       borderRadius: borderRadius.lg,
       padding: spacing.md,
+      flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'space-between',
       borderWidth: 2,
       borderColor: 'transparent',
     },
@@ -183,9 +183,36 @@ export default function PaywallScreen() {
       borderColor: '#6C5CE7',
       backgroundColor: '#1A1A3E',
     },
+    pricingLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+    },
+    creditsAmount: {
+      fontSize: 24,
+      fontWeight: '800',
+      color: '#FFFFFF',
+    },
+    creditsLabel: {
+      ...typography.caption,
+      color: colors.textMuted,
+    },
+    pricingRight: {
+      alignItems: 'flex-end',
+    },
+    pricingPrice: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: '#FFFFFF',
+    },
+    perCredit: {
+      ...typography.caption,
+      color: colors.textMuted,
+    },
     bestValueBadge: {
       position: 'absolute',
       top: -10,
+      right: 12,
       backgroundColor: '#6C5CE7',
       paddingHorizontal: 8,
       paddingVertical: 2,
@@ -195,21 +222,6 @@ export default function PaywallScreen() {
       color: '#FFFFFF',
       fontSize: 10,
       fontWeight: '700',
-    },
-    pricingLabel: {
-      ...typography.bodyBold,
-      color: '#FFFFFF',
-      marginBottom: 4,
-      marginTop: 4,
-    },
-    pricingPrice: {
-      fontSize: 20,
-      fontWeight: '800',
-      color: '#FFFFFF',
-    },
-    pricingPeriod: {
-      ...typography.caption,
-      color: colors.textMuted,
     },
     ctaBtn: {
       borderRadius: borderRadius.lg,
@@ -224,7 +236,16 @@ export default function PaywallScreen() {
       color: colors.textMuted,
       textDecorationLine: 'underline',
     },
+    infoText: {
+      ...typography.caption,
+      color: colors.textMuted,
+      textAlign: 'center',
+      marginTop: spacing.md,
+    },
   }), [colors]);
+
+  // Use RevenueCat packages if available, otherwise show static packs
+  const displayPacks = packages.length > 0 ? packages : null;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -235,25 +256,24 @@ export default function PaywallScreen() {
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* Headline */}
-        <Text style={styles.headline}>{t('paywall.title')}</Text>
-        <Text style={styles.subheadline}>{t('paywall.subtitle')}</Text>
+        <Text style={styles.headline}>Get More Credits</Text>
+        <Text style={styles.subheadline}>Each generation uses 1 credit</Text>
 
-        {/* Benefits */}
-        <View style={styles.benefitsContainer}>
-          {BENEFITS.map((b, i) => (
-            <View key={i} style={styles.benefitRow}>
-              <Text style={styles.benefitIcon}>{b.icon}</Text>
-              <Text style={styles.benefitText}>{b.text}</Text>
-            </View>
-          ))}
+        {/* Current balance */}
+        <View style={styles.currentCredits}>
+          <Text style={styles.currentCreditsText}>
+            Current balance: {credits} credit{credits !== 1 ? 's' : ''}
+          </Text>
         </View>
+
+        <Text style={styles.sectionTitle}>Choose a credit pack:</Text>
 
         {/* Pricing cards */}
         {loading ? (
           <ActivityIndicator color={colors.primary} style={styles.loader} />
-        ) : (
+        ) : displayPacks ? (
           <View style={styles.pricingContainer}>
-            {packages.map((pkg, idx) => (
+            {displayPacks.map((pkg, idx) => (
               <TouchableOpacity
                 key={pkg.identifier}
                 style={[
@@ -265,18 +285,49 @@ export default function PaywallScreen() {
               >
                 {isBestValue(pkg) && (
                   <View style={styles.bestValueBadge}>
-                    <Text style={styles.bestValueText}>{t('paywall.bestValue')}</Text>
+                    <Text style={styles.bestValueText}>BEST VALUE</Text>
                   </View>
                 )}
-                <Text style={styles.pricingLabel}>{getPackageLabel(pkg)}</Text>
-                <Text style={styles.pricingPrice}>
-                  {pkg.product.priceString}
-                </Text>
-                <Text style={styles.pricingPeriod}>
-                  {pkg.identifier.toLowerCase().includes('lifetime')
-                    ? t('paywall.oneTime')
-                    : `/${pkg.identifier.toLowerCase().includes('annual') ? 'year' : 'month'}`}
-                </Text>
+                <View style={styles.pricingLeft}>
+                  <View>
+                    <Text style={styles.creditsAmount}>{getPackageCredits(pkg)}</Text>
+                    <Text style={styles.creditsLabel}>credits</Text>
+                  </View>
+                </View>
+                <View style={styles.pricingRight}>
+                  <Text style={styles.pricingPrice}>{pkg.product.priceString}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ) : (
+          // Fallback static display
+          <View style={styles.pricingContainer}>
+            {CREDIT_PACKS.map((pack, idx) => (
+              <TouchableOpacity
+                key={pack.id}
+                style={[
+                  styles.pricingCard,
+                  selectedIndex === idx && styles.pricingCardSelected,
+                ]}
+                onPress={() => setSelectedIndex(idx)}
+                activeOpacity={0.8}
+              >
+                {pack.bestValue && (
+                  <View style={styles.bestValueBadge}>
+                    <Text style={styles.bestValueText}>BEST VALUE</Text>
+                  </View>
+                )}
+                <View style={styles.pricingLeft}>
+                  <View>
+                    <Text style={styles.creditsAmount}>{pack.credits}</Text>
+                    <Text style={styles.creditsLabel}>credits</Text>
+                  </View>
+                </View>
+                <View style={styles.pricingRight}>
+                  <Text style={styles.pricingPrice}>{pack.price}</Text>
+                  <Text style={styles.perCredit}>{pack.perCredit}/credit</Text>
+                </View>
               </TouchableOpacity>
             ))}
           </View>
@@ -284,11 +335,11 @@ export default function PaywallScreen() {
 
         {/* CTA */}
         <GradientButton
-          title={packages.length > 0 ? t('paywall.subscribe') : t('paywall.loading')}
+          title={displayPacks ? 'Buy Credits' : 'Coming Soon'}
           onPress={handlePurchase}
           variant="primary"
           loading={purchasing}
-          disabled={purchasing || packages.length === 0}
+          disabled={purchasing || !displayPacks}
           style={styles.ctaBtn}
         />
 
@@ -300,6 +351,10 @@ export default function PaywallScreen() {
         >
           <Text style={styles.restoreText}>{t('paywall.restorePurchases')}</Text>
         </TouchableOpacity>
+
+        <Text style={styles.infoText}>
+          Credits never expire. Use them anytime.
+        </Text>
       </ScrollView>
     </SafeAreaView>
   );

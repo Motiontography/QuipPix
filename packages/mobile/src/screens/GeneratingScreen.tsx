@@ -54,8 +54,8 @@ export default function GeneratingScreen() {
   const networkQuality = useNetworkQuality();
 
   const entitlement = useProStore((s) => s.entitlement);
-  const isDailyLimitReached = useProStore((s) => s.isDailyLimitReached);
-  const incrementDailyGenerations = useProStore((s) => s.incrementDailyGenerations);
+  const hasCredits = useProStore((s) => s.hasCredits);
+  const decrementCredits = useProStore((s) => s.decrementCredits);
   const incrementSuccessfulGenerations = useProStore((s) => s.incrementSuccessfulGenerations);
 
   const [progress, setProgress] = useState(0);
@@ -119,10 +119,10 @@ export default function GeneratingScreen() {
         startedAt: new Date().toISOString(),
       });
 
-      // Check daily limit for free users
-      if (!entitlement.proActive && isDailyLimitReached()) {
-        setError(t('generating.dailyLimitError'));
-        trackEvent('daily_limit_reached');
+      // Check credits
+      if (!hasCredits()) {
+        setError(t('generating.noCreditsError'));
+        trackEvent('no_credits');
         return;
       }
 
@@ -153,7 +153,7 @@ export default function GeneratingScreen() {
         if (cancelled) return;
 
         if (finalStatus.status === 'done' && finalStatus.resultUrl) {
-          incrementDailyGenerations();
+          decrementCredits();
           incrementSuccessfulGenerations();
           trackEvent('generation_completed', { styleId: params.styleId });
 
@@ -202,7 +202,7 @@ export default function GeneratingScreen() {
     return () => {
       cancelled = true;
     };
-  }, [imageUri, params, challengeId, navigation, entitlement, isDailyLimitReached, incrementDailyGenerations, incrementSuccessfulGenerations, isConnected, retryTrigger]);
+  }, [imageUri, params, challengeId, navigation, entitlement, hasCredits, decrementCredits, incrementSuccessfulGenerations, isConnected, retryTrigger]);
 
   const handleRetry = () => {
     if (retryCount >= 3) {

@@ -269,7 +269,8 @@ export type RevenueCatEventType =
   | 'EXPIRATION'
   | 'BILLING_ISSUE'
   | 'PRODUCT_CHANGE'
-  | 'SUBSCRIBER_ALIAS';
+  | 'SUBSCRIBER_ALIAS'
+  | 'NON_RENEWING_PURCHASE';
 
 export interface RevenueCatWebhookEvent {
   event: {

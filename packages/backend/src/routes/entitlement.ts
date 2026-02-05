@@ -13,6 +13,8 @@ import {
   setServerEntitlement as dbSetEntitlement,
   getEntitlementStoreSize as dbGetEntitlementStoreSize,
 } from '../db/repositories/entitlementRepository';
+import { addCredits } from '../db/repositories/userRepository';
+import { getCreditsForProduct } from './credits';
 
 // ─── Re-export DB-backed entitlement functions ───────────────────────
 export function getServerEntitlement(appUserId: string): ServerEntitlement | undefined {
@@ -164,6 +166,19 @@ export async function entitlementRoutes(app: FastifyInstance) {
       }
 
       const { type, app_user_id, product_id, expiration_at_ms } = body.event;
+
+      // Handle credit pack purchases (consumables)
+      if (type === 'NON_RENEWING_PURCHASE' && product_id) {
+        const creditsToAdd = getCreditsForProduct(product_id);
+        if (creditsToAdd) {
+          const newBalance = addCredits(app_user_id, creditsToAdd);
+          app.log.info(
+            { type, appUserId: app_user_id, product_id, creditsAdded: creditsToAdd, newBalance },
+            'Credits added from purchase',
+          );
+          return reply.status(200).send({ received: true, creditsAdded: creditsToAdd });
+        }
+      }
 
       const grantEvents: RevenueCatEventType[] = [
         'INITIAL_PURCHASE',
