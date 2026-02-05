@@ -68,7 +68,7 @@ export const stylePacks: StylePack[] = [
   {
     id: 'insta-glam',
     displayName: 'Insta Glam',
-    category: 'Pro',
+    category: 'Glam',
     icon: '\u{1F4F8}',
     thumbnail: styleAssets['insta-glam'],
     description: 'High-end Instagram model photoshoot — fully customizable glam',
