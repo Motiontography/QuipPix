@@ -83,9 +83,7 @@ export const GenerateRequest = z.object({
   styleOptions: StyleSpecificOptions,
   proSliders: ProSliders.optional(),
   outputSize: z.enum([
-    '1024x1024', '1024x1792', '1792x1024',
-    '2048x2048', '2048x3584', '3584x2048',
-    '4096x4096',
+    '1024x1024', '1536x1024', '1024x1536', 'auto',
   ]).optional(),
 });
 export type GenerateRequest = z.infer<typeof GenerateRequest>;
@@ -108,9 +106,9 @@ export interface ImageEngineRequest {
   prompt: string;
   image: Buffer;
   mask?: Buffer;
-  size: '1024x1024' | '1024x1792' | '1792x1024' | '2048x2048' | '2048x3584' | '3584x2048' | '4096x4096';
-  quality: 'standard' | 'hd';
-  responseFormat: 'b64_json' | 'url';
+  size: '1024x1024' | '1536x1024' | '1024x1536' | 'auto';
+  quality: 'low' | 'medium' | 'high' | 'auto';
+  inputFidelity: 'high' | 'low';
 }
 
 export interface ImageEngineResponse {
@@ -151,9 +149,7 @@ export const BatchGenerateRequest = z.object({
   styleOptions: StyleSpecificOptions,
   proSliders: ProSliders.optional(),
   outputSize: z.enum([
-    '1024x1024', '1024x1792', '1792x1024',
-    '2048x2048', '2048x3584', '3584x2048',
-    '4096x4096',
+    '1024x1024', '1536x1024', '1024x1536', 'auto',
   ]).optional(),
 });
 export type BatchGenerateRequest = z.infer<typeof BatchGenerateRequest>;

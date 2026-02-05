@@ -128,15 +128,15 @@ export const generateWorker = new Worker<GenerateJobData>(
       // 4. Get recipe output requirements
       const recipe = getRecipe(request.styleId);
 
-      // 5. Call ChatGPT 5.2 Image Mode
+      // 5. Call OpenAI GPT Image Model
       const resolvedSize = outputSize || recipe.outputRequirements.defaultSize;
       const engineRequest: ImageEngineRequest = {
         model: config.imageEngine.model,
         prompt: `${systemPrompt}\n\n${userPrompt}`,
         image: imageBuffer,
         size: resolvedSize,
-        quality: 'hd',
-        responseFormat: 'b64_json',
+        quality: 'high',
+        inputFidelity: 'high',
       };
       updateJobProgress(jobId, 50);
 

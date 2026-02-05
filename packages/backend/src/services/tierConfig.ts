@@ -24,25 +24,20 @@ export const PRO_ONLY_STYLES: StyleId[] = [
 ];
 
 // ─── Size tiers ──────────────────────────────────────────────────────
+// OpenAI GPT Image models support: 1024x1024, 1536x1024, 1024x1536, auto
 export type OutputSize =
   | '1024x1024'
-  | '1024x1792'
-  | '1792x1024'
-  | '2048x2048'
-  | '2048x3584'
-  | '3584x2048'
-  | '4096x4096';
+  | '1536x1024'
+  | '1024x1536'
+  | 'auto';
 
-const FREE_SIZES: OutputSize[] = ['1024x1024', '1024x1792', '1792x1024'];
+const FREE_SIZES: OutputSize[] = ['1024x1024'];
 
 const PRO_SIZES: OutputSize[] = [
   '1024x1024',
-  '1024x1792',
-  '1792x1024',
-  '2048x2048',
-  '2048x3584',
-  '3584x2048',
-  '4096x4096',
+  '1536x1024',
+  '1024x1536',
+  'auto',
 ];
 
 export type Tier = 'free' | 'pro';

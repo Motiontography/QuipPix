@@ -32,14 +32,14 @@ function defaultParamMapping(
   };
 }
 
-const GLOBAL_SYSTEM = `You are an expert image transformation engine. Transform the provided photograph according to the style instructions. Produce a single high-quality output image. Never add text unless specifically requested. Never produce NSFW, violent, hateful, or illegal content. If the request seems inappropriate, produce a tasteful, safe alternative.`;
+const GLOBAL_SYSTEM = `You are an expert photo-to-art style transformation engine. Transform the provided photograph into the requested artistic style while strictly preserving the subject's facial identity, expression, pose, and composition. The output must look like a skilled artist rendered the same scene by hand in the target medium. Do not add text, watermarks, logos, or new elements not present in the original photograph. Do not produce NSFW, violent, hateful, or illegal content. If the request seems inappropriate, produce a tasteful, safe alternative.`;
 
 export const styleRecipes: Record<StyleId, StyleRecipe> = {
   'caricature-classic': {
     styleId: 'caricature-classic',
     displayName: 'Caricature — Classic',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photo into a classic caricature with {INTENSITY} exaggeration. Use {DETAIL}, {COLOR_MOOD} palette. Enlarge the head proportionally, emphasize distinctive facial features with humorous exaggeration. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `Transform this photograph into a classic hand-drawn caricature with {INTENSITY} exaggeration. Enlarge the head proportionally to the body, and humorously emphasize the subject's most distinctive facial features (nose, jawline, eyes, ears) while keeping the person immediately recognizable. Use {DETAIL} with clean ink outlines. {COLOR_MOOD} palette. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'Do not produce offensive stereotypes',
       'Do not distort skin tone',
@@ -96,7 +96,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'comic-book',
     displayName: 'Comic Book',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photo into a comic book panel illustration. Bold ink outlines with {LINE_WEIGHT} line weight. {HALFTONE} halftone dot shading. {INTENSITY} comic stylization. {COLOR_MOOD} palette. {DETAIL}. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `Transform this photograph into a comic book panel illustration in the style of classic American comics. Bold black ink outlines with {LINE_WEIGHT} line weight. {HALFTONE} halftone dot shading for shadows and mid-tones. {INTENSITY} comic stylization. Flat cel-shaded coloring with {COLOR_MOOD} palette. {DETAIL}. Preserve the subject's likeness and pose exactly. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'No copyrighted character styles (Marvel, DC, etc.)',
       'No speech bubbles unless user requests',
@@ -119,7 +119,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'pop-art',
     displayName: 'Pop Art',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photo into a bold pop art piece inspired by Lichtenstein and Warhol techniques. {INTENSITY} pop art effect. Flat bold colors, Ben-Day dots, strong outlines. {COLOR_MOOD} palette. {DETAIL}. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `Transform this photograph into a bold pop art piece using Lichtenstein-inspired Ben-Day dot patterns and Warhol-style flat color blocking. {INTENSITY} pop art effect. High-contrast areas with thick black outlines, flat saturated colors, and halftone dot overlays. {COLOR_MOOD} palette. {DETAIL}. Preserve the subject's facial features and likeness. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'No direct replication of specific copyrighted artworks',
       'No brand logos',
@@ -138,7 +138,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'pencil-clean',
     displayName: 'Pencil Sketch — Clean',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photo into a clean pencil sketch on white paper. Precise, confident lines. {INTENSITY} sketch effect. {DETAIL}. Light shading, no smudging. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `Transform this photograph into a clean graphite pencil sketch on white paper. Use precise, confident contour lines with light hatching for tonal values. {INTENSITY} sketch effect. {DETAIL}. Gentle shading using parallel hatching — no smudging or charcoal. The drawing should look like a skilled portrait artist's clean line study. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'No color (grayscale only)',
       'No heavy cross-hatching',
@@ -157,7 +157,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'pencil-gritty',
     displayName: 'Pencil Sketch — Gritty',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photo into a gritty, textured pencil sketch on aged paper. Heavy crosshatching, charcoal smudging. {INTENSITY} effect. {DETAIL}. Dramatic shadows. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `Transform this photograph into a gritty charcoal and graphite sketch on aged yellowish paper. Heavy crosshatching with smudged charcoal for deep shadows. {INTENSITY} effect. {DETAIL}. Dramatic chiaroscuro lighting with high contrast. Visible paper grain texture. The look of a raw, expressive life-drawing session. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'No color (grayscale/sepia only)',
       'Do not make it too dark to see features',
@@ -175,7 +175,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'watercolor',
     displayName: 'Watercolor',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photo into a beautiful watercolor painting. Visible brushstrokes, paint bleeds, and soft edges. {INTENSITY} watercolor effect. {COLOR_MOOD} palette with translucent washes. {DETAIL}. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `Transform this photograph into a luminous watercolor painting on cold-press watercolor paper. Visible wet-on-wet washes with soft color bleeds at edges. {INTENSITY} watercolor effect. {COLOR_MOOD} palette with translucent layered glazes. Leave selective areas of white paper showing through for highlights. {DETAIL}. Preserve the subject's likeness and expression. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'No sharp digital edges',
       'Avoid muddy color mixing',
@@ -194,7 +194,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'oil-painting',
     displayName: 'Oil Painting',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photo into a classical oil painting. Rich impasto texture, visible brush strokes, gallery-quality composition. {INTENSITY} oil painting effect. {COLOR_MOOD} palette. {DETAIL}. Dramatic lighting. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `Transform this photograph into a classical oil painting on canvas. Rich impasto texture with visible palette-knife and bristle-brush strokes. {INTENSITY} oil painting effect. {COLOR_MOOD} palette with glazed color layers. Dramatic Rembrandt-style lighting with a strong key light and deep shadows. Gallery-quality composition. {DETAIL}. Preserve the subject's likeness precisely. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'No flat digital look',
       'Avoid cartoonish rendering',
@@ -213,7 +213,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'anime-inspired',
     displayName: 'Anime-Inspired',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photo into an original anime-style illustration. Large expressive eyes, clean lines, vibrant {COLOR_MOOD} palette. {INTENSITY} anime stylization. {DETAIL}. Dynamic pose preserved from source. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `Transform this photograph into an original anime-style illustration with digital cel-shading. Large expressive eyes, clean inked outlines, flat color fills with subtle gradient shading. Vibrant {COLOR_MOOD} palette. {INTENSITY} anime stylization. {DETAIL}. Preserve the dynamic pose and composition from the source. The subject should be recognizable. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'No copyrighted franchise styles (Ghibli, Naruto, Dragon Ball, etc.)',
       'Original anime aesthetic only',
@@ -232,7 +232,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'cyberpunk-neon',
     displayName: 'Cyberpunk Neon',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photo into a cyberpunk neon-lit scene. Neon glows in pink, cyan, and purple. Rain-slicked surfaces reflecting light. {INTENSITY} cyberpunk effect. Futuristic overlays and holographic elements. {DETAIL}. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `Transform this photograph into a cyberpunk neon-lit scene. Rim lighting in electric pink, cyan, and purple neon. Rain-slicked surfaces with reflective puddles catching colored light. {INTENSITY} cyberpunk effect. Futuristic holographic UI overlays and volumetric fog. Blade-Runner-inspired atmosphere. {DETAIL}. Preserve the subject's identity and expression. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'No copyrighted cyberpunk franchise elements',
       'No weapons',
@@ -259,7 +259,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
       'Text must be clean and readable',
     ],
     outputRequirements: {
-      defaultSize: '1024x1792',
+      defaultSize: '1024x1536',
       format: 'png',
       identityPriority: 'high',
       textLegibility: true,
@@ -277,7 +277,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'pro-headshot',
     displayName: 'Pro Headshot',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photo into a professional studio headshot. Clean {BACKDROP_COLOR} backdrop with {SOFTNESS} edge softness and {VIGNETTE} vignette. Studio lighting: soft key light, subtle fill, hair light. Professional skin retouching while keeping texture natural. {COLOR_MOOD} toning. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `Transform this photograph into a professional studio headshot. Clean {BACKDROP_COLOR} seamless paper backdrop with {SOFTNESS} edge falloff and {VIGNETTE} vignette. Three-point studio lighting: soft key light at 45 degrees, subtle fill light, and hair/rim light for separation. Professional frequency-separation skin retouching that preserves natural skin texture while smoothing blemishes. {COLOR_MOOD} color toning. {DETAIL}. The subject must be immediately recognizable. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'No heavy filters',
       'No plastic skin look',
@@ -302,7 +302,7 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'dreamy-portrait',
     displayName: 'Dreamy Portrait',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photo into a dreamy, ethereal portrait. Soft focus bloom, lens flare, golden/pastel light. {INTENSITY} dreaminess. {COLOR_MOOD} palette with bokeh and light particles. {DETAIL}. Inspiring and uplifting mood. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `Transform this photograph into a dreamy, ethereal portrait. Soft Gaussian bloom diffusion, golden-hour lens flare, and pastel light leaks. {INTENSITY} dreaminess. {COLOR_MOOD} palette with creamy bokeh orbs and floating light particles. Soft-focus on the background, sharp on the eyes. {DETAIL}. Warm, inspiring, uplifting mood. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'No harsh shadows',
       'No dark or gloomy tones',
@@ -321,14 +321,14 @@ export const styleRecipes: Record<StyleId, StyleRecipe> = {
     styleId: 'editorial-fashion',
     displayName: 'Editorial Fashion',
     systemPrompt: GLOBAL_SYSTEM,
-    userPromptTemplate: `Transform this photo into a high-end editorial fashion photograph. High contrast, glossy finish, dramatic lighting. {INTENSITY} editorial polish. {COLOR_MOOD} palette. {DETAIL}. Bold composition, fashion-forward styling cues. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    userPromptTemplate: `Transform this photograph into a high-end editorial fashion photograph for a luxury fashion magazine. High contrast with a glossy finish. Dramatic directional studio lighting with hard shadows. {INTENSITY} editorial polish. {COLOR_MOOD} palette with fashion-forward color grading. {DETAIL}. Bold cinematic composition with strong leading lines. Preserve the subject's features and expression. {FACE_FIDELITY}. {BG_STRENGTH}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
     negativeConstraints: [
       'No overly sexualized poses',
       'No brand logos',
       'Keep it high-fashion editorial, not commercial',
     ],
     outputRequirements: {
-      defaultSize: '1024x1792',
+      defaultSize: '1024x1536',
       format: 'png',
       identityPriority: 'high',
       textLegibility: false,

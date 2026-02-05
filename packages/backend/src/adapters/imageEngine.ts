@@ -1,18 +1,8 @@
 /**
- * ChatGPT 5.2 Image Mode — Adapter
+ * OpenAI GPT Image Model — Adapter
  *
- * This adapter wraps the ChatGPT 5.2 Image Mode API (the "Image Engine").
- * It follows a clean interface so swapping endpoints requires only config changes.
- *
- * ─── API CONTRACT TODO ───────────────────────────────────────────────
- * The adapter is implemented against the OpenAI images API shape.
- * When the exact ChatGPT 5.2 Image Mode endpoint contract is finalized:
- *   1. Update `IMAGE_ENGINE_BASE_URL` in .env
- *   2. Update `IMAGE_ENGINE_MODEL` in .env (currently "gpt-5.2")
- *   3. Adjust request body fields in `callImageEngine()` if schema differs
- *   4. Adjust response parsing in `parseResponse()` if schema differs
- * All other code remains unchanged.
- * ─────────────────────────────────────────────────────────────────────
+ * This adapter wraps the OpenAI Images API (/images/edits) using
+ * gpt-image-1 or gpt-image-1.5 for photo-to-art style transformations.
  */
 
 import { config } from '../config';
@@ -29,7 +19,6 @@ interface OpenAIImageResponse {
     url?: string;
     revised_prompt?: string;
   }>;
-  // Moderation signals (may be present in ChatGPT 5.2 Image Mode)
   moderation?: {
     flagged: boolean;
     categories: string[];
@@ -82,7 +71,6 @@ export class ImageEngineAdapter {
     const formData = new FormData();
 
     // Image as file blob
-    // Node.js FormData/Blob types diverge from browser — runtime behavior is correct
     const fd = formData as any;
     const BlobCtor = Blob as any;
     fd.append('image', new BlobCtor([request.image], { type: 'image/png' }), 'input.png');
@@ -93,10 +81,22 @@ export class ImageEngineAdapter {
 
     formData.append('model', request.model || this.model);
     formData.append('prompt', request.prompt);
-    formData.append('size', request.size);
-    formData.append('quality', request.quality);
-    formData.append('response_format', request.responseFormat);
     formData.append('n', '1');
+
+    // GPT Image models support: 1024x1024, 1536x1024, 1024x1536, auto
+    if (request.size && request.size !== 'auto') {
+      formData.append('size', request.size);
+    }
+
+    // Quality: low, medium, high, auto
+    formData.append('quality', request.quality);
+
+    // input_fidelity: "high" preserves facial features and identity during edits
+    formData.append('input_fidelity', request.inputFidelity);
+
+    // GPT Image models always return base64 — no response_format needed
+    // Explicitly request PNG output
+    formData.append('output_format', 'png');
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);

@@ -55,12 +55,16 @@ export function composePrompt(
     }
   }
 
-  // Negative constraints as a unified block
+  // Negative constraints as a unified block — repeat preservation for emphasis
   const negBlock = recipe.negativeConstraints
     .map((c) => `- ${c}`)
     .join('\n');
 
-  const userPrompt = parts.join('\n') + `\n\nIMPORTANT CONSTRAINTS:\n${negBlock}`;
+  const userPrompt = parts.join('\n') +
+    `\n\nCRITICAL CONSTRAINTS — you MUST follow these:\n${negBlock}` +
+    `\n- Do not add any text, watermarks, or logos` +
+    `\n- Do not introduce new objects or people not in the original photo` +
+    `\n- Preserve the original composition and framing`;
 
   return {
     systemPrompt: recipe.systemPrompt,

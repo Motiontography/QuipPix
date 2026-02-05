@@ -72,9 +72,9 @@ const COLOR_MOODS: { value: ColorMood; label: string }[] = [
 ];
 
 const OUTPUT_SIZES = [
-  { value: '1024x1024', label: 'Standard (1K)', pro: false },
-  { value: '2048x2048', label: 'High-Res (2K)', pro: true },
-  { value: '4096x4096', label: 'Ultra (4K)', pro: true },
+  { value: '1024x1024', label: 'Square (1024)', pro: false },
+  { value: '1536x1024', label: 'Landscape', pro: true },
+  { value: '1024x1536', label: 'Portrait', pro: true },
 ];
 
 export default function CustomizeScreen() {

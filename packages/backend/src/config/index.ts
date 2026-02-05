@@ -27,7 +27,7 @@ export const config = {
   imageEngine: {
     apiKey: env('IMAGE_ENGINE_API_KEY', 'sk-placeholder'),
     baseUrl: env('IMAGE_ENGINE_BASE_URL', 'https://api.openai.com/v1'),
-    model: env('IMAGE_ENGINE_MODEL', 'gpt-5.2'),
+    model: env('IMAGE_ENGINE_MODEL', 'gpt-image-1'),
     timeoutMs: envInt('IMAGE_ENGINE_TIMEOUT_MS', 120_000),
   },
 
