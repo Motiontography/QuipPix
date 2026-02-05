@@ -34,7 +34,8 @@ interface ProState {
   loadProState: () => Promise<void>;
 }
 
-const DAILY_LIMIT = 5;
+// TODO: Set back to 5 before App Store release
+const DAILY_LIMIT = 99999;
 
 export const useProStore = create<ProState>((set, get) => ({
   entitlement: { proActive: false, proType: null, expiresAt: null },
