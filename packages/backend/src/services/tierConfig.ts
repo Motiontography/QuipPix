@@ -12,8 +12,9 @@ export const FREE_STYLES: StyleId[] = [
   'watercolor',
 ];
 
-// ─── Pro-only styles (13) ────────────────────────────────────────────
+// ─── Pro-only styles (14) ────────────────────────────────────────────
 export const PRO_ONLY_STYLES: StyleId[] = [
+  'insta-glam',
   'story-portrait-collage',
   'story-portrait-minimal',
   'motiontography-golden',

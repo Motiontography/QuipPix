@@ -22,7 +22,8 @@ export type StyleId =
   | 'motiontography-dramatic'
   | 'story-portrait'
   | 'story-portrait-collage'
-  | 'story-portrait-minimal';
+  | 'story-portrait-minimal'
+  | 'insta-glam';
 
 // ─── Style Pack ──────────────────────────────────────────────────────
 export interface StylePack {
@@ -94,11 +95,21 @@ export interface StoryPortraitOptions {
   extras: string;
 }
 
+export interface InstaModelOptions {
+  outfit: string;
+  setting: string;
+  makeupStyle: string;
+  hairStyle: string;
+  accessories: string;
+  mood: string;
+}
+
 export interface StyleSpecificOptions {
   comic?: ComicOptions;
   magazine?: MagazineOptions;
   headshot?: HeadshotOptions;
   storyPortrait?: StoryPortraitOptions;
+  instaModel?: InstaModelOptions;
 }
 
 // ─── Generation ──────────────────────────────────────────────────────

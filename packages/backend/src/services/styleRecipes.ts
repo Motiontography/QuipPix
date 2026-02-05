@@ -557,6 +557,99 @@ Keep the composition clean and focused on the subject. Use a soft, blurred or mi
       };
     },
   },
+  // ─── Insta Glam (Photorealistic Instagram Model Transformation) ────
+  'insta-glam': {
+    styleId: 'insta-glam',
+    displayName: 'Insta Glam',
+    systemPrompt: `You are an expert high-end beauty and fashion photographer specializing in photorealistic portrait retouching and styling. Transform the provided selfie/photo into a magazine-quality Instagram model photo. The result MUST be PHOTOREALISTIC — this is NOT an illustration, cartoon, or painting. The subject's face, bone structure, features, and skin tone MUST be EXACTLY preserved. This must look unmistakably like the same person, just professionally styled, lit, and photographed. Do not produce NSFW, violent, hateful, or illegal content.`,
+    userPromptTemplate: `Transform this selfie into a stunning, high-end Instagram model photo. This must be PHOTOREALISTIC — a real photograph, not an illustration or painting.
+
+CRITICAL: The subject's face must be EXACTLY the same person. Same bone structure, same eyes, same nose, same lips, same skin tone, same facial proportions. The only changes are styling, lighting, and professional beauty retouching.
+
+BEAUTY RETOUCHING:
+- Professional frequency-separation skin retouching: smooth blemishes while preserving natural skin texture and pores
+- Perfectly defined, groomed eyebrows
+- {MAKEUP_BLOCK}
+- Healthy, radiant skin with natural glow — no plastic or airbrushed look
+- Subtle contouring with highlight and shadow to enhance bone structure
+- Bright, clear eyes with catchlights
+
+{HAIR_BLOCK}
+
+{OUTFIT_BLOCK}
+
+{SETTING_BLOCK}
+
+{ACCESSORIES_BLOCK}
+
+LIGHTING:
+Professional studio-quality lighting: soft beauty key light positioned slightly above center, subtle fill to prevent harsh shadows, rim/hair light for subject separation from background. Shallow depth of field with the face tack-sharp.
+
+MOOD: {MOOD_BLOCK}
+
+The overall quality should be indistinguishable from a real professional photoshoot published in a fashion magazine or top-tier Instagram influencer page. Shot on a high-end full-frame camera with an 85mm f/1.4 lens. {INTENSITY} glamour enhancement. {DETAIL}. {FACE_FIDELITY}. {KEEP_IDENTITY} {PRESERVE_SKIN}`,
+    negativeConstraints: [
+      'NEVER change the subject facial bone structure, eye shape, nose shape, or lip shape',
+      'NEVER lighten or darken the skin tone — preserve it exactly',
+      'No illustration, cartoon, painting, or digital art style — must be photorealistic',
+      'No plastic, wax-figure, or uncanny-valley skin — keep natural texture',
+      'No overly sexualized poses or content',
+      'No brand logos or trademarked items',
+      'Do not make the subject look like a different person',
+    ],
+    outputRequirements: {
+      defaultSize: '1024x1536',
+      format: 'png',
+      identityPriority: 'high',
+      textLegibility: false,
+    },
+    parameterMapping: (s, t, opts) => {
+      const im = opts?.instaModel;
+      const makeupStyle = im?.makeupStyle || 'Natural Glam';
+      const makeupMap: Record<string, string> = {
+        'Natural Glam': 'Subtle, natural-looking makeup with dewy skin, soft bronzer, neutral lip, and light mascara — the "effortlessly beautiful" look',
+        'Soft Glam': 'Soft glam makeup: smokey neutral eyeshadow, defined brows, subtle contour, nude-pink lip gloss, wispy lashes',
+        'Full Glam': 'Full glam makeup: dramatic winged eyeliner, voluminous false lashes, sculpted contour and highlight, bold lip color, flawless matte-to-dewy foundation',
+        'Editorial': 'High-fashion editorial makeup: avant-garde color placement, graphic liner, sculpted cheekbones, bold artistic choices that photograph stunningly',
+        'No Makeup': 'Minimal to no visible makeup — just flawless, naturally radiant skin with professional lighting. Clean, fresh-faced beauty',
+      };
+
+      const hairStyle = im?.hairStyle || 'As-Is';
+      const hairMap: Record<string, string> = {
+        'As-Is': 'Keep the subject\'s current hairstyle but make it look perfectly styled and salon-fresh',
+        'Styled Waves': 'Glamorous, voluminous loose waves with body and shine — classic Hollywood blowout',
+        'Sleek Straight': 'Sleek, pin-straight glossy hair with a glass-like shine',
+        'Updo': 'Elegant updo or chignon with face-framing tendrils, polished and sophisticated',
+        'Natural Curls': 'Beautiful, defined natural curls or coils with shine and volume — celebrating natural texture',
+      };
+
+      const mood = im?.mood || 'Confident';
+      const moodMap: Record<string, string> = {
+        'Confident': 'Confident and powerful — strong eye contact, poised posture, commanding presence',
+        'Sultry': 'Sultry and alluring — smoldering gaze, soft parted lips, warm intimate lighting',
+        'Playful': 'Playful and fun — bright eyes, genuine smile, energetic and approachable',
+        'Fierce': 'Fierce and bold — intense gaze, strong angles, dramatic lighting and shadows',
+        'Elegant': 'Elegant and graceful — serene expression, soft lighting, timeless sophistication',
+        'Editorial': 'Editorial and avant-garde — striking pose, artistic composition, high-fashion attitude',
+      };
+
+      return {
+        ...defaultParamMapping(s, t),
+        MAKEUP_BLOCK: makeupMap[makeupStyle] || makeupMap['Natural Glam'],
+        HAIR_BLOCK: `HAIR: ${hairMap[hairStyle] || hairMap['As-Is']}`,
+        OUTFIT_BLOCK: im?.outfit
+          ? `OUTFIT/STYLING: Dress the subject in: ${im.outfit}. The clothing should fit perfectly and look high-quality, designer-level.`
+          : 'OUTFIT/STYLING: Elevate the subject\'s current outfit to look polished and Instagram-ready, or dress them in stylish, on-trend fashion.',
+        SETTING_BLOCK: im?.setting
+          ? `SETTING/BACKGROUND: ${im.setting}. The background should complement the subject with beautiful bokeh and professional composition.`
+          : 'SETTING/BACKGROUND: Clean, flattering background with soft bokeh — studio backdrop, luxury interior, or golden-hour outdoor setting.',
+        ACCESSORIES_BLOCK: im?.accessories
+          ? `ACCESSORIES: Include these accessories: ${im.accessories}. They should look high-end and complement the overall look.`
+          : '',
+        MOOD_BLOCK: moodMap[mood] || moodMap['Confident'],
+      };
+    },
+  },
 };
 
 export function getRecipe(styleId: StyleId): StyleRecipe {

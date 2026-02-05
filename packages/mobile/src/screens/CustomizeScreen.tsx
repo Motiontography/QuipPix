@@ -28,6 +28,7 @@ import {
   MagazineOptions,
   HeadshotOptions,
   StoryPortraitOptions,
+  InstaModelOptions,
   ProSliders,
 } from '../types';
 import { getStylePack } from '../services/stylePacks';
@@ -55,6 +56,7 @@ interface CustomizeState {
   magazineOpts: MagazineOptions;
   headshotOpts: HeadshotOptions;
   storyOpts: StoryPortraitOptions;
+  instaOpts: InstaModelOptions;
 }
 
 const DEFAULT_CUSTOMIZE_STATE: CustomizeState = {
@@ -65,11 +67,24 @@ const DEFAULT_CUSTOMIZE_STATE: CustomizeState = {
   magazineOpts: { mastheadText: 'QUIPPIX', coverLines: [''], issueDate: '', showBarcode: true },
   headshotOpts: { backdropColor: '#E8E8E8', softness: 40, vignette: 20 },
   storyOpts: { occupation: '', hobbies: [], heritage: '', vibe: '', extras: '' },
+  instaOpts: { outfit: '', setting: '', makeupStyle: 'Natural Glam', hairStyle: 'As-Is', accessories: '', mood: 'Confident' },
 };
 
 const VIBE_PRESETS = [
   'Boss Energy', 'Chill Vibes', 'Adventurer', 'Creative Soul',
   'Nerd Life', 'Hustler', 'Dreamer', 'Fitness Junkie',
+];
+
+const MAKEUP_PRESETS = ['Natural Glam', 'Soft Glam', 'Full Glam', 'Editorial', 'No Makeup'];
+const HAIR_PRESETS = ['As-Is', 'Styled Waves', 'Sleek Straight', 'Updo', 'Natural Curls'];
+const MOOD_PRESETS = ['Confident', 'Sultry', 'Playful', 'Fierce', 'Elegant', 'Editorial'];
+const SETTING_PRESETS = [
+  'Studio with soft backdrop',
+  'Luxury penthouse',
+  'Golden hour outdoors',
+  'City rooftop at sunset',
+  'Beach / tropical',
+  'Paris café',
 ];
 
 const COLOR_MOODS: { value: ColorMood; label: string }[] = [
@@ -105,6 +120,7 @@ export default function CustomizeScreen() {
     magazineOpts: prefillParams.styleOptions?.magazine || DEFAULT_CUSTOMIZE_STATE.magazineOpts,
     headshotOpts: prefillParams.styleOptions?.headshot || DEFAULT_CUSTOMIZE_STATE.headshotOpts,
     storyOpts: prefillParams.styleOptions?.storyPortrait || DEFAULT_CUSTOMIZE_STATE.storyOpts,
+    instaOpts: prefillParams.styleOptions?.instaModel || DEFAULT_CUSTOMIZE_STATE.instaOpts,
   } : {
     sliders: { ...lastSliders },
     toggles: { ...lastToggles },
@@ -113,11 +129,13 @@ export default function CustomizeScreen() {
     magazineOpts: DEFAULT_CUSTOMIZE_STATE.magazineOpts,
     headshotOpts: DEFAULT_CUSTOMIZE_STATE.headshotOpts,
     storyOpts: DEFAULT_CUSTOMIZE_STATE.storyOpts,
+    instaOpts: DEFAULT_CUSTOMIZE_STATE.instaOpts,
   };
 
   const { state: customizeState, setState: setCustomizeState, undo, redo, reset, canUndo, canRedo } = useUndoStack<CustomizeState>({ initialState });
-  const { sliders, toggles, proSliders, comicOpts, magazineOpts, headshotOpts, storyOpts } = customizeState;
+  const { sliders, toggles, proSliders, comicOpts, magazineOpts, headshotOpts, storyOpts, instaOpts } = customizeState;
   const isStoryPortrait = styleId.startsWith('story-portrait');
+  const isInstaGlam = styleId === 'insta-glam';
 
   // Non-undoable state
   const [userPrompt, setUserPrompt] = useState(prefillParams?.userPrompt || '');
@@ -152,6 +170,7 @@ export default function CustomizeScreen() {
     if (styleId === 'magazine-cover') styleOptions.magazine = magazineOpts;
     if (styleId === 'pro-headshot') styleOptions.headshot = headshotOpts;
     if (isStoryPortrait) styleOptions.storyPortrait = storyOpts;
+    if (isInstaGlam) styleOptions.instaModel = instaOpts;
 
     saveLastSettings(sliders, toggles, styleOptions);
 
@@ -179,7 +198,7 @@ export default function CustomizeScreen() {
         challengeId,
       });
     }
-  }, [sliders, toggles, userPrompt, comicOpts, magazineOpts, headshotOpts, storyOpts, proSliders, outputSize, styleId, imageUri, challengeId, navigation, saveLastSettings]);
+  }, [sliders, toggles, userPrompt, comicOpts, magazineOpts, headshotOpts, storyOpts, instaOpts, proSliders, outputSize, styleId, imageUri, challengeId, navigation, saveLastSettings]);
 
   const styles = useMemo(() => StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
@@ -785,6 +804,96 @@ export default function CustomizeScreen() {
             </View>
           )}
 
+          {/* Insta Glam customization */}
+          {isInstaGlam && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Customize Your Glam</Text>
+
+              <Text style={styles.sliderLabel}>Makeup Style</Text>
+              <View style={styles.moodRow}>
+                {MAKEUP_PRESETS.map((m) => (
+                  <TouchableOpacity
+                    key={m}
+                    style={[styles.moodChip, instaOpts.makeupStyle === m && styles.moodChipActive]}
+                    onPress={() => setCustomizeState((prev) => ({ ...prev, instaOpts: { ...prev.instaOpts, makeupStyle: m } }))}
+                  >
+                    <Text style={[styles.moodText, instaOpts.makeupStyle === m && styles.moodTextActive]}>{m}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.sliderLabel}>Hair Style</Text>
+              <View style={styles.moodRow}>
+                {HAIR_PRESETS.map((h) => (
+                  <TouchableOpacity
+                    key={h}
+                    style={[styles.moodChip, instaOpts.hairStyle === h && styles.moodChipActive]}
+                    onPress={() => setCustomizeState((prev) => ({ ...prev, instaOpts: { ...prev.instaOpts, hairStyle: h } }))}
+                  >
+                    <Text style={[styles.moodText, instaOpts.hairStyle === h && styles.moodTextActive]}>{h}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.sliderLabel}>Mood / Vibe</Text>
+              <View style={styles.moodRow}>
+                {MOOD_PRESETS.map((m) => (
+                  <TouchableOpacity
+                    key={m}
+                    style={[styles.moodChip, instaOpts.mood === m && styles.moodChipActive]}
+                    onPress={() => setCustomizeState((prev) => ({ ...prev, instaOpts: { ...prev.instaOpts, mood: m } }))}
+                  >
+                    <Text style={[styles.moodText, instaOpts.mood === m && styles.moodTextActive]}>{m}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.sliderLabel}>Outfit / Clothing</Text>
+              <TextInput
+                style={styles.textField}
+                value={instaOpts.outfit}
+                onChangeText={(text) => setCustomizeState((prev) => ({ ...prev, instaOpts: { ...prev.instaOpts, outfit: text } }))}
+                maxLength={200}
+                placeholder="e.g., Red evening gown, White blazer & heels, Streetwear..."
+                placeholderTextColor={colors.textMuted}
+              />
+
+              <Text style={styles.sliderLabel}>Setting / Background</Text>
+              <View style={styles.moodRow}>
+                {SETTING_PRESETS.map((s) => (
+                  <TouchableOpacity
+                    key={s}
+                    style={[styles.moodChip, instaOpts.setting === s && styles.moodChipActive]}
+                    onPress={() => setCustomizeState((prev) => ({
+                      ...prev,
+                      instaOpts: { ...prev.instaOpts, setting: prev.instaOpts.setting === s ? '' : s },
+                    }))}
+                  >
+                    <Text style={[styles.moodText, instaOpts.setting === s && styles.moodTextActive]}>{s}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <TextInput
+                style={styles.textField}
+                value={SETTING_PRESETS.includes(instaOpts.setting) ? '' : instaOpts.setting}
+                onChangeText={(text) => setCustomizeState((prev) => ({ ...prev, instaOpts: { ...prev.instaOpts, setting: text } }))}
+                maxLength={150}
+                placeholder="Or type your own setting..."
+                placeholderTextColor={colors.textMuted}
+              />
+
+              <Text style={styles.sliderLabel}>Accessories</Text>
+              <TextInput
+                style={styles.textField}
+                value={instaOpts.accessories}
+                onChangeText={(text) => setCustomizeState((prev) => ({ ...prev, instaOpts: { ...prev.instaOpts, accessories: text } }))}
+                maxLength={200}
+                placeholder="e.g., Gold hoop earrings, designer sunglasses, diamond necklace..."
+                placeholderTextColor={colors.textMuted}
+              />
+            </View>
+          )}
+
           {/* Daily limit banner near generate */}
           {isDailyLimitReached() || !isPro ? <DailyLimitBanner /> : null}
 
@@ -838,6 +947,7 @@ export default function CustomizeScreen() {
                         magazineOpts: preset.styleOptions?.magazine || DEFAULT_CUSTOMIZE_STATE.magazineOpts,
                         headshotOpts: preset.styleOptions?.headshot || DEFAULT_CUSTOMIZE_STATE.headshotOpts,
                         storyOpts: preset.styleOptions?.storyPortrait || DEFAULT_CUSTOMIZE_STATE.storyOpts,
+                        instaOpts: preset.styleOptions?.instaModel || DEFAULT_CUSTOMIZE_STATE.instaOpts,
                       });
                       trackEvent('preset_loaded', { presetId: preset.id });
                       setShowPresetPicker(false);
@@ -890,6 +1000,7 @@ export default function CustomizeScreen() {
                 if (styleId === 'magazine-cover') styleOpts.magazine = magazineOpts;
                 if (styleId === 'pro-headshot') styleOpts.headshot = headshotOpts;
                 if (isStoryPortrait) styleOpts.storyPortrait = storyOpts;
+                if (isInstaGlam) styleOpts.instaModel = instaOpts;
                 addPreset(name, sliders, toggles, Object.keys(styleOpts).length > 0 ? styleOpts : undefined);
                 triggerHaptic('success');
                 trackEvent('preset_saved');

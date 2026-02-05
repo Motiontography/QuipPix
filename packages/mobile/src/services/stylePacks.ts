@@ -64,6 +64,17 @@ export const stylePacks: StylePack[] = [
     previewColor: '#6B2D5B',
     proOnly: true,
   },
+  // ─── Insta Glam ─────────────────────────────────────────────────────
+  {
+    id: 'insta-glam',
+    displayName: 'Insta Glam',
+    category: 'Pro',
+    icon: '\u{1F4F8}',
+    thumbnail: styleAssets['insta-glam'],
+    description: 'High-end Instagram model photoshoot — fully customizable glam',
+    previewColor: '#E84393',
+    proOnly: true,
+  },
   // ─── Other Styles ─────────────────────────────────────────────────
   {
     id: 'caricature-classic',

@@ -22,4 +22,5 @@ export const styleAssets: Record<string, ImageSourcePropType> = {
   'pro-headshot': require('./pro-headshot.png'),
   'dreamy-portrait': require('./dreamy-portrait.png'),
   'editorial-fashion': require('./editorial-fashion.png'),
+  'insta-glam': require('./insta-glam.png'),
 };

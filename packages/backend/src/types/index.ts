@@ -23,6 +23,7 @@ export const StyleId = z.enum([
   'story-portrait',
   'story-portrait-collage',
   'story-portrait-minimal',
+  'insta-glam',
 ]);
 export type StyleId = z.infer<typeof StyleId>;
 
@@ -70,12 +71,22 @@ export const StoryPortraitOptions = z.object({
   extras: z.string().max(200).default(''),
 });
 
+export const InstaModelOptions = z.object({
+  outfit: z.string().max(200).default(''),
+  setting: z.string().max(150).default(''),
+  makeupStyle: z.string().max(50).default('Natural Glam'),
+  hairStyle: z.string().max(50).default('As-Is'),
+  accessories: z.string().max(200).default(''),
+  mood: z.string().max(50).default('Confident'),
+});
+
 export const StyleSpecificOptions = z
   .object({
     comic: ComicOptions.optional(),
     magazine: MagazineOptions.optional(),
     headshot: HeadshotOptions.optional(),
     storyPortrait: StoryPortraitOptions.optional(),
+    instaModel: InstaModelOptions.optional(),
   })
   .optional();
 
