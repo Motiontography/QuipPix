@@ -1,51 +1,15 @@
 import { useCallback } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList, StyleId } from '../types';
-import { useProStore } from '../store/useProStore';
-import { useAppStore } from '../store/useAppStore';
-import { isProStyle, isProSize } from '../services/tierConfig';
+import { StyleId } from '../types';
 
-type Nav = NativeStackNavigationProp<RootStackParamList>;
-
+/**
+ * All features are now available to everyone.
+ * Credits are the only gate (checked at generation time).
+ */
 export function usePaywallGuard() {
-  const navigation = useNavigation<Nav>();
-  const entitlement = useProStore((s) => s.entitlement);
-  const devMode = useAppStore((s) => s.devModeEnabled);
-  const isPro = entitlement.proActive || devMode;
+  const guardStyle = useCallback((_styleId: StyleId): boolean => true, []);
+  const guardExport = useCallback((_size: string): boolean => true, []);
+  const guardSlider = useCallback((_name: string): boolean => true, []);
+  const guardBatch = useCallback((): boolean => true, []);
 
-  const guardStyle = useCallback(
-    (styleId: StyleId): boolean => {
-      if (isPro || !isProStyle(styleId)) return true;
-      navigation.navigate('Paywall', { trigger: 'style_select', context: styleId });
-      return false;
-    },
-    [isPro, navigation],
-  );
-
-  const guardExport = useCallback(
-    (size: string): boolean => {
-      if (isPro || !isProSize(size)) return true;
-      navigation.navigate('Paywall', { trigger: 'export_size', context: size });
-      return false;
-    },
-    [isPro, navigation],
-  );
-
-  const guardSlider = useCallback(
-    (name: string): boolean => {
-      if (isPro) return true;
-      navigation.navigate('Paywall', { trigger: 'pro_slider', context: name });
-      return false;
-    },
-    [isPro, navigation],
-  );
-
-  const guardBatch = useCallback((): boolean => {
-    if (isPro) return true;
-    navigation.navigate('Paywall', { trigger: 'batch_process' });
-    return false;
-  }, [isPro, navigation]);
-
-  return { isPro, guardStyle, guardExport, guardSlider, guardBatch };
+  return { isPro: true, guardStyle, guardExport, guardSlider, guardBatch };
 }

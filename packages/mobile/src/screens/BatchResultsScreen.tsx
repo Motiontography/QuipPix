@@ -34,7 +34,7 @@ export default function BatchResultsScreen() {
   const { results, params } = route.params;
   const stylePack = getStylePack(params.styleId);
   const { addToGallery, watermarkEnabled } = useAppStore();
-  const entitlement = useProStore((s) => s.entitlement);
+  // All features unlocked — credits are the only gate
   const [showExportSheet, setShowExportSheet] = useState(false);
 
   const totalRequested = results.length;
@@ -251,7 +251,7 @@ export default function BatchResultsScreen() {
         onClose={() => setShowExportSheet(false)}
         onExport={handleBatchExportConfirm}
         defaultWatermark={watermarkEnabled}
-        isPro={entitlement.proActive}
+        isPro={true}
       />
     </SafeAreaView>
   );

@@ -1,19 +1,18 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Entitlement } from '../services/purchases';
-import { getEntitlement } from '../services/purchases';
 import { api } from '../api/client';
 import { useAppStore } from './useAppStore';
 
 const PRO_STORAGE_KEY = '@quippix/pro';
 
 interface ProState {
-  // Entitlement (kept for Pro features like HD export, priority queue)
+  // Entitlement kept as no-op for backward compat (no Pro tier anymore)
   entitlement: Entitlement;
   setEntitlement: (ent: Entitlement) => void;
   refreshEntitlement: () => Promise<void>;
 
-  // Credits system
+  // Credits system — the only monetization gate
   credits: number;
   setCredits: (credits: number) => void;
   refreshCredits: () => Promise<void>;
@@ -32,22 +31,10 @@ interface ProState {
 }
 
 export const useProStore = create<ProState>((set, get) => ({
+  // No Pro tier — entitlement is always inactive
   entitlement: { proActive: false, proType: null, expiresAt: null },
-
-  setEntitlement: (ent: Entitlement) => {
-    set({ entitlement: ent });
-    api.setTier(ent.proActive ? 'pro' : 'free');
-    persist(get());
-  },
-
-  refreshEntitlement: async () => {
-    // Don't let RevenueCat override dev mode entitlement
-    if (useAppStore.getState().devModeEnabled) return;
-    const ent = await getEntitlement();
-    set({ entitlement: ent });
-    api.setTier(ent.proActive ? 'pro' : 'free');
-    persist(get());
-  },
+  setEntitlement: () => {},       // no-op
+  refreshEntitlement: async () => {}, // no-op
 
   // Credits system
   credits: 0,
@@ -114,7 +101,7 @@ export const useProStore = create<ProState>((set, get) => ({
           softUpsellDismissed: parsed.softUpsellDismissed ?? false,
         });
       }
-      // Also fetch fresh credits from server
+      // Fetch fresh credits from server
       get().refreshCredits();
     } catch {
       // Ignore parse errors

@@ -1,23 +1,12 @@
 import { StyleId } from '../types';
 
-// ─── Free styles (8) — mirrors backend ───────────────────────────────
-export const FREE_STYLES: StyleId[] = [
-  'story-portrait',
-  'motiontography-ethereal',
-  'caricature-classic',
-  'caricature-subtle',
-  'comic-book',
-  'pop-art',
-  'pencil-clean',
-  'watercolor',
-];
+// All styles and sizes are now available to everyone.
+// Credits are the only gate — 1 credit per generation.
 
-export function isProStyle(id: StyleId): boolean {
-  return !FREE_STYLES.includes(id);
+export function isProStyle(_id: StyleId): boolean {
+  return false;
 }
 
-export function isProSize(size: string): boolean {
-  return !['1024x1024'].includes(size);
+export function isProSize(_size: string): boolean {
+  return false;
 }
-
-export const PRO_SLIDERS = ['microDetail', 'studioRelight', 'backgroundPro'] as const;

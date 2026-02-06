@@ -6,7 +6,6 @@ import { logger } from '../utils/logger';
 export const CREDIT_PACKS = {
   small: { credits: 25, productId: 'quippix_credits_25' },
   medium: { credits: 100, productId: 'quippix_credits_100' },
-  large: { credits: 250, productId: 'quippix_credits_250' },
 } as const;
 
 /**
@@ -43,7 +42,6 @@ export async function creditsRoutes(app: FastifyInstance): Promise<void> {
       packs: [
         { id: 'small', credits: 25, price: '$4.99' },
         { id: 'medium', credits: 100, price: '$14.99', bestValue: true },
-        { id: 'large', credits: 250, price: '$29.99' },
       ],
     });
   });

@@ -100,7 +100,7 @@ export default function GalleryScreen() {
   const galleryHeaderRef = useRef<View>(null);
 
   const { exporting, current, total, exportItems } = useBulkExport();
-  const entitlement = useProStore((s) => s.entitlement);
+  // All features unlocked — credits are the only gate
 
   useEffect(() => {
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
@@ -940,7 +940,7 @@ export default function GalleryScreen() {
         onClose={() => setBulkExportVisible(false)}
         onExport={handleBulkExport}
         defaultWatermark={false}
-        isPro={entitlement.proActive}
+        isPro={true}
       />
 
       {/* Multi-select: selection bar */}

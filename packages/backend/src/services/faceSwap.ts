@@ -14,7 +14,10 @@ function withTimeout<T>(promise: Promise<T>, ms: number, operation: string): Pro
   ]);
 }
 
-// ─── Eligible styles for face-swap (photorealistic only) ─────────────
+// ─── Eligible styles for face-swap (portrait/face-focused styles) ────
+// Skipped: caricature-*, comic-book, pop-art, pencil-*, watercolor,
+// oil-painting, anime-inspired, story-portrait-collage (face is
+// intentionally transformed in those styles)
 const FACE_SWAP_ELIGIBLE_STYLES = new Set([
   'pro-headshot',
   'insta-glam',
@@ -23,6 +26,10 @@ const FACE_SWAP_ELIGIBLE_STYLES = new Set([
   'motiontography-dramatic',
   'editorial-fashion',
   'dreamy-portrait',
+  'magazine-cover',
+  'story-portrait',
+  'story-portrait-minimal',
+  'cyberpunk-neon',
 ]);
 
 export function isFaceSwapEligible(styleId: string): boolean {

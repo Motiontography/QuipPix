@@ -27,7 +27,6 @@ type Route = RouteProp<RootStackParamList, 'Paywall'>;
 const CREDIT_PACKS = [
   { id: 'small', credits: 25, price: '$4.99', perCredit: '$0.20' },
   { id: 'medium', credits: 100, price: '$14.99', perCredit: '$0.15', bestValue: true },
-  { id: 'large', credits: 250, price: '$29.99', perCredit: '$0.12' },
 ];
 
 export default function PaywallScreen() {
@@ -99,7 +98,6 @@ export default function PaywallScreen() {
 
   const getPackageCredits = (pkg: PurchasesPackage): number => {
     const id = pkg.identifier.toLowerCase();
-    if (id.includes('250') || id.includes('large')) return 250;
     if (id.includes('100') || id.includes('medium')) return 100;
     if (id.includes('25') || id.includes('small')) return 25;
     return 25; // default

@@ -79,7 +79,6 @@ export default function ResultScreen() {
 
   const shouldShowSoftUpsell = useProStore((s) => s.shouldShowSoftUpsell);
   const dismissSoftUpsell = useProStore((s) => s.dismissSoftUpsell);
-  const entitlement = useProStore((s) => s.entitlement);
   const currentStreak = useChallengeStore((s) => s.currentStreak);
 
   // Track comparison carousel viewed when sourceImageUri is available
@@ -539,7 +538,7 @@ export default function ResultScreen() {
         onClose={() => setShowExportSheet(false)}
         onExport={handleExportConfirm}
         defaultWatermark={watermarkEnabled}
-        isPro={entitlement.proActive}
+        isPro={true}
       />
 
       <ShareHistorySheet visible={historyVisible} onClose={() => setHistoryVisible(false)} />

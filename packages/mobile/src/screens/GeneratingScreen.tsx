@@ -53,7 +53,6 @@ export default function GeneratingScreen() {
   const reduceMotion = useReducedMotion();
   const networkQuality = useNetworkQuality();
 
-  const entitlement = useProStore((s) => s.entitlement);
   const hasCredits = useProStore((s) => s.hasCredits);
   const decrementCredits = useProStore((s) => s.decrementCredits);
   const incrementSuccessfulGenerations = useProStore((s) => s.incrementSuccessfulGenerations);
@@ -202,7 +201,7 @@ export default function GeneratingScreen() {
     return () => {
       cancelled = true;
     };
-  }, [imageUri, params, challengeId, navigation, entitlement, hasCredits, decrementCredits, incrementSuccessfulGenerations, isConnected, retryTrigger]);
+  }, [imageUri, params, challengeId, navigation, hasCredits, decrementCredits, incrementSuccessfulGenerations, isConnected, retryTrigger]);
 
   const handleRetry = () => {
     if (retryCount >= 3) {

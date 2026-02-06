@@ -36,7 +36,6 @@ export default function StatsScreen() {
   const longestStreak = useChallengeStore((s) => s.longestStreak);
   const completions = useChallengeStore((s) => s.completions);
 
-  const entitlement = useProStore((s) => s.entitlement);
   const successfulGenerations = useProStore((s) => s.successfulGenerations);
   const credits = useProStore((s) => s.credits);
 
@@ -171,21 +170,6 @@ export default function StatsScreen() {
           <Text style={styles.title}>{t('stats.title')}</Text>
           <View style={{ width: 48 }} />
         </View>
-
-        {/* Pro status */}
-        {entitlement.proActive && (
-          <LinearGradient
-            colors={[...colors.gradientPrimary]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.proGradientCard}
-          >
-            <View style={styles.proRow}>
-              <ProBadge />
-              <Text style={styles.proGradientText}>{t('stats.proMember')}</Text>
-            </View>
-          </LinearGradient>
-        )}
 
         {/* Streak section */}
         <View style={styles.section}>

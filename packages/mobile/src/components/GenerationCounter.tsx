@@ -13,7 +13,6 @@ export function GenerationCounter() {
   const { colors } = useTheme();
   const navigation = useNavigation<Nav>();
   const credits = useProStore((s) => s.credits);
-  const entitlement = useProStore((s) => s.entitlement);
 
   const handleBuyCredits = () => {
     navigation.navigate('Paywall', { trigger: 'credits_counter' });
@@ -24,11 +23,6 @@ export function GenerationCounter() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
-      {entitlement.proActive && (
-        <View style={[styles.badge, { backgroundColor: '#6C5CE7' }]}>
-          <Text style={styles.badgeText}>PRO</Text>
-        </View>
-      )}
       <View style={styles.row}>
         <View style={styles.creditsInfo}>
           <Text style={[styles.creditsAmount, { color: colors.textPrimary }]}>

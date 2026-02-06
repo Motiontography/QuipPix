@@ -1,14 +1,22 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { hasCredits, getCredits, ensureUserAndGetCredits } from '../db/repositories/userRepository';
+import { config } from '../config';
 
 /**
  * Middleware that checks if user has credits available.
  * Rejects with 402 Payment Required if no credits.
+ * Admin key bypasses credit check (for dev/testing).
  */
 export async function creditCheck(
   request: FastifyRequest,
   reply: FastifyReply,
 ): Promise<void> {
+  // Admin key bypass — lets developers test without burning credits
+  const adminKey = request.headers['x-admin-key'] as string | undefined;
+  if (adminKey && adminKey === config.admin.apiKey) {
+    return;
+  }
+
   // Use authenticated userId, fall back to IP for anonymous users
   const userId =
     request.userId ??

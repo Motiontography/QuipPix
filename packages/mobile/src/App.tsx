@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppStore } from './store/useAppStore';
 import { useProStore } from './store/useProStore';
 import { api } from './api/client';
-import { initPurchases, addEntitlementListener } from './services/purchases';
+import { initPurchases } from './services/purchases';
 import { registerForPushNotifications, onNotificationOpened } from './services/pushNotifications';
 import { initAuth } from './services/auth';
 import { initAnalytics } from './services/analytics';
@@ -19,19 +19,15 @@ import { darkColors } from './styles/theme';
 function AppContent() {
   const { colors, isDark } = useTheme();
   const loadGallery = useAppStore((s) => s.loadGallery);
-  const refreshEntitlement = useProStore((s) => s.refreshEntitlement);
-  const setEntitlement = useProStore((s) => s.setEntitlement);
   const loadProState = useProStore((s) => s.loadProState);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     Promise.all([loadGallery(), loadProState()])
       .then(async () => {
-        // If dev mode was persisted, activate pro bypass on startup
+        // If dev mode was persisted, load admin key for server-side bypass
         const devMode = useAppStore.getState().devModeEnabled;
         if (devMode) {
-          setEntitlement({ proActive: true, proType: 'lifetime', expiresAt: null });
-          // Load and set admin key for server-side bypass
           const adminKey = await AsyncStorage.getItem('@quippix/adminKey').catch(() => null);
           if (adminKey) api.setAdminKey(adminKey);
         }
@@ -39,25 +35,9 @@ function AppContent() {
       })
       .catch(() => setIsReady(true));
 
-    initPurchases()
-      .then(() => refreshEntitlement())
-      .catch(() => {});
-
-    // Listen for real-time entitlement changes (renewal, cancellation, etc.)
-    let unsubscribe = () => {};
-    try {
-      unsubscribe = addEntitlementListener((ent) => {
-        // Don't let RevenueCat listener override dev mode
-        if (!useAppStore.getState().devModeEnabled) {
-          setEntitlement(ent);
-        }
-      });
-    } catch {
-      // RevenueCat listener may fail if SDK not ready
-    }
-
-    return unsubscribe;
-  }, [loadGallery, loadProState, refreshEntitlement, setEntitlement]);
+    // Init RevenueCat for credit pack purchases
+    initPurchases().catch(() => {});
+  }, [loadGallery, loadProState]);
 
   // Analytics + Auth + Push notifications + Offline queue
   useEffect(() => {

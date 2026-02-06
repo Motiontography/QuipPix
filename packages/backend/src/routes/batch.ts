@@ -13,7 +13,7 @@ import {
 } from '../jobs/queue';
 import { tierGate } from '../middleware/tierGate';
 import { perUserRateLimit } from '../middleware/perUserRateLimit';
-import { isStyleAllowed, isSizeAllowed, OutputSize } from '../services/tierConfig';
+import { isSizeAllowed, OutputSize } from '../services/tierConfig';
 import { moderatePrompt } from '../services/moderation';
 import { config } from '../config';
 import { getDailyCount, incrementDailyCount } from '../middleware/dailyGenerationLimit';
@@ -97,20 +97,12 @@ export async function batchRoutes(app: FastifyInstance): Promise<void> {
     }
     const genRequest = parseResult.data;
 
-    // Tier gating: style
-    if (!isStyleAllowed(genRequest.styleId, request.tier)) {
-      return reply.status(403).send({
-        error: 'pro_required',
-        message: `Style "${genRequest.styleId}" requires QuipPix Pro`,
-      });
-    }
-
-    // Tier gating: output size
+    // Validate output size
     const outputSize = (genRequest.outputSize ?? '1024x1024') as OutputSize;
     if (!isSizeAllowed(outputSize, request.tier)) {
-      return reply.status(403).send({
-        error: 'pro_required',
-        message: `Output size "${outputSize}" requires QuipPix Pro`,
+      return reply.status(400).send({
+        error: 'invalid_size',
+        message: `Output size "${outputSize}" is not supported`,
       });
     }
 

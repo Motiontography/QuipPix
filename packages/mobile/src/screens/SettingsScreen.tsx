@@ -8,6 +8,7 @@ import {
   Switch,
   Linking,
   ScrollView,
+  KeyboardAvoidingView,
   Platform,
   Alert,
   TextInput,
@@ -57,8 +58,7 @@ export default function SettingsScreen() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [cacheInfo, setCacheInfo] = useState<CacheInfo | null>(null);
   const [isClearing, setIsClearing] = useState(false);
-  const entitlement = useProStore((s) => s.entitlement);
-  const setEntitlement = useProStore((s) => s.setEntitlement);
+  const credits = useProStore((s) => s.credits);
   const [notificationsOn, setNotificationsOn] = useState(false);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -89,21 +89,11 @@ export default function SettingsScreen() {
 
   const handleRestore = async () => {
     try {
-      const ent = await restorePurchases();
-      setEntitlement(ent);
-      if (ent.proActive) {
-        // Restored
-      }
+      await restorePurchases();
+      await useProStore.getState().refreshCredits();
+      Alert.alert('Restored', 'Your purchases have been restored.');
     } catch {
       // Ignore
-    }
-  };
-
-  const handleManageSubscription = () => {
-    if (Platform.OS === 'ios') {
-      Linking.openURL('https://apps.apple.com/account/subscriptions');
-    } else {
-      Linking.openURL('https://play.google.com/store/account/subscriptions');
     }
   };
 
@@ -121,7 +111,7 @@ export default function SettingsScreen() {
             try {
               await api.deleteAccount();
               clearGallery();
-              useProStore.getState().setEntitlement({ proActive: false, proType: null, expiresAt: null });
+              useProStore.getState().setCredits(0);
               await clearAuth();
               navigation.reset({ index: 0, routes: [{ name: 'Onboarding' }] });
             } catch {
@@ -259,63 +249,42 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      >
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+      >
         <Text style={styles.title} accessibilityRole="header">{t('settings.title')}</Text>
         <UpdateBanner />
 
-        {/* QuipPix Pro section */}
+        {/* Credits section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle} accessibilityRole="header">{t('settings.pro')}</Text>
-          {entitlement.proActive ? (
-            <>
-              <View style={styles.proStatusRow}>
-                <View style={styles.proBadge}>
-                  <Text style={styles.proBadgeText}>PRO</Text>
-                </View>
-                <View style={styles.proInfo}>
-                  <Text style={styles.rowLabel}>
-                    {entitlement.proType === 'lifetime'
-                      ? 'Lifetime'
-                      : entitlement.proType === 'annual'
-                      ? 'Annual'
-                      : 'Monthly'}{' '}
-                    Plan
-                  </Text>
-                  {entitlement.expiresAt && (
-                    <Text style={styles.rowDesc}>
-                      Renews: {new Date(entitlement.expiresAt).toLocaleDateString()}
-                    </Text>
-                  )}
-                </View>
-              </View>
-              <TouchableOpacity style={styles.linkRow} onPress={handleManageSubscription} accessibilityLabel="Manage Subscription" accessibilityRole="button">
-                <Text style={styles.linkLabel}>{t('settings.manageSubscription')}</Text>
-                <Text style={styles.linkArrow}>→</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.linkRow} onPress={handleRestore} accessibilityLabel="Restore Purchases" accessibilityRole="button">
-                <Text style={styles.linkLabel}>{t('settings.restorePurchases')}</Text>
-                <Text style={styles.linkArrow}>→</Text>
-              </TouchableOpacity>
-            </>
-          ) : (
-            <>
-              <Text style={styles.proPromoText}>
-                {t('settings.proPromo')}
+          <Text style={styles.sectionTitle} accessibilityRole="header">Credits</Text>
+          <View style={styles.proStatusRow}>
+            <View style={styles.proInfo}>
+              <Text style={styles.rowLabel}>
+                {credits} credit{credits !== 1 ? 's' : ''} remaining
               </Text>
-              <TouchableOpacity
-                style={styles.upgradeBtn}
-                onPress={() => navigation.navigate('Paywall', { trigger: 'settings' })}
-                accessibilityLabel="Upgrade to Pro"
-                accessibilityRole="button"
-              >
-                <Text style={styles.upgradeBtnText}>{t('settings.upgradeBtn')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.linkRow} onPress={handleRestore} accessibilityLabel="Restore Purchases" accessibilityRole="button">
-                <Text style={styles.linkLabel}>{t('settings.restorePurchases')}</Text>
-                <Text style={styles.linkArrow}>→</Text>
-              </TouchableOpacity>
-            </>
-          )}
+              <Text style={styles.rowDesc}>Each generation uses 1 credit</Text>
+            </View>
+          </View>
+          <TouchableOpacity
+            style={styles.upgradeBtn}
+            onPress={() => navigation.navigate('Paywall', { trigger: 'settings' })}
+            accessibilityLabel="Buy Credits"
+            accessibilityRole="button"
+          >
+            <Text style={styles.upgradeBtnText}>Buy Credits</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.linkRow} onPress={handleRestore} accessibilityLabel="Restore Purchases" accessibilityRole="button">
+            <Text style={styles.linkLabel}>{t('settings.restorePurchases')}</Text>
+            <Text style={styles.linkArrow}>→</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Export options */}
@@ -596,18 +565,16 @@ export default function SettingsScreen() {
             <View style={styles.row}>
               <View style={styles.rowInfo}>
                 <Text style={styles.rowLabel}>Developer Mode</Text>
-                <Text style={styles.rowDesc}>Bypass Pro paywall and daily limits for testing</Text>
+                <Text style={styles.rowDesc}>Bypass credit checks for testing</Text>
               </View>
               <Switch
                 value={devModeEnabled}
                 onValueChange={(val) => {
                   setDevModeEnabled(val);
                   if (val) {
-                    setEntitlement({ proActive: true, proType: 'lifetime', expiresAt: null });
                     if (adminKey) api.setAdminKey(adminKey);
                   } else {
                     api.setAdminKey(null);
-                    useProStore.getState().refreshEntitlement().catch(() => {});
                   }
                 }}
                 trackColor={{ false: colors.surfaceLight, true: '#E17055' }}
@@ -672,14 +639,13 @@ export default function SettingsScreen() {
             setVersionTapCount(newCount);
             if (newCount >= 7) {
               setDevModeEnabled(true);
-              setEntitlement({ proActive: true, proType: 'lifetime', expiresAt: null });
               if (adminKey) api.setAdminKey(adminKey);
               triggerHaptic('success');
               Alert.alert(
                 'Developer Mode',
                 adminKey
-                  ? 'Pro features unlocked for testing.'
-                  : 'Pro features unlocked. Enter Admin Key in Developer settings to bypass server limits.',
+                  ? 'Dev mode active. Credit checks bypassed for testing.'
+                  : 'Dev mode active. Enter Admin Key in Developer settings to bypass server limits.',
               );
               setVersionTapCount(0);
             }
@@ -689,6 +655,7 @@ export default function SettingsScreen() {
           <Text style={[styles.versionSub, { color: colors.primary, fontWeight: '600' }]}>A Motiontography Production</Text>
         </TouchableOpacity>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
